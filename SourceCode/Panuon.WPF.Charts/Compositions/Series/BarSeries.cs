@@ -9,7 +9,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class BarSeries
-        : MultipleSeriesBase
+        : SeriesBase
     {
         #region Properties
 
@@ -57,6 +57,13 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("Width", typeof(GridLength), typeof(BarSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto)));
         #endregion
 
+        #endregion
+
+        #region Overrides
+        protected override void OnRendering(IDrawingContext drawingContext,
+            IEnumerable<ICoordinate> coordinates)
+        {
+        }
         #endregion
     }
 }

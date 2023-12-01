@@ -9,20 +9,20 @@
         Title="MainWindow" Height="450" Width="800"
         Loaded="Window_Loaded">
     <Grid>
-        <pc:ChartPanel Width="300"
-                       Height="300">
+        <pc:ChartPanel x:Name="chartPanel"
+                       Width="300"
+                       Height="300"
+                       TitleMemberPath="Title">
             <pc:ChartPanel.XAxis>
                 <pc:XAxis Background="Red"/>
             </pc:ChartPanel.XAxis>
             <pc:ChartPanel.YAxis>
                 <pc:YAxis Background="Green"/>
             </pc:ChartPanel.YAxis>
-            <pc:BarSeries Fill="CadetBlue"
-                          TitleMemberPath="Title"
-                          ValueMemberPath="Value1" />
-            <pc:BarSeries Fill="LightPink"
-                          TitleMemberPath="Title"
-                          ValueMemberPath="Value2" />
+            <pc:LineSeries Stroke="CadetBlue"
+                           ValueMemberPath="Value1" />
+            <pc:LineSeries Fill="LightPink"
+                           ValueMemberPath="Value2" />
         </pc:ChartPanel>
     </Grid>
 </Window>

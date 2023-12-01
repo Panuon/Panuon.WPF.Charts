@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Panuon.WPF.Charts.Implements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
     {
         #region Fields
         private ChartPanel _chartPanel;
+
+        private readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts = 
+            new Dictionary<CoordinateImpl, FormattedText>();
         #endregion
 
         #region Ctor
@@ -43,6 +47,10 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 OnXAxisChanged));
         #endregion
 
+        #region Internal Properties
+        internal IEnumerable<CoordinateImpl> Coordinates { get; set; }
+        #endregion
+
         #endregion
 
         #region Overrides
@@ -50,7 +58,22 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            return new Size(0, 50);
+            _formattedTexts.Clear();
+
+            foreach(var coordinate in Coordinates)
+            {
+                var formattedText = new FormattedText(coordinate.Title,
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface(XAxis.FontFamily, XAxis.FontStyle, XAxis.FontWeight, XAxis.FontStretch),
+                    XAxis.FontSize,
+                    XAxis.Foreground,
+                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                _formattedTexts.Add(coordinate, formattedText);
+            }
+
+            return new Size(0, _formattedTexts.Values.Max(x => x.Height) + XAxis.Spacing + 1);
         }
         #endregion
 
@@ -60,15 +83,26 @@ namespace Panuon.WPF.Charts.Controls.Internals
         }
 
         #region OnRender
-        protected override void OnRender(DrawingContext drawingContext)
+        protected override void OnRender(DrawingContext context)
         {
-            if(XAxis == null)
+            if(XAxis == null
+                || !_chartPanel.CanCreateDrawingContext())
             {
                 return;
             }
 
-            drawingContext.DrawRectangle(XAxis.Background,
-                null, new Rect(0, 0, ActualWidth, ActualHeight));
+            var drawingContext = _chartPanel.CreateDrawingContext(context);
+
+            drawingContext.DrawLine(Brushes.Black, 1, 0, 0.5, ActualWidth, 0.5);
+            foreach(var coordinateText in _formattedTexts)
+            {
+                var coordinate = coordinateText.Key;
+                var text = coordinateText.Value;
+
+                var offsetX = drawingContext.GetOffsetX(coordinate.Index);
+
+                drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + 1);
+            }
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Panuon.WPF.Charts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,14 @@ namespace Samples
         public MainWindow()
         {
             InitializeComponent();
+            chartPanel.ItemsSource = new object[]
+            {
+                new { Title = "1", Value1 = 5, Value2 = 4, },
+                new { Title = "2", Value1 = 1, Value2 = 2, },
+                new { Title = "3", Value1 = 7, Value2 = 4, },
+                new { Title = "4", Value1 = 8, Value2 = 5 },
+                new { Title = "5", Value1 = 4, Value2 = 6 },
+            };
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

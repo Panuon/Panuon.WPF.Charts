@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Panuon.WPF.Charts.Implements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -43,6 +44,14 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 OnYAxisChanged));
         #endregion
 
+        #region Internal Properties
+        internal IEnumerable<CoordinateImpl> Coordinates { get; set; }
+
+        internal double MinValue { get; set; }
+
+        internal double MaxValue { get; set; }
+        #endregion
+
         #endregion
 
         #region Overrides
@@ -62,7 +71,8 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region OnRender
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (YAxis == null)
+            if (YAxis == null
+                || !_chartPanel.CanCreateDrawingContext())
             {
                 return;
             }

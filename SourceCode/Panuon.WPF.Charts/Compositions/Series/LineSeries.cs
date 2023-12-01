@@ -1,10 +1,11 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public class LineSeries
-        : MultipleSeriesBase
+        : SeriesBase
     {
         #region Properties
 
@@ -52,6 +53,30 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("Radius", typeof(double), typeof(LineSeries), new PropertyMetadata(4d));
         #endregion
 
+        #endregion
+
+        #region Overrides
+        protected override void OnRendering(IDrawingContext drawingContext,
+            IEnumerable<ICoordinate> coordinates)
+        {
+            ICoordinate lastCoordinate = null;
+            foreach (var coordinate in coordinates)
+            {
+                if (lastCoordinate != null)
+                {
+                    var lastValue = lastCoordinate.GetValue(this);
+                    var value = coordinate.GetValue(this);
+
+                    drawingContext.DrawLine(Stroke, StrokeThickness,
+                        drawingContext.GetOffsetX(lastCoordinate.Index),
+                        drawingContext.GetOffsetY(lastValue),
+                        drawingContext.GetOffsetX(coordinate.Index),
+                        drawingContext.GetOffsetY(value));
+                }
+
+                lastCoordinate = coordinate;
+            }
+        }
         #endregion
     }
 }
