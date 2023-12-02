@@ -12,17 +12,20 @@
         <pc:ChartPanel x:Name="chartPanel"
                        Width="300"
                        Height="300"
+                       ItemsSource="{Binding Items}"
                        TitleMemberPath="Title">
             <pc:ChartPanel.XAxis>
-                <pc:XAxis Background="Red"/>
+                <pc:XAxis Background="#55FF0000"/>
             </pc:ChartPanel.XAxis>
             <pc:ChartPanel.YAxis>
-                <pc:YAxis Background="Green"/>
+                <pc:YAxis Background="#550000FF"/>
             </pc:ChartPanel.YAxis>
-            <pc:LineSeries Stroke="CadetBlue"
-                           ValueMemberPath="Value1" />
-            <pc:LineSeries Fill="LightPink"
-                           ValueMemberPath="Value2" />
+            <pc:ChartPanel.Series>
+                <pc:LineSeries Stroke="MediumPurple"
+                               ValueMemberPath="Value1" />
+                <pc:LineSeries Fill="LightPink"
+                               ValueMemberPath="Value2" />
+            </pc:ChartPanel.Series>
         </pc:ChartPanel>
     </Grid>
 </Window>

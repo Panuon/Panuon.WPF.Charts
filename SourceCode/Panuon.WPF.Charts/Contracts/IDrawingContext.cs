@@ -4,21 +4,20 @@ namespace Panuon.WPF.Charts
 {
     public interface IDrawingContext
     {
-
-        double AreaWidth { get; }
-
-        double AreaHeight { get; }
-
-        double GetOffsetX(int index);
-
-        double GetOffsetY(double value);
-
         void DrawLine(Brush stroke,
             double strokeThickness,
             double startX,
             double startY,
             double endX,
             double endY);
+
+        void DrawEllipse(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double radiusX,
+            double radiusY,
+            double startX,
+            double startY);
 
         void DrawGeometry(Geometry geometry,
             Brush stroke,

@@ -9,47 +9,16 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
         private DrawingContext _drawingContext;
-
-        private int _totalIndex;
-        private double _minValue;
-        private double _maxValue;
         #endregion
 
         #region Ctor
-        internal WPFDrawingContextImpl(DrawingContext drawingContext,
-            double areaWidth,
-            double areaHeight,
-            int totalIndex,
-            double minValue,
-            double maxValue)
+        internal WPFDrawingContextImpl(DrawingContext drawingContext)
         {
             _drawingContext = drawingContext;
-            AreaWidth = areaWidth;
-            AreaHeight = areaHeight;
-            _totalIndex = totalIndex;
-            _minValue = minValue;
-            _maxValue = maxValue;
         }
-        #endregion
-
-        #region Properties
-        public double AreaWidth { get; set; }
-
-        public double AreaHeight { get; set; }
         #endregion
 
         #region Methods
-        public double GetOffsetX(int index)
-        {
-            var deltaX = AreaWidth / _totalIndex;
-            return (index + 0.5) * deltaX;
-        }
-
-        public double GetOffsetY(double value)
-        {
-            return AreaHeight - AreaHeight * ((value - _minValue) / (_maxValue - _minValue));
-        }
-
         public void DrawGeometry(Geometry geometry, Brush stroke, double strokeThickness)
         {
             throw new NotImplementedException();
@@ -62,9 +31,26 @@ namespace Panuon.WPF.Charts
             double endX,
             double endY)
         {
-            var pen = new Pen(stroke, strokeThickness);
-            pen.Freeze();
+            var pen = stroke == null || strokeThickness <= 0
+                ? null
+                : new Pen(stroke, strokeThickness);
+            pen?.Freeze();
             _drawingContext.DrawLine(pen, new Point(startX, startY), new Point(endX, endY));
+        }
+
+        public void DrawEllipse(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double radiusX,
+            double radiusY,
+            double offsetX,
+            double offsetY)
+        {
+            var pen = stroke == null || strokeThickness <= 0
+                ? null
+                : new Pen(stroke, strokeThickness);
+            pen?.Freeze();
+            _drawingContext.DrawEllipse(fill, pen, new Point(offsetX, offsetY), radiusX, radiusY);
         }
 
         public void DrawText(FormattedText text, 

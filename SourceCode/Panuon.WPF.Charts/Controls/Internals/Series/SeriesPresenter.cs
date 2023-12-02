@@ -37,13 +37,17 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             if (Series == null
                 || _seriesPanel.Coordinates == null
-                || !_chartPanel.CanCreateDrawingContext())
+                || !_chartPanel.IsCanvasReady())
             {
                 return;
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            Series.Render(drawingContext, _seriesPanel.Coordinates);
+            var canvasContext = _chartPanel.CreateCanvasContext();
+
+            Series.Render(drawingContext,
+                canvasContext,
+                _seriesPanel.Coordinates);
         }
         #endregion
 

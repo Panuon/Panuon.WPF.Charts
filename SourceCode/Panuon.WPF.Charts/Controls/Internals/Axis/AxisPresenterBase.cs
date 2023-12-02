@@ -11,6 +11,21 @@ namespace Panuon.WPF.Charts.Controls.Internals
     internal class AxisPresenterBase
         : FrameworkElement
     {
+        public static readonly DependencyProperty StrokeProperty =
+           DependencyProperty.RegisterAttached("Stroke", typeof(Brush), typeof(AxisPresenterBase), new FrameworkPropertyMetadata(Brushes.Black,
+               FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+           DependencyProperty.RegisterAttached("StrokeThickness", typeof(double), typeof(AxisPresenterBase), new FrameworkPropertyMetadata(1d,
+               FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty TicksSizeProperty =
+           DependencyProperty.RegisterAttached("TicksSize", typeof(double), typeof(AxisPresenterBase), new FrameworkPropertyMetadata(3d,
+               FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+        public static readonly DependencyProperty TicksBrushProperty =
+          DependencyProperty.RegisterAttached("icksBrush", typeof(Brush), typeof(AxisPresenterBase), new FrameworkPropertyMetadata(Brushes.Black,
+              FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
 
         public static readonly DependencyProperty FontWeightProperty =
             DependencyProperty.RegisterAttached("FontWeight", typeof(FontWeight), typeof(AxisPresenterBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontWeight,

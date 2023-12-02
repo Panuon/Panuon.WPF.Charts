@@ -63,12 +63,6 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
             return base.ArrangeOverride(finalSize);
         }
-
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-
-        }
-
         #endregion
 
         #region Methods

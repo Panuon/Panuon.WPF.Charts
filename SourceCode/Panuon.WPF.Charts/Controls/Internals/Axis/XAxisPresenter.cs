@@ -16,7 +16,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Fields
         private ChartPanel _chartPanel;
 
-        private readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts = 
+        internal readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts = 
             new Dictionary<CoordinateImpl, FormattedText>();
         #endregion
 
@@ -73,35 +73,39 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 _formattedTexts.Add(coordinate, formattedText);
             }
 
-            return new Size(0, _formattedTexts.Values.Max(x => x.Height) + XAxis.Spacing + 1);
+            return new Size(0, _formattedTexts.Values.Max(x => x.Height) + XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);
         }
         #endregion
 
+        #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
             return new Size(finalSize.Width, DesiredSize.Height);
         }
+        #endregion
 
         #region OnRender
         protected override void OnRender(DrawingContext context)
         {
             if(XAxis == null
-                || !_chartPanel.CanCreateDrawingContext())
+                || !_chartPanel.IsCanvasReady())
             {
                 return;
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
+            var canvasContext = _chartPanel.CreateCanvasContext();
 
-            drawingContext.DrawLine(Brushes.Black, 1, 0, 0.5, ActualWidth, 0.5);
+            drawingContext.DrawLine(XAxis.Stroke, XAxis.StrokeThickness, 0, 0, ActualWidth, 0);
             foreach(var coordinateText in _formattedTexts)
             {
                 var coordinate = coordinateText.Key;
                 var text = coordinateText.Value;
 
-                var offsetX = drawingContext.GetOffsetX(coordinate.Index);
+                var offsetX = canvasContext.GetOffsetX(coordinate.Index);
 
-                drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + 1);
+                drawingContext.DrawLine(XAxis.TicksBrush, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness + XAxis.TicksSize);
+                drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);
             }
         }
         #endregion

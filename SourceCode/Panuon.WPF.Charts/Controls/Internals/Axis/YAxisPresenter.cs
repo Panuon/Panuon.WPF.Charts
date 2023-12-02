@@ -15,6 +15,10 @@ namespace Panuon.WPF.Charts.Controls.Internals
     {
         #region Fields
         private ChartPanel _chartPanel;
+
+
+        internal readonly Dictionary<double, FormattedText> _formattedTexts =
+            new Dictionary<double, FormattedText>();
         #endregion
 
         #region Ctor
@@ -59,26 +63,56 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            return new Size(50, 0);
+            var deltaX = (MaxValue - MinValue) / 5;
+
+            for(int i = 0; i <= 5; i++)
+            {
+                var formattedText = new FormattedText((deltaX * i).ToString(),
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface(YAxis.FontFamily, YAxis.FontStyle, YAxis.FontWeight, YAxis.FontStretch),
+                    YAxis.FontSize,
+                    YAxis.Foreground,
+                    VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+                _formattedTexts.Add(deltaX * i, formattedText);
+            }
+            return new Size(_formattedTexts.Values.Max(x => x.Width) + YAxis.Spacing + YAxis.TicksSize + YAxis.StrokeThickness, 0);
         }
         #endregion
 
+        #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
             return new Size(DesiredSize.Width, finalSize.Height);
         }
+        #endregion
 
         #region OnRender
-        protected override void OnRender(DrawingContext drawingContext)
+        protected override void OnRender(DrawingContext context)
         {
             if (YAxis == null
-                || !_chartPanel.CanCreateDrawingContext())
+                || !_chartPanel.IsCanvasReady())
             {
                 return;
             }
 
-            drawingContext.DrawRectangle(YAxis.Background,
-                null, new Rect(0, 0, ActualWidth, ActualHeight));
+            var drawingContext = _chartPanel.CreateDrawingContext(context);
+            var canvasContext = _chartPanel.CreateCanvasContext();
+
+            drawingContext.DrawLine(YAxis.Stroke, YAxis.StrokeThickness, ActualWidth, 0, ActualWidth, ActualHeight);
+
+            var deltaY = canvasContext.AreaHeight / (_formattedTexts.Count - 1);
+
+            foreach (var valueText in _formattedTexts)
+            {
+                var value = valueText.Key;
+                var text = valueText.Value;
+
+                var offsetY = canvasContext.GetOffsetY(value);
+                drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
+                drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
+            }
         }
         #endregion
 

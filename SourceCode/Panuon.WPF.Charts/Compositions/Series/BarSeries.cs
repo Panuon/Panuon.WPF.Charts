@@ -61,6 +61,7 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         protected override void OnRendering(IDrawingContext drawingContext,
+            ICanvasContext canvasContext,
             IEnumerable<ICoordinate> coordinates)
         {
         }

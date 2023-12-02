@@ -20,6 +20,7 @@ namespace Panuon.WPF.Charts
 
         private readonly UIElementCollection _children;
 
+        internal GridLinesPanel _gridLinesPanel;
         internal SeriesPanel _seriesPanel;
         internal XAxisPresenter _xAxisPresenter;
         internal YAxisPresenter _yAxisPresenter;
@@ -40,9 +41,11 @@ namespace Panuon.WPF.Charts
             _yAxisPresenter = new YAxisPresenter(this);
             _children.Add(_yAxisPresenter);
 
+            _gridLinesPanel = new GridLinesPanel(this);
+            _children.Add(_gridLinesPanel);
+
             _seriesPanel = new SeriesPanel(this);
             _children.Add(_seriesPanel);
-
         }
         #endregion
 
@@ -123,7 +126,8 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty GridLinesVisibilityProperty =
-            DependencyProperty.Register("GridLinesVisibility", typeof(ChartPanelGridLinesVisibility), typeof(ChartPanel), new PropertyMetadata(ChartPanelGridLinesVisibility.Both));
+            GridLinesPanel.GridLinesVisibilityProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(ChartPanelGridLinesVisibility.Both,
+                FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
         #region GridLinesBrush
@@ -134,7 +138,8 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty GridLinesBrushProperty =
-            DependencyProperty.Register("GridLinesBrush", typeof(Brush), typeof(ChartPanel), new PropertyMetadata(Brushes.LightGray));
+            GridLinesPanel.GridLinesBrushProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(Brushes.LightGray,
+                FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
         #region GridLinesThickness
@@ -145,7 +150,8 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty GridLinesThicknessProperty =
-            DependencyProperty.Register("GridLinesThickness", typeof(double), typeof(ChartPanel), new PropertyMetadata(1d));
+            GridLinesPanel.GridLinesThicknessProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(1d,
+                FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
         #region Internal Properties
@@ -179,6 +185,10 @@ namespace Panuon.WPF.Charts
                     }
                     var itemType = item.GetType();
                     var titleProperty = itemType.GetProperty(TitleMemberPath);
+                    if (titleProperty == null)
+                    {
+                        throw new System.NullReferenceException($"Property {TitleMemberPath} does not exists.");
+                    }
                     var titleValue = titleProperty.GetValue(item);
                     var title = titleValue is string
                         ? (string)titleValue
@@ -193,6 +203,10 @@ namespace Panuon.WPF.Charts
                         }
 
                         var valueProperty = itemType.GetProperty(series.ValueMemberPath);
+                        if(valueProperty == null)
+                        {
+                            throw new System.NullReferenceException($"Property {series.ValueMemberPath} does not exists.");
+                        }
                         var valueValue = valueProperty.GetValue(item);
                         var value = Convert.ToDouble(valueValue);
 
@@ -227,6 +241,8 @@ namespace Panuon.WPF.Charts
             _seriesPanel.MaxValue = maxValue;
             _seriesPanel.Measure(availableSize);
 
+            _gridLinesPanel.Measure(availableSize);
+
             return base.MeasureOverride(availableSize);
         }
         #endregion
@@ -244,10 +260,13 @@ namespace Panuon.WPF.Charts
 
             _yAxisPresenter.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, renderHeight - xAxisHeight));
 
+            _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
+
             _seriesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
 
             _xAxisPresenter.InvalidateVisual();
             _yAxisPresenter.InvalidateVisual();
+            _gridLinesPanel.InvalidateVisual();
             _seriesPanel.InvalidateVisual();
 
             return base.ArrangeOverride(finalSize);
@@ -259,7 +278,7 @@ namespace Panuon.WPF.Charts
         #region Methods
 
         #region Internal Methods
-        internal bool CanCreateDrawingContext()
+        internal bool IsCanvasReady()
         {
             return _seriesPanel.RenderSize.Width != 0
                 && _seriesPanel.RenderSize.Height != 0;
@@ -267,8 +286,13 @@ namespace Panuon.WPF.Charts
 
         internal IDrawingContext CreateDrawingContext(DrawingContext context)
         {
-            var drawingContext = new WPFDrawingContextImpl(context,
-                _seriesPanel.RenderSize.Width,
+            var drawingContext = new WPFDrawingContextImpl(context);
+            return drawingContext;
+        }
+
+        internal ICanvasContext CreateCanvasContext()
+        {
+            var drawingContext = new CanvasContextImpl(_seriesPanel.RenderSize.Width,
                 _seriesPanel.RenderSize.Height,
                 _seriesPanel.Coordinates.Count(),
                 _seriesPanel.MinValue,

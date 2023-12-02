@@ -120,6 +120,55 @@ namespace Panuon.WPF.Charts
                 FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
+        #region StrokeThickness
+        public double StrokeThickness
+        {
+            get { return (double)GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            AxisPresenterBase.StrokeThicknessProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(1d,
+                FrameworkPropertyMetadataOptions.Inherits));
+        #endregion
+
+        #region Stroke
+        public Brush Stroke
+        {
+            get { return (Brush)GetValue(StrokeProperty); }
+            set { SetValue(StrokeProperty, value); }
+        }
+
+        public static readonly DependencyProperty StrokeProperty =
+            AxisPresenterBase.StrokeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
+                FrameworkPropertyMetadataOptions.Inherits));
+        #endregion
+
+
+        #region TicksSize
+        public double TicksSize
+        {
+            get { return (double)GetValue(TicksSizeProperty); }
+            set { SetValue(TicksSizeProperty, value); }
+        }
+
+        public static readonly DependencyProperty TicksSizeProperty =
+            AxisPresenterBase.TicksSizeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(3d,
+                FrameworkPropertyMetadataOptions.Inherits));
+        #endregion
+
+        #region TicksBrush
+        public Brush TicksBrush
+        {
+            get { return (Brush)GetValue(TicksBrushProperty); }
+            set { SetValue(TicksBrushProperty, value); }
+        }
+
+        public static readonly DependencyProperty TicksBrushProperty =
+            AxisPresenterBase.TicksBrushProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
+                FrameworkPropertyMetadataOptions.Inherits));
+        #endregion
+
         #endregion
 
         #region Event Handlers
