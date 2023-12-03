@@ -30,6 +30,7 @@
                                StrokeThickness="2"
                                ValueMemberPath="Value2" />
                 <pc:ColumnSeries Fill="#FCBA03"
+                                 Width="15"
                                  ValueMemberPath="Value3" />
             </pc:ChartPanel.Series>
             <pc:ChartPanel.Layers>
