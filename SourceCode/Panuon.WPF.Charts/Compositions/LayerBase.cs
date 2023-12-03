@@ -24,55 +24,55 @@ namespace Panuon.WPF.Charts
 
         #region Internal Methods
         internal void Render(IDrawingContext drawingContext,
-            ICanvasContext canvasContext,
+            IChartContext chartContext,
             ILayerContext layerContext)
         {
-            OnRender(drawingContext, canvasContext, layerContext);
+            OnRender(drawingContext, chartContext, layerContext);
         }
 
-        internal void MouseIn(ICanvasContext canvasContext,
+        internal void MouseIn(IChartContext chartContext,
             ILayerContext layerContext)
         {
-            OnMouseIn(canvasContext, layerContext);
+            OnMouseIn(chartContext, layerContext);
         }
 
-        internal void MouseOut(ICanvasContext canvasContext,
+        internal void MouseOut(IChartContext chartContext,
             ILayerContext layerContext)
         {
-            OnMouseOut(canvasContext, layerContext);
+            OnMouseOut(chartContext, layerContext);
         }
         #endregion
 
         #region Protected Methods
-        protected virtual void OnMouseIn(ICanvasContext canvasContext,
+        protected virtual void OnMouseIn(IChartContext chartContext,
             ILayerContext layerContext)
         {
 
         }
 
-        protected virtual void OnMouseOut(ICanvasContext canvasContext,
+        protected virtual void OnMouseOut(IChartContext chartContext,
             ILayerContext layerContext)
         {
 
         }
 
         protected virtual void OnRender(IDrawingContext drawingContext,
-            ICanvasContext canvasContext,
+            IChartContext chartContext,
             ILayerContext layerContext) { }
 
         protected void AddChild(UIElement child)
         {
-            InternalAddChild.Invoke(child);
+            InternalAddChild?.Invoke(child);
         }
 
         protected void RemoveChild(UIElement child)
         {
-            InternalRemoveChild.Invoke(child);
+            InternalRemoveChild?.Invoke(child);
         }
 
         protected void InvalidRender()
         {
-            InternalInvalidRender.Invoke();
+            InternalInvalidRender?.Invoke();
         }
         #endregion
     }

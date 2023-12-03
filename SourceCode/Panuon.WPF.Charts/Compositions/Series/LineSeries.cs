@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class LineSeries
-        : SeriesBase
+        : SingleSeriesBase
     {
         #region Properties
 
@@ -28,7 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(LineSeries), new PropertyMetadata(Brushes.Black));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(LineSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
         #endregion
 
         #region StrokeThickness
@@ -39,7 +39,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(LineSeries), new PropertyMetadata(1d));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(LineSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
         #region Radius
@@ -50,7 +50,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty RadiusProperty =
-            DependencyProperty.Register("Radius", typeof(double), typeof(LineSeries), new PropertyMetadata(4d));
+            DependencyProperty.Register("Radius", typeof(double), typeof(LineSeries), new PropertyMetadata(4d, OnRenderPropertyChanged));
         #endregion
 
         #region ToggleStroke
@@ -61,7 +61,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeProperty =
-            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(LineSegment), new PropertyMetadata(null));
+            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(LineSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
         #endregion
 
         #region ToggleStrokeThickness
@@ -72,7 +72,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeThicknessProperty =
-            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(LineSeries), new PropertyMetadata(1d));
+            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(LineSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
         #region ToggleFill
@@ -83,7 +83,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(LineSeries), new PropertyMetadata(null));
+            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(LineSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
         #endregion
 
         #region ToggleRadius
@@ -94,7 +94,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new PropertyMetadata(3d));
+            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new PropertyMetadata(3d, OnRenderPropertyChanged));
         #endregion
 
 
@@ -102,7 +102,7 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         protected override void OnRendering(IDrawingContext drawingContext,
-            ICanvasContext canvasContext,
+            IChartContext chartContext,
             IEnumerable<ICoordinate> coordinates)
         {
             ICoordinate lastCoordinate = null;
@@ -110,7 +110,7 @@ namespace Panuon.WPF.Charts
             {
                 var value = coordinate.GetValue(this);
                 var offsetX = coordinate.Offset;
-                var offsetY = canvasContext.GetOffset(value);
+                var offsetY = chartContext.GetOffset(value);
 
                 if (lastCoordinate != null)
                 {
@@ -118,7 +118,7 @@ namespace Panuon.WPF.Charts
 
                     drawingContext.DrawLine(Stroke, StrokeThickness,
                         lastCoordinate.Offset,
-                        canvasContext.GetOffset(lastValue),
+                        chartContext.GetOffset(lastValue),
                         offsetX,
                         offsetY);
 
@@ -136,6 +136,15 @@ namespace Panuon.WPF.Charts
 
                 lastCoordinate = coordinate;
             }
+        }
+
+        protected override void OnHighlighting(ICoordinate coordinate,
+            IDrawingContext drawingContext,
+            IChartContext chartContext)
+        {
+            var value = coordinate.GetValue(this);
+            var offsetY = chartContext.GetOffset(value);
+            drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
         }
         #endregion
     }

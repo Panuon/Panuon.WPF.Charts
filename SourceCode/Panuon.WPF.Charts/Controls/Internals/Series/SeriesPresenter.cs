@@ -28,8 +28,25 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Properties
+        public SeriesBase Series
+        {
+            get => _series;
+            set
+            {
+                if (_series != null)
+                {
+                    _series.InternalInvalidRender -= Series_InternalInvalidRender;
+                }
+                if (value != null)
+                {
+                    value.InternalInvalidRender -= Series_InternalInvalidRender;
+                    value.InternalInvalidRender += Series_InternalInvalidRender;
+                }
+                _series = value;
+            }
+        }
 
-        public SeriesBase Series { get; set; }
+        private SeriesBase _series;
         #endregion
 
         #region Overrides
@@ -43,36 +60,18 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
 
             Series.Render(drawingContext,
-                canvasContext,
+                chartContext,
                 _chartPanel.Coordinates);
         }
         #endregion
 
-        #region Functions
-        //private IDrawingContext CreateDrawingContext(DrawingContext drawingContext)
-        //{
-        //    return new WPFDrawingContextImpl(drawingContext,
-        //        ActualWidth,
-        //        ActualHeight);
-        //}
-
-        private void CheckMinMaxValue(double minValue,
-            double maxValue,
-            out int resultMin,
-            out int resultMax)
+        #region Event Handlers
+        private void Series_InternalInvalidRender()
         {
-            var min = (int)Math.Floor(minValue);
-            var max = (int)Math.Ceiling(maxValue);
-
-            var digit = Math.Max(1, max.ToString().Length - 1);
-            var baseValue = Math.Pow(10d, digit);
-
-            resultMin = (int)Math.Floor(min / baseValue) * (int)baseValue;
-            resultMax = (int)Math.Ceiling(max / baseValue) * (int)baseValue;
-
+            InvalidateVisual();
         }
         #endregion
     }

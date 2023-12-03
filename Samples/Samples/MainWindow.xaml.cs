@@ -24,14 +24,18 @@ namespace Samples
         public MainWindow()
         {
             InitializeComponent();
-            chartPanel.ItemsSource = new object[]
+
+            var itemsSource = new object[]
             {
-                new { Title = "1", Value1 = 5, Value2 = 4, },
-                new { Title = "2", Value1 = 1, Value2 = 2, },
-                new { Title = "3", Value1 = 7, Value2 = 4, },
-                new { Title = "4", Value1 = 8, Value2 = 5 },
-                new { Title = "5", Value1 = 4, Value2 = 6 },
+                new { Title = "1", Value1 = 5, Value2 = 4, Value3 = 2, },
+                new { Title = "2", Value1 = 9, Value2 = 6, Value3 = 3, },
+                new { Title = "3", Value1 = 7, Value2 = 4, Value3 = 1, },
+                new { Title = "4", Value1 = 8, Value2 = 5, Value3 = 4, },
+                new { Title = "5", Value1 = 9, Value2 = 6, Value3 = 6, },
             };
+
+            chartPanel1.ItemsSource = itemsSource;
+            chartPanel2.ItemsSource = itemsSource;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

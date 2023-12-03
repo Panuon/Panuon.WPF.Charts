@@ -26,5 +26,13 @@ namespace Panuon.WPF.Charts
         void DrawText(FormattedText text,
             double offsetX,
             double offsetY);
+
+        void DrawRectangle(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double startX,
+            double startY,
+            double width,
+            double height);
     }
 }

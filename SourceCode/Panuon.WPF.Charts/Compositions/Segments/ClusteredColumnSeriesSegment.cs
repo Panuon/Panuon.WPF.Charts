@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
+using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
-    public class BarSeries
-        : SeriesBase
+    public class ClusteredColumnSeriesSegment
+        : SegmentBase
     {
         #region Properties
 
@@ -21,7 +21,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(BarSeries), new PropertyMetadata(Brushes.Black));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
         #endregion
 
         #region Stroke
@@ -32,7 +32,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(BarSeries), new PropertyMetadata(null));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
         #endregion
 
         #region StrokeThickness
@@ -43,28 +43,9 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(BarSeries), new PropertyMetadata(1d));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
-        #region Width
-        public GridLength Width
-        {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
-        }
-
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(BarSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto)));
-        #endregion
-
-        #endregion
-
-        #region Overrides
-        protected override void OnRendering(IDrawingContext drawingContext,
-            ICanvasContext canvasContext,
-            IEnumerable<ICoordinate> coordinates)
-        {
-        }
         #endregion
     }
 }

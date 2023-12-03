@@ -6,12 +6,20 @@
         xmlns:local="clr-namespace:Samples"
         xmlns:pc="clr-namespace:Panuon.WPF.Charts;assembly=Panuon.WPF.Charts"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="MainWindow"
+        Height="450"
+        Width="1500"
         Loaded="Window_Loaded">
-    <Grid Width="350"
-          Height="300">
-        
-        <pc:ChartPanel x:Name="chartPanel"
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <pc:ChartPanel x:Name="chartPanel1"
                        GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title">
             <pc:ChartPanel.Series>
@@ -21,6 +29,8 @@
                 <pc:LineSeries Stroke="#F55195"
                                StrokeThickness="2"
                                ValueMemberPath="Value2" />
+                <pc:ColumnSeries Fill="#FCBA03"
+                                 ValueMemberPath="Value3" />
             </pc:ChartPanel.Series>
             <pc:ChartPanel.Layers>
                 <!--十字交叉线-->
@@ -29,6 +39,30 @@
                 <pc:ToolTipLayer />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
-        
+        <pc:ChartPanel x:Name="chartPanel2"
+                       Grid.Column="1"
+                       GridLinesBrush="#EFEFEF"
+                       TitleMemberPath="Title">
+            <pc:ChartPanel.Series>
+                <pc:LineSeries Stroke="#AE4EED"
+                               StrokeThickness="2"
+                               ValueMemberPath="Value1" />
+                <pc:ClusteredColumnSeries>
+                    <pc:ClusteredColumnSeriesSegment Fill="#36A5EB"
+                                                     ValueMemberPath="Value1" />
+                    <pc:ClusteredColumnSeriesSegment Fill="#F55195"
+                                                     ValueMemberPath="Value2" />
+                    <pc:ClusteredColumnSeriesSegment Fill="#FCBA03"
+                                                     ValueMemberPath="Value3" />
+                </pc:ClusteredColumnSeries>
+            </pc:ChartPanel.Series>
+            <pc:ChartPanel.Layers>
+                <!--十字交叉线-->
+                <pc:CrossLineLayer />
+                <!--悬浮放大-->
+                <pc:ToolTipLayer />
+            </pc:ChartPanel.Layers>
+        </pc:ChartPanel>
+
     </Grid>
 </Window>

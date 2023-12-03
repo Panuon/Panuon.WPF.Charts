@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Panuon.WPF.Charts
 {
@@ -60,6 +61,20 @@ namespace Panuon.WPF.Charts
             _drawingContext.DrawText(text, new Point(offsetX, offsetY));
         }
 
+        public void DrawRectangle(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double startX,
+            double startY,
+            double width,
+            double height)
+        {
+            var pen = stroke == null || strokeThickness <= 0
+                ? null
+                : new Pen(stroke, strokeThickness);
+            pen?.Freeze();
+            _drawingContext.DrawRectangle(fill, pen, new Rect(startX, startY, width, height));
+        }
         #endregion
     }
 }

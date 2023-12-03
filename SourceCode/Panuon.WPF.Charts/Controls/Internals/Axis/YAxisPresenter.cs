@@ -92,18 +92,18 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
 
             drawingContext.DrawLine(YAxis.Stroke, YAxis.StrokeThickness, ActualWidth, 0, ActualWidth, ActualHeight);
 
-            var deltaY = canvasContext.AreaHeight / (_formattedTexts.Count - 1);
+            var deltaY = chartContext.AreaHeight / (_formattedTexts.Count - 1);
 
             foreach (var valueText in _formattedTexts)
             {
                 var value = valueText.Key;
                 var text = valueText.Value;
 
-                var offsetY = canvasContext.GetOffset(value);
+                var offsetY = chartContext.GetOffset(value);
                 drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
                 drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
             }

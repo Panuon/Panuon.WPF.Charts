@@ -50,7 +50,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
 
             var pen = new Pen(_chartPanel.GridLinesBrush, _chartPanel.GridLinesThickness);
             pen.Freeze();
@@ -79,7 +79,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 {
                     var value = valueText.Key;
 
-                    var offsetY = canvasContext.GetOffset(value);
+                    var offsetY = chartContext.GetOffset(value);
 
                     drawingContext.DrawLine(_chartPanel.GridLinesBrush,
                         _chartPanel.GridLinesThickness,

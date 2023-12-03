@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,11 +29,8 @@ namespace Panuon.WPF.Charts
         internal XAxisPresenter _xAxisPresenter;
         internal YAxisPresenter _yAxisPresenter;
 
-        private CanvasContextImpl _canvasContext;
+        private ChartContextImpl _chartContext;
         private LayerContextImpl _layerContext;
-
-        private static ReadOnlyDictionary<SeriesBase, double> _readOnlySeriesValueDictionary = 
-            new ReadOnlyDictionary<SeriesBase, double>(new Dictionary<SeriesBase, double>());
         #endregion
 
         #region Ctor
@@ -73,7 +71,10 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ChartPanel));
+            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ChartPanel), new FrameworkPropertyMetadata(null, 
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsRender,
+                OnItemsSourceChanged,
+                null));
         #endregion
 
         #region TitleMemberPath
@@ -224,23 +225,46 @@ namespace Panuon.WPF.Charts
                         ? (string)titleValue
                         : titleValue.ToString();
 
-                    var values = new Dictionary<SeriesBase, double>();
+                    var values = new Dictionary<IChartUnit, double>();
                     foreach (var series in Series)
                     {
-                        if (string.IsNullOrEmpty(series.ValueMemberPath))
+                        if (series is SingleSeriesBase singleSeries)
                         {
-                            throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
-                        }
+                            if (string.IsNullOrEmpty(singleSeries.ValueMemberPath))
+                            {
+                                throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
+                            }
 
-                        var valueProperty = itemType.GetProperty(series.ValueMemberPath);
-                        if(valueProperty == null)
+                            var valueProperty = itemType.GetProperty(singleSeries.ValueMemberPath);
+                            if (valueProperty == null)
+                            {
+                                throw new System.NullReferenceException($"Property {singleSeries.ValueMemberPath} does not exists.");
+                            }
+                            var valueValue = valueProperty.GetValue(item);
+                            var value = Convert.ToDouble(valueValue);
+
+                            values.Add(singleSeries, value);
+                        }
+                        if(series is SegmentsSeriesBase segmentsSeries)
                         {
-                            throw new System.NullReferenceException($"Property {series.ValueMemberPath} does not exists.");
-                        }
-                        var valueValue = valueProperty.GetValue(item);
-                        var value = Convert.ToDouble(valueValue);
+                            foreach(var segment in segmentsSeries.GetSegments())
+                            {
+                                if (string.IsNullOrEmpty(segment.ValueMemberPath))
+                                {
+                                    throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
+                                }
 
-                        values.Add(series, value);
+                                var valueProperty = itemType.GetProperty(segment.ValueMemberPath);
+                                if (valueProperty == null)
+                                {
+                                    throw new System.NullReferenceException($"Property {segment.ValueMemberPath} does not exists.");
+                                }
+                                var valueValue = valueProperty.GetValue(item);
+                                var value = Convert.ToDouble(valueValue);
+
+                                values.Add(segment, value);
+                            }
+                        }
                     }
 
                     coordinates.Add(new CoordinateImpl()
@@ -252,7 +276,6 @@ namespace Panuon.WPF.Charts
                     index++;
                 }
             }
-
 
             CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
                 coordinates.SelectMany(x => x.Values.Values).Max(),
@@ -324,30 +347,31 @@ namespace Panuon.WPF.Charts
             return drawingContext;
         }
 
-        internal ICanvasContext GetCanvasContext()
+        internal IChartContext GetCanvasContext()
         {
-            if(_canvasContext == null ||
-                _canvasContext.MinValue != MinValue ||
-                _canvasContext.MaxValue != MaxValue ||
-                _canvasContext.AreaWidth != _seriesPanel.RenderSize.Width || 
-                _canvasContext.AreaHeight != _seriesPanel.RenderSize.Height ||
-                _canvasContext.CoordinatesCount != Coordinates.Count)
+            if(_chartContext == null ||
+                _chartContext.MinValue != MinValue ||
+                _chartContext.MaxValue != MaxValue ||
+                _chartContext.AreaWidth != _seriesPanel.RenderSize.Width || 
+                _chartContext.AreaHeight != _seriesPanel.RenderSize.Height ||
+                _chartContext.CoordinatesCount != Coordinates.Count)
             {
-                _canvasContext = new CanvasContextImpl(_seriesPanel.RenderSize.Width,
+                _chartContext = new ChartContextImpl(_seriesPanel.RenderSize.Width,
                     _seriesPanel.RenderSize.Height,
                     Coordinates.Count,
                     MinValue,
-                    MaxValue);
+                    MaxValue,
+                    Series);
             }
 
-            return _canvasContext;
+            return _chartContext;
         }
 
         internal ILayerContext CreateLayerContext()
         {
             if (_layerContext == null)
             {
-                var canvasContext = GetCanvasContext();
+                var chartContext = GetCanvasContext();
 
                 _layerContext = new LayerContextImpl(getMousePosition: () =>
                 {
@@ -381,16 +405,17 @@ namespace Panuon.WPF.Charts
                     return Math.Abs(leftCoordinate.Offset - offsetX) <= Math.Abs(rightCoordinate.Offset - offsetX)
                         ? leftCoordinate
                         : rightCoordinate;
-                }, getSeriesValue: (index) =>
+                }, getValue: (index, seriesOrSegment) =>
                 {
                     var coordinate = Coordinates.FirstOrDefault(x => x.Index == index);
-                    if (coordinate == null)
+                    if (coordinate == null ||
+                        !coordinate.Values.ContainsKey(seriesOrSegment))
                     {
-                        return _readOnlySeriesValueDictionary;
+                        return MinValue;
                     }
                     else
                     {
-                        return new ReadOnlyDictionary<SeriesBase, double>(coordinate.Values);
+                        return coordinate.Values[seriesOrSegment];
                     }
                 });
             }
@@ -401,7 +426,27 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Event Handlers
+        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chartPanel = (ChartPanel)d;
+            if (e.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= chartPanel.ObservableItemsSource_CollectionChanged;
+            }
+            if (e.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged -= chartPanel.ObservableItemsSource_CollectionChanged;
+                newCollection.CollectionChanged += chartPanel.ObservableItemsSource_CollectionChanged;
+            }
+        }
 
+        private void ObservableItemsSource_CollectionChanged(object sender,
+            NotifyCollectionChangedEventArgs e)
+        {
+            InvalidateMeasure();
+            InvalidateArrange();
+            InvalidateVisual();
+        }
         #endregion
 
         #region Functions

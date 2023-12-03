@@ -90,7 +90,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
 
             drawingContext.DrawLine(XAxis.Stroke, XAxis.StrokeThickness, 0, 0, ActualWidth, 0);
             foreach(var coordinateText in _formattedTexts)

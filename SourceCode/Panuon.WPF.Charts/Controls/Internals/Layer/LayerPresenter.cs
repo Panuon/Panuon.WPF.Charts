@@ -41,34 +41,41 @@ namespace Panuon.WPF.Charts.Controls.Internals
             {
                 if (_layer != null)
                 {
-                     
+                    _layer.InternalAddChild -= Layer_InternalAddChild;
+                    _layer.InternalRemoveChild -= Layer_InternalRemoveChild;
+                    _layer.InternalInvalidRender -= Layer_InternalInvalidRender;
                 }
                 if (value != null)
                 {
-                    value.InternalAddChild += Value_InternalAddChild;
-                    value.InternalRemoveChild += Value_InternalRemoveChild;
-                    value.InternalInvalidRender += Value_InternalInvalidRender;
+                    value.InternalAddChild -= Layer_InternalAddChild;
+                    value.InternalAddChild += Layer_InternalAddChild;
+
+                    value.InternalRemoveChild -= Layer_InternalRemoveChild;
+                    value.InternalRemoveChild += Layer_InternalRemoveChild;
+
+                    value.InternalInvalidRender -= Layer_InternalInvalidRender;
+                    value.InternalInvalidRender += Layer_InternalInvalidRender;
                 }
                 _layer = value;
             }
         }
+        private LayerBase _layer;
 
-        private void Value_InternalInvalidRender()
+        private void Layer_InternalInvalidRender()
         {
             InvalidateVisual();
         }
 
-        private void Value_InternalRemoveChild(UIElement child)
+        private void Layer_InternalRemoveChild(UIElement child)
         {
             _children.Remove(child);
         }
 
-        private void Value_InternalAddChild(UIElement child)
+        private void Layer_InternalAddChild(UIElement child)
         {
             _children.Add(child);
         }
 
-        private LayerBase _layer;
         #endregion
 
         #region Overrides
@@ -81,11 +88,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
             var layerContext = _chartPanel.CreateLayerContext();
 
             Layer.Render(drawingContext,
-                canvasContext,
+                chartContext,
                 layerContext);
         }
         #endregion
@@ -93,18 +100,18 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Methods
         public void MouseIn()
         {
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
             var layerContext = _chartPanel.CreateLayerContext();
 
-            Layer.MouseIn(canvasContext, layerContext);
+            Layer.MouseIn(chartContext, layerContext);
         }
 
         public void MouseOut()
         {
-            var canvasContext = _chartPanel.GetCanvasContext();
+            var chartContext = _chartPanel.GetCanvasContext();
             var layerContext = _chartPanel.CreateLayerContext();
 
-            Layer.MouseOut(canvasContext, layerContext);
+            Layer.MouseOut(chartContext, layerContext);
         }
         #endregion
 
