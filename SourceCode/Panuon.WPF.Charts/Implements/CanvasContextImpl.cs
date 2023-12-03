@@ -1,50 +1,51 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Media;
-
-namespace Panuon.WPF.Charts
+﻿namespace Panuon.WPF.Charts
 {
     internal class CanvasContextImpl
         : ICanvasContext
     {
         #region Fields
 
-        private int _totalIndex;
-        private double _minValue;
-        private double _maxValue;
+
+        private double _deltaX;
+        private double _minMaxDelta;
         #endregion
 
         #region Ctor
         internal CanvasContextImpl(double areaWidth,
             double areaHeight,
-            int totalIndex,
+            int _coordinatesCount,
             double minValue,
             double maxValue)
         {
             AreaWidth = areaWidth;
             AreaHeight = areaHeight;
-            _totalIndex = totalIndex;
-            _minValue = minValue;
-            _maxValue = maxValue;
+            CoordinatesCount = _coordinatesCount;
+            MinValue = minValue;
+            MaxValue = maxValue;
+
+            _deltaX = AreaWidth / _coordinatesCount;
+
+            _minMaxDelta = MaxValue - MinValue;
         }
         #endregion
 
         #region Properties
-        public double AreaWidth { get; set; }
+        public double AreaWidth { get; }
 
-        public double AreaHeight { get; set; }
+        public double AreaHeight { get; }
+
+        public int CoordinatesCount { get; }
+
+        public double MinValue { get; }
+
+        public double MaxValue { get; }
+
         #endregion
 
         #region Methods
-        public double GetOffsetX(int index)
+        public double GetOffset(double value)
         {
-            var deltaX = AreaWidth / _totalIndex;
-            return (index + 0.5) * deltaX;
-        }
-
-        public double GetOffsetY(double value)
-        {
-            return AreaHeight - AreaHeight * ((value - _minValue) / (_maxValue - _minValue));
+            return AreaHeight - AreaHeight * ((value - MinValue) / _minMaxDelta);
         }
         #endregion
     }

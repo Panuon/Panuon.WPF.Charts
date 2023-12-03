@@ -4,11 +4,12 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts.Controls.Internals
 {
-    internal class SeriesPanel
+    internal class LayersPanel
         : FrameworkElement
     {
         #region Fields
@@ -16,17 +17,17 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         private UIElementCollection _children;
 
-        private readonly List<SeriesPresenter> _seriesPresenters = 
-            new List<SeriesPresenter>();
+        private readonly List<LayerPresenter> _layerPresenters =
+            new List<LayerPresenter>();
 
         private IList<ICoordinate> _coordinates;
         #endregion
 
         #region Ctor
-        internal SeriesPanel(ChartPanel chartPanel)
+        internal LayersPanel(ChartPanel chartPanel)
         {
             _chartPanel = chartPanel;
-            _chartPanel.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
+            _chartPanel.Layers.CollectionChanged += ChartPanelLayers_CollectionChanged;
 
             _children = new UIElementCollection(this, this);
         }
@@ -39,7 +40,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            foreach(SeriesPresenter child in _children)
+            foreach (LayerPresenter child in _children)
             {
                 child.Measure(availableSize);
             }
@@ -48,18 +49,39 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (SeriesPresenter child in _children)
+            foreach (LayerPresenter child in _children)
             {
                 child.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             }
             return base.ArrangeOverride(finalSize);
+        }
+
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            drawingContext.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, ActualWidth, ActualHeight));
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            foreach (LayerPresenter child in _children)
+            {
+                child.MouseIn();
+            }
+        }
+
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
+            foreach (LayerPresenter child in _children)
+            {
+                child.MouseOut();
+            }
         }
         #endregion
 
         #region Methods
         public new void InvalidateVisual()
         {
-            foreach(SeriesPresenter child in _children)
+            foreach (LayerPresenter child in _children)
             {
                 child.InvalidateVisual();
             }
@@ -67,35 +89,35 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Event Handlers
-        private void ChartPanelSeries_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void ChartPanelLayers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.OldItems != null)
             {
-                foreach (SeriesBase series in e.OldItems)
+                foreach (LayerBase layer in e.OldItems)
                 {
-                    var presenter = _seriesPresenters.FirstOrDefault(x => x.Series == series);
+                    var presenter = _layerPresenters.FirstOrDefault(x => x.Layer == layer);
                     if (presenter != null)
                     {
-                        presenter.Series = null; //Clear
+                        presenter.Layer = null; //Clear
 
                         _children.Remove(presenter);
-                        _seriesPresenters.Remove(presenter);
+                        _layerPresenters.Remove(presenter);
                     }
                 }
             }
             if (e.NewItems != null)
             {
-                foreach (SeriesBase series in e.NewItems)
+                foreach (LayerBase layer in e.NewItems)
                 {
-                    var presenter = _seriesPresenters.FirstOrDefault(x => x.Series == series);
+                    var presenter = _layerPresenters.FirstOrDefault(x => x.Layer == layer);
                     if (presenter == null)
                     {
-                        presenter = new SeriesPresenter(this, _chartPanel)
+                        presenter = new LayerPresenter(this, _chartPanel)
                         {
-                            Series = series
+                            Layer = layer
                         };
                         _children.Add(presenter);
-                        _seriesPresenters.Add(presenter);
+                        _layerPresenters.Add(presenter);
                     }
                 }
             }

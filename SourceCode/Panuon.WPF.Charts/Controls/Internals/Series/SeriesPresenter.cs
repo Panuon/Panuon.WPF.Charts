@@ -36,18 +36,18 @@ namespace Panuon.WPF.Charts.Controls.Internals
         protected override void OnRender(DrawingContext context)
         {
             if (Series == null
-                || _seriesPanel.Coordinates == null
+                || _chartPanel.Coordinates == null
                 || !_chartPanel.IsCanvasReady())
             {
                 return;
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.CreateCanvasContext();
+            var canvasContext = _chartPanel.GetCanvasContext();
 
             Series.Render(drawingContext,
                 canvasContext,
-                _seriesPanel.Coordinates);
+                _chartPanel.Coordinates);
         }
         #endregion
 

@@ -10,6 +10,8 @@ namespace Panuon.WPF.Charts.Implements
 
         public int Index { get; set; }
 
+        public double Offset { get; set; }
+
         public Dictionary<SeriesBase, double> Values { get; set; }
         #endregion
 

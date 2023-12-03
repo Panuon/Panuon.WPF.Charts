@@ -47,10 +47,6 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 OnXAxisChanged));
         #endregion
 
-        #region Internal Properties
-        internal IEnumerable<CoordinateImpl> Coordinates { get; set; }
-        #endregion
-
         #endregion
 
         #region Overrides
@@ -60,7 +56,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             _formattedTexts.Clear();
 
-            foreach(var coordinate in Coordinates)
+            foreach(var coordinate in _chartPanel.Coordinates)
             {
                 var formattedText = new FormattedText(coordinate.Title,
                     System.Globalization.CultureInfo.CurrentCulture,
@@ -80,7 +76,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
-            return new Size(finalSize.Width, DesiredSize.Height);
+                return new Size(finalSize.Width, DesiredSize.Height);
         }
         #endregion
 
@@ -94,7 +90,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.CreateCanvasContext();
+            var canvasContext = _chartPanel.GetCanvasContext();
 
             drawingContext.DrawLine(XAxis.Stroke, XAxis.StrokeThickness, 0, 0, ActualWidth, 0);
             foreach(var coordinateText in _formattedTexts)
@@ -102,7 +98,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 var coordinate = coordinateText.Key;
                 var text = coordinateText.Value;
 
-                var offsetX = canvasContext.GetOffsetX(coordinate.Index);
+                var offsetX = coordinate.Offset;
 
                 drawingContext.DrawLine(XAxis.TicksBrush, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness + XAxis.TicksSize);
                 drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);

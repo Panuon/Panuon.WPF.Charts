@@ -8,24 +8,27 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         Loaded="Window_Loaded">
-    <Grid>
+    <Grid Width="350"
+          Height="300">
+        
         <pc:ChartPanel x:Name="chartPanel"
-                       Width="300"
-                       Height="300"
-                       ItemsSource="{Binding Items}"
+                       GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title">
-            <pc:ChartPanel.XAxis>
-                <pc:XAxis Background="#55FF0000"/>
-            </pc:ChartPanel.XAxis>
-            <pc:ChartPanel.YAxis>
-                <pc:YAxis Background="#550000FF"/>
-            </pc:ChartPanel.YAxis>
             <pc:ChartPanel.Series>
-                <pc:LineSeries Stroke="MediumPurple"
+                <pc:LineSeries Stroke="#36A5EB"
+                               StrokeThickness="2"
                                ValueMemberPath="Value1" />
-                <pc:LineSeries Fill="LightPink"
+                <pc:LineSeries Stroke="#F55195"
+                               StrokeThickness="2"
                                ValueMemberPath="Value2" />
             </pc:ChartPanel.Series>
+            <pc:ChartPanel.Layers>
+                <!--十字交叉线-->
+                <pc:CrossLineLayer />
+                <!--悬浮放大-->
+                <pc:ToolTipLayer />
+            </pc:ChartPanel.Layers>
         </pc:ChartPanel>
+        
     </Grid>
 </Window>

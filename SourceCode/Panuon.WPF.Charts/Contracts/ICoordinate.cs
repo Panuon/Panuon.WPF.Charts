@@ -6,6 +6,8 @@
 
         int Index { get; }
 
+        double Offset { get; }
+
         double GetValue(SeriesBase series);
     }
 }

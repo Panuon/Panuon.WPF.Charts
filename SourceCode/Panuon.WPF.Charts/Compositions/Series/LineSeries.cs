@@ -83,7 +83,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(LineSeries), new PropertyMetadata(Brushes.Black));
+            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(LineSeries), new PropertyMetadata(null));
         #endregion
 
         #region ToggleRadius
@@ -94,7 +94,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new PropertyMetadata(2d));
+            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new PropertyMetadata(3d));
         #endregion
 
 
@@ -109,24 +109,26 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = canvasContext.GetOffsetX(coordinate.Index);
-                var offsetY = canvasContext.GetOffsetY(value);
+                var offsetX = coordinate.Offset;
+                var offsetY = canvasContext.GetOffset(value);
 
                 if (lastCoordinate != null)
                 {
                     var lastValue = lastCoordinate.GetValue(this);
 
                     drawingContext.DrawLine(Stroke, StrokeThickness,
-                        canvasContext.GetOffsetX(lastCoordinate.Index),
-                        canvasContext.GetOffsetY(lastValue),
+                        lastCoordinate.Offset,
+                        canvasContext.GetOffset(lastValue),
                         offsetX,
                         offsetY);
 
                 }
 
+                var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
+
                 drawingContext.DrawEllipse(ToggleStroke,
                     ToggleStrokeThickness,
-                    ToggleFill,
+                    toggleFill,
                     ToggleRadius,
                     ToggleRadius,
                     offsetX,

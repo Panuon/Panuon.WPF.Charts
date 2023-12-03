@@ -6,9 +6,12 @@
 
         double AreaHeight { get; }
 
-        double GetOffsetX(int index);
+        double MinValue { get; }
 
-        double GetOffsetY(double value);
+        double MaxValue { get; }
+
+        double GetOffset(double value);
+
 
     }
 }

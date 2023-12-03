@@ -3,10 +3,12 @@ using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 
@@ -22,8 +24,15 @@ namespace Panuon.WPF.Charts
 
         internal GridLinesPanel _gridLinesPanel;
         internal SeriesPanel _seriesPanel;
+        internal LayersPanel _layersPanel;
         internal XAxisPresenter _xAxisPresenter;
         internal YAxisPresenter _yAxisPresenter;
+
+        private CanvasContextImpl _canvasContext;
+        private LayerContextImpl _layerContext;
+
+        private static ReadOnlyDictionary<SeriesBase, double> _readOnlySeriesValueDictionary = 
+            new ReadOnlyDictionary<SeriesBase, double>(new Dictionary<SeriesBase, double>());
         #endregion
 
         #region Ctor
@@ -32,8 +41,10 @@ namespace Panuon.WPF.Charts
             _children = new UIElementCollection(this, this);
 
             Series = new SeriesCollection();
+            Layers = new LayerCollection();
 
             XAxis = new XAxis();
+            YAxis = new YAxis();
 
             _xAxisPresenter = new XAxisPresenter(this);
             _children.Add(_xAxisPresenter);
@@ -46,6 +57,9 @@ namespace Panuon.WPF.Charts
 
             _seriesPanel = new SeriesPanel(this);
             _children.Add(_seriesPanel);
+
+            _layersPanel = new LayersPanel(this);
+            _children.Add(_layersPanel);
         }
         #endregion
 
@@ -118,6 +132,17 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("Series", typeof(SeriesCollection), typeof(ChartPanel), new PropertyMetadata(null));
         #endregion
 
+        #region Layers
+        public LayerCollection Layers
+        {
+            get { return (LayerCollection)GetValue(LayersProperty); }
+            set { SetValue(LayersProperty, value); }
+        }
+
+        public static readonly DependencyProperty LayersProperty =
+            DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartPanel), new PropertyMetadata(null));
+        #endregion
+
         #region GridLinesVisibility
         public ChartPanelGridLinesVisibility GridLinesVisibility
         {
@@ -156,6 +181,11 @@ namespace Panuon.WPF.Charts
 
         #region Internal Properties
 
+        internal List<CoordinateImpl> Coordinates { get; private set; }
+
+        internal double MinValue { get; private set; }
+
+        internal double MaxValue { get; private set; }
         #endregion
 
         #endregion
@@ -223,24 +253,20 @@ namespace Panuon.WPF.Charts
                 }
             }
 
+
             CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
                 coordinates.SelectMany(x => x.Values.Values).Max(),
                 out int minValue,
                 out int maxValue);
 
-            _xAxisPresenter.Coordinates = coordinates;
+            Coordinates = coordinates;
+            MinValue = minValue;
+            MaxValue = maxValue;
+
             _xAxisPresenter.Measure(availableSize);
-
-            _yAxisPresenter.Coordinates = coordinates;
-            _yAxisPresenter.MinValue = minValue;
-            _yAxisPresenter.MaxValue = maxValue;
             _yAxisPresenter.Measure(availableSize);
-
-            _seriesPanel.Coordinates = coordinates;
-            _seriesPanel.MinValue = minValue;
-            _seriesPanel.MaxValue = maxValue;
             _seriesPanel.Measure(availableSize);
-
+            _layersPanel.Measure(availableSize);
             _gridLinesPanel.Measure(availableSize);
 
             return base.MeasureOverride(availableSize);
@@ -256,18 +282,26 @@ namespace Panuon.WPF.Charts
             var xAxisHeight = _xAxisPresenter.DesiredSize.Height;
             var yAxisWidth = _yAxisPresenter.DesiredSize.Width;
 
+            var deltaX = (renderWidth - yAxisWidth) / Coordinates.Count;
+
+            for (int i = 0; i < Coordinates.Count; i++)
+            {
+                var coordinate = Coordinates[i];
+                coordinate.Offset = (i + 0.5) * deltaX;
+            }
+
             _xAxisPresenter.Arrange(new Rect(Padding.Left + yAxisWidth, renderHeight - xAxisHeight, renderWidth - yAxisWidth, xAxisHeight));
-
             _yAxisPresenter.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, renderHeight - xAxisHeight));
-
             _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-
             _seriesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
+            _layersPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
+            
 
             _xAxisPresenter.InvalidateVisual();
             _yAxisPresenter.InvalidateVisual();
             _gridLinesPanel.InvalidateVisual();
             _seriesPanel.InvalidateVisual();
+            _layersPanel.InvalidateVisual();
 
             return base.ArrangeOverride(finalSize);
         }
@@ -290,15 +324,77 @@ namespace Panuon.WPF.Charts
             return drawingContext;
         }
 
-        internal ICanvasContext CreateCanvasContext()
+        internal ICanvasContext GetCanvasContext()
         {
-            var drawingContext = new CanvasContextImpl(_seriesPanel.RenderSize.Width,
-                _seriesPanel.RenderSize.Height,
-                _seriesPanel.Coordinates.Count(),
-                _seriesPanel.MinValue,
-                _seriesPanel.MaxValue);
+            if(_canvasContext == null ||
+                _canvasContext.MinValue != MinValue ||
+                _canvasContext.MaxValue != MaxValue ||
+                _canvasContext.AreaWidth != _seriesPanel.RenderSize.Width || 
+                _canvasContext.AreaHeight != _seriesPanel.RenderSize.Height ||
+                _canvasContext.CoordinatesCount != Coordinates.Count)
+            {
+                _canvasContext = new CanvasContextImpl(_seriesPanel.RenderSize.Width,
+                    _seriesPanel.RenderSize.Height,
+                    Coordinates.Count,
+                    MinValue,
+                    MaxValue);
+            }
 
-            return drawingContext;
+            return _canvasContext;
+        }
+
+        internal ILayerContext CreateLayerContext()
+        {
+            if (_layerContext == null)
+            {
+                var canvasContext = GetCanvasContext();
+
+                _layerContext = new LayerContextImpl(getMousePosition: () =>
+                {
+                    if (_layersPanel.IsMouseOver)
+                    {
+                        return Mouse.GetPosition(_layersPanel);
+                    }
+                    return null;
+                }, getCoordinate: (offsetX) =>
+                {
+                    if(offsetX < 0 ||
+                        offsetX > ActualWidth)
+                    {
+                        return null;
+                    }
+                    var leftCoordinate = Coordinates.LastOrDefault(x => x.Offset <= offsetX);
+                    var rightCoordinate = Coordinates.FirstOrDefault(y => y.Offset >= offsetX);
+                    if (leftCoordinate == null &&
+                        rightCoordinate == null)
+                    {
+                        return null;
+                    }
+                    if (leftCoordinate == null)
+                    {
+                        return rightCoordinate;
+                    }
+                    if (rightCoordinate == null)
+                    {
+                        return leftCoordinate;
+                    }
+                    return Math.Abs(leftCoordinate.Offset - offsetX) <= Math.Abs(rightCoordinate.Offset - offsetX)
+                        ? leftCoordinate
+                        : rightCoordinate;
+                }, getSeriesValue: (index) =>
+                {
+                    var coordinate = Coordinates.FirstOrDefault(x => x.Index == index);
+                    if (coordinate == null)
+                    {
+                        return _readOnlySeriesValueDictionary;
+                    }
+                    else
+                    {
+                        return new ReadOnlyDictionary<SeriesBase, double>(coordinate.Values);
+                    }
+                });
+            }
+            return _layerContext;
         }
         #endregion
 

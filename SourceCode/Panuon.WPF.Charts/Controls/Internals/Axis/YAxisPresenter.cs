@@ -48,14 +48,6 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 OnYAxisChanged));
         #endregion
 
-        #region Internal Properties
-        internal IEnumerable<CoordinateImpl> Coordinates { get; set; }
-
-        internal double MinValue { get; set; }
-
-        internal double MaxValue { get; set; }
-        #endregion
-
         #endregion
 
         #region Overrides
@@ -63,7 +55,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            var deltaX = (MaxValue - MinValue) / 5;
+            _formattedTexts.Clear();
+
+            var deltaX = (_chartPanel.MaxValue - _chartPanel.MinValue) / 5;
 
             for(int i = 0; i <= 5; i++)
             {
@@ -98,7 +92,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var canvasContext = _chartPanel.CreateCanvasContext();
+            var canvasContext = _chartPanel.GetCanvasContext();
 
             drawingContext.DrawLine(YAxis.Stroke, YAxis.StrokeThickness, ActualWidth, 0, ActualWidth, ActualHeight);
 
@@ -109,7 +103,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 var value = valueText.Key;
                 var text = valueText.Value;
 
-                var offsetY = canvasContext.GetOffsetY(value);
+                var offsetY = canvasContext.GetOffset(value);
                 drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
                 drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
             }
