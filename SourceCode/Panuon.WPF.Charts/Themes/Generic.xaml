@@ -1,5 +1,29 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Panuon.WPF.Charts">
+                    xmlns:local="clr-namespace:Panuon.WPF.Charts"
+                    xmlns:rs="clr-namespace:Panuon.WPF.Charts.Resources">
 
+    <DataTemplate x:Key="ToolTipDataTemplate">
+        <ItemsControl>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse VerticalAlignment="Center"
+                                 HorizontalAlignment="Center"
+                                 Width="6"
+                                 Height="6"
+                                 Fill="{Binding HighlightBrush}" />
+                        <TextBlock Margin="2,0,0,0"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Text="{Binding Title}" />
+                        <TextBlock Margin="2,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding Value}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </DataTemplate>
+    
 </ResourceDictionary>

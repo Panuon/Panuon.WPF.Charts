@@ -44,12 +44,12 @@ namespace Panuon.WPF.Charts
         internal void Highlight(IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            out IEnumerable<Tuple<Brush, string>> tooltips)
+            in IList<SeriesTooltip> tooltips)
         {
             OnHighlighting(drawingContext,
                 chartContext,
                 layerContext,
-                out tooltips);
+                in tooltips);
         }
         #endregion
 
@@ -61,7 +61,7 @@ namespace Panuon.WPF.Charts
         protected abstract void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            out IEnumerable<Tuple<Brush, string>> tooltips);
+            in IList<SeriesTooltip> tooltips);
         #endregion
 
         #endregion

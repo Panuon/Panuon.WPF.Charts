@@ -141,7 +141,8 @@ namespace Panuon.WPF.Charts
 
         protected override void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
-            ILayerContext layerContext)
+            ILayerContext layerContext,
+            in IList<SeriesTooltip> tooltips)
         {
             if (layerContext.GetMousePosition() is Point position)
             {

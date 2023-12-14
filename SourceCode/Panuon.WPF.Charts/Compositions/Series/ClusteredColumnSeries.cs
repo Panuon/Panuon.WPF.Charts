@@ -71,7 +71,8 @@ namespace Panuon.WPF.Charts
 
         protected override void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
-            ILayerContext layerContext)
+            ILayerContext layerContext,
+            in IList<SeriesTooltip> tooltips)
         {
             if (layerContext.GetMousePosition() is Point position)
             {
@@ -86,8 +87,13 @@ namespace Panuon.WPF.Charts
                 {
                     var value = coordinate.GetValue(segment);
                     var offsetY = chartContext.GetOffset(value);
-                    drawingContext.DrawEllipse(segment.Fill, 2, Brushes.White, 5, 5, left + barWidth / 2, offsetY);
-
+                    drawingContext.DrawEllipse(segment.Fill,
+                        2,
+                        Brushes.White,
+                        5,
+                        5,
+                        left + barWidth / 2, offsetY);
+                    tooltips.Add(new SeriesTooltip(segment.Fill, coordinate.Title, value.ToString()));
                     left += (barWidth + Spacing);
                 }
             }
