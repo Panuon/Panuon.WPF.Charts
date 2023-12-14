@@ -47,6 +47,15 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 }
                 if (value != null)
                 {
+                    _children.Clear();
+                    if (value._children != null)
+                    {
+                        foreach(var child in value._children)
+                        {
+                            _children.Add(child);
+                        }
+                    }
+
                     value.InternalAddChild -= Layer_InternalAddChild;
                     value.InternalAddChild += Layer_InternalAddChild;
 
@@ -79,6 +88,29 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Overrides
+        protected override int VisualChildrenCount => _children.Count;
+
+        protected override Visual GetVisualChild(int index) => _children[index];
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            foreach(UIElement child in _children)
+            {
+                child.Measure(availableSize);
+            }
+
+            return base.MeasureOverride(availableSize);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            foreach (UIElement child in _children)
+            {
+                child.Arrange(new Rect(0, 0, child.DesiredSize.Width, child.DesiredSize.Height));
+            }
+
+            return base.ArrangeOverride(finalSize);
+        }
         protected override void OnRender(DrawingContext context)
         {
             if (Layer == null
@@ -116,13 +148,6 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Functions
-        //private IDrawingContext CreateDrawingContext(DrawingContext drawingContext)
-        //{
-        //    return new WPFDrawingContextImpl(drawingContext,
-        //        ActualWidth,
-        //        ActualHeight);
-        //}
-
         private void CheckMinMaxValue(double minValue,
             double maxValue,
             out int resultMin,

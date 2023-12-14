@@ -13,6 +13,8 @@ namespace Panuon.WPF.Charts
 
         double MaxValue { get; }
 
+        IEnumerable<ICoordinate> Coordinates { get; }
+
         IEnumerable<SeriesBase> Series { get; }
 
         double GetOffset(double value);

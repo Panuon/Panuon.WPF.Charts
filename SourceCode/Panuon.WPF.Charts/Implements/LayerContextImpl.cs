@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Panuon.WPF.Charts.Implements
 {
@@ -12,37 +10,67 @@ namespace Panuon.WPF.Charts.Implements
         : ILayerContext
     {
         #region Fields
-        private Func<Point?> _getMousePosition;
-        private Func<double, ICoordinate> _getCoordinate;
-        private Func<int, IChartUnit, double> _getValue;
+        private ChartPanel _chartPanel;
+        
         #endregion
 
         #region Ctor
-        internal LayerContextImpl(Func<Point?> getMousePosition,
-            Func<double, ICoordinate> getCoordinate,
-            Func<int, IChartUnit, double> getValue)
+        internal LayerContextImpl(ChartPanel chartPanel)
         {
-            _getMousePosition = getMousePosition;
-            _getCoordinate = getCoordinate;
-            _getValue = getValue;
+            _chartPanel = chartPanel;
         }
         #endregion
 
         #region Methods
         public Point? GetMousePosition()
         {
-            return _getMousePosition.Invoke();
+            if (_chartPanel._layersPanel.IsMouseOver)
+            {
+                return Mouse.GetPosition(_chartPanel._layersPanel);
+            }
+            return null;
         }
 
         public ICoordinate GetCoordinate(double offsetX)
         {
-            return _getCoordinate.Invoke(offsetX);
+            if (offsetX < 0 ||
+                offsetX > _chartPanel.ActualWidth)
+            {
+                return null;
+            }
+            var leftCoordinate = _chartPanel.Coordinates.LastOrDefault(x => x.Offset <= offsetX);
+            var rightCoordinate = _chartPanel.Coordinates.FirstOrDefault(y => y.Offset >= offsetX);
+            if (leftCoordinate == null &&
+                rightCoordinate == null)
+            {
+                return null;
+            }
+            if (leftCoordinate == null)
+            {
+                return rightCoordinate;
+            }
+            if (rightCoordinate == null)
+            {
+                return leftCoordinate;
+            }
+            return Math.Abs(leftCoordinate.Offset - offsetX) <= Math.Abs(rightCoordinate.Offset - offsetX)
+                ? leftCoordinate
+                : rightCoordinate;
         }
 
         public double GetValue(int index,
-            IChartUnit seriesOrSegment)
+            IChartValueProvider seriesOrSegment)
         {
-            return _getValue.Invoke(index, seriesOrSegment);
+            var coordinate = _chartPanel.Coordinates.FirstOrDefault(x => x.Index == index);
+            if (coordinate == null ||
+                !coordinate.Values.ContainsKey(seriesOrSegment))
+            {
+                return _chartPanel.MinValue;
+            }
+            else
+            {
+                return coordinate.Values[seriesOrSegment];
+            }
         }
         #endregion
     }

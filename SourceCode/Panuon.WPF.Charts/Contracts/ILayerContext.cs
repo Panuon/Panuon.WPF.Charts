@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
@@ -9,7 +10,7 @@ namespace Panuon.WPF.Charts
         public ICoordinate GetCoordinate(double offsetX);
 
         double GetValue(int index,
-            IChartUnit seriesOrSegment);
+            IChartValueProvider seriesOrSegment);
 
 
     }

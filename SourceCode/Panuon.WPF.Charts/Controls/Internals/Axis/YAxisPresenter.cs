@@ -57,6 +57,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             _formattedTexts.Clear();
 
+            if (YAxis == null)
+            {
+                return new Size(0, 0);
+            }
+
             var deltaX = (_chartPanel.MaxValue - _chartPanel.MinValue) / 5;
 
             for(int i = 0; i <= 5; i++)
@@ -78,6 +83,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
+            if (YAxis == null)
+            {
+                return new Size(0, 0);
+            }
+
             return new Size(DesiredSize.Width, finalSize.Height);
         }
         #endregion

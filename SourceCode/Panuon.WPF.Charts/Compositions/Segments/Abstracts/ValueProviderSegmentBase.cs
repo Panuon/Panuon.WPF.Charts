@@ -1,9 +1,10 @@
-﻿using System.Windows;
+﻿using Panuon.WPF.Charts;
+using System.Windows;
 
-namespace Panuon.WPF.Charts
+namespace Panuon.WPF.Chart
 {
-    public abstract class SingleSeriesBase
-        : SeriesBase, IChartUnit
+    public abstract class ValueProviderSegmentBase
+        : SegmentBase, IChartValueProvider
     {
         #region Properties
 
@@ -15,12 +16,9 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ValueMemberPathProperty =
-            DependencyProperty.Register("ValueMemberPath", typeof(string), typeof(SingleSeriesBase));
+            DependencyProperty.Register("ValueMemberPath", typeof(string), typeof(SegmentBase));
         #endregion
 
-        #endregion
-
-        #region Event Handlers
         #endregion
     }
 }

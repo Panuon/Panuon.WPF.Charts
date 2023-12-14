@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Media;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Panuon.WPF.Charts
 {
@@ -20,9 +19,14 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        public void DrawGeometry(Geometry geometry, Brush stroke, double strokeThickness)
+        public void DrawGeometry(Brush stroke, 
+            double strokeThickness,
+            Brush fill,
+            Geometry geometry)
         {
-            throw new NotImplementedException();
+            _drawingContext.DrawGeometry(fill,
+                GetPen(stroke, strokeThickness),
+                geometry);
         }
 
         public void DrawLine(Brush stroke,
@@ -32,11 +36,9 @@ namespace Panuon.WPF.Charts
             double endX,
             double endY)
         {
-            var pen = stroke == null || strokeThickness <= 0
-                ? null
-                : new Pen(stroke, strokeThickness);
-            pen?.Freeze();
-            _drawingContext.DrawLine(pen, new Point(startX, startY), new Point(endX, endY));
+            _drawingContext.DrawLine(GetPen(stroke, strokeThickness),
+                new Point(startX, startY), 
+                new Point(endX, endY));
         }
 
         public void DrawEllipse(Brush stroke,
@@ -47,18 +49,19 @@ namespace Panuon.WPF.Charts
             double offsetX,
             double offsetY)
         {
-            var pen = stroke == null || strokeThickness <= 0
-                ? null
-                : new Pen(stroke, strokeThickness);
-            pen?.Freeze();
-            _drawingContext.DrawEllipse(fill, pen, new Point(offsetX, offsetY), radiusX, radiusY);
+            _drawingContext.DrawEllipse(fill, 
+                GetPen(stroke, strokeThickness), 
+                new Point(offsetX, offsetY), 
+                radiusX, 
+                radiusY);
         }
 
         public void DrawText(FormattedText text, 
             double offsetX,
             double offsetY)
         {
-            _drawingContext.DrawText(text, new Point(offsetX, offsetY));
+            _drawingContext.DrawText(text, 
+                new Point(offsetX, offsetY));
         }
 
         public void DrawRectangle(Brush stroke,
@@ -69,11 +72,68 @@ namespace Panuon.WPF.Charts
             double width,
             double height)
         {
-            var pen = stroke == null || strokeThickness <= 0
-                ? null
-                : new Pen(stroke, strokeThickness);
-            pen?.Freeze();
-            _drawingContext.DrawRectangle(fill, pen, new Rect(startX, startY, width, height));
+            _drawingContext.DrawRectangle(fill, 
+                GetPen(stroke, strokeThickness), 
+                new Rect(startX, startY, width, height));
+        }
+
+        public void DrawArc(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double centerX,
+            double centerY,
+            double radius,
+            double startAngle,
+            double endAngle)
+        {
+            var angleRadians = (startAngle - 90) * Math.PI / 180.0;
+            var endAngleRadians = (endAngle - 90) * Math.PI / 180.0;
+
+            var startPoint = new Point(centerX + radius * Math.Cos(angleRadians), centerY + radius * Math.Sin(angleRadians));
+            var endPoint = new Point(centerX + radius * Math.Cos(endAngleRadians), centerY + radius * Math.Sin(endAngleRadians));
+
+            var figure = new PathFigure
+            {
+                StartPoint = startPoint,
+
+            };
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = endPoint,
+                Size = new Size(radius, radius),
+                SweepDirection = SweepDirection.Clockwise,
+                IsLargeArc = (endAngle - startAngle) > 180,
+            });
+            figure.Segments.Add(new LineSegment
+            {
+                Point = new Point(centerX, centerY),
+            });
+            figure.Segments.Add(new LineSegment
+            {
+                Point = startPoint,
+            });
+
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+
+            _drawingContext.DrawGeometry(fill, 
+                GetPen(stroke, strokeThickness), 
+                geometry);
+        }
+        #endregion
+
+        #region Functions
+        private Pen GetPen(Brush stroke,
+            double strokeThickness)
+        {
+            if(stroke == null
+                || !(strokeThickness > 0))
+            {
+                return null;
+            }
+            var pen = new Pen(stroke, strokeThickness);
+            pen.Freeze();
+            return pen;
         }
         #endregion
     }

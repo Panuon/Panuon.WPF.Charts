@@ -64,6 +64,35 @@
                 <pc:ToolTipLayer />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
-
+        <pc:ChartPanel x:Name="chartPanel3"
+                       Grid.Row="1"
+                       GridLinesBrush="#EFEFEF"
+                       TitleMemberPath="Title"
+                       XAxis="{x:Null}"
+                       YAxis="{x:Null}">
+            <pc:ChartPanel.Series>
+                <pc:PieSeries ValueMemberPath="Value3">
+                    <pc:PieSeriesSegment Fill="#36A5EB"
+                                         Stroke="White"
+                                         StrokeThickness="2" />
+                    <pc:PieSeriesSegment Fill="#F55195"
+                                         Stroke="White"
+                                         StrokeThickness="2" />
+                    <pc:PieSeriesSegment Fill="#FCBA03"
+                                         Stroke="White"
+                                         StrokeThickness="2" />
+                    <pc:PieSeriesSegment Fill="#A595EB"
+                                         Stroke="White"
+                                         StrokeThickness="2" />
+                    <pc:PieSeriesSegment Fill="#36A57B"
+                                         Stroke="White"
+                                         StrokeThickness="2" />
+                </pc:PieSeries>
+            </pc:ChartPanel.Series>
+            <pc:ChartPanel.Layers>
+                <!--悬浮放大-->
+                <pc:ToolTipLayer />
+            </pc:ChartPanel.Layers>
+        </pc:ChartPanel>
     </Grid>
 </Window>

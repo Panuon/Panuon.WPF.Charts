@@ -63,8 +63,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             var chartContext = _chartPanel.GetCanvasContext();
 
             Series.Render(drawingContext,
-                chartContext,
-                _chartPanel.Coordinates);
+                chartContext);
         }
         #endregion
 

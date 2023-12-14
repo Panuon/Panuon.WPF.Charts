@@ -10,6 +10,6 @@ namespace Panuon.WPF.Charts
 
         double Offset { get; }
 
-        double GetValue(IChartUnit seriesOrSegment);
+        double GetValue(IChartValueProvider seriesOrSegment);
     }
 }

@@ -12,10 +12,10 @@ namespace Panuon.WPF.Charts.Implements
 
         public double Offset { get; set; }
 
-        internal Dictionary<IChartUnit, double> Values { get; set; }
+        internal Dictionary<IChartValueProvider, double> Values { get; set; }
         #endregion
 
-        public double GetValue(IChartUnit seriesOrSegment)
+        public double GetValue(IChartValueProvider seriesOrSegment)
         {
             return Values[seriesOrSegment];
         }

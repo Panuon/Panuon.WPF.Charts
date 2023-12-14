@@ -19,9 +19,10 @@ namespace Panuon.WPF.Charts
             double startX,
             double startY);
 
-        void DrawGeometry(Geometry geometry,
-            Brush stroke,
-            double strokeThickness);
+        void DrawGeometry(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            Geometry geometry);
 
         void DrawText(FormattedText text,
             double offsetX,
@@ -34,5 +35,14 @@ namespace Panuon.WPF.Charts
             double startY,
             double width,
             double height);
+
+        void DrawArc(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double centerX,
+            double centerY,
+            double radius,
+            double startAngle,
+            double endAngle);
     }
 }

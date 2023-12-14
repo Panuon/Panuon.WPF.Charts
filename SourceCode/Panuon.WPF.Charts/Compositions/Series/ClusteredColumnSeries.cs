@@ -40,9 +40,10 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            IEnumerable<ICoordinate> coordinates)
+            IChartContext chartContext)
         {
+            var coordinates = chartContext.Coordinates;
+
             foreach (var coordinate in coordinates)
             {
                 var offsetX = coordinate.Offset;
@@ -68,22 +69,27 @@ namespace Panuon.WPF.Charts
             }
         }
 
-        protected override void OnHighlighting(ICoordinate coordinate,
-            IDrawingContext drawingContext,
-            IChartContext chartContext)
+        protected override void OnHighlighting(IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext)
         {
-            var offsetX = coordinate.Offset;
-            var totalWidth = chartContext.CalculateWidth(Width);
-            var left = offsetX - totalWidth / 2;
-            var barWidth = CalculateBarWidth(totalWidth);
-
-            foreach (var segment in Segments)
+            if (layerContext.GetMousePosition() is Point position)
             {
-                var value = coordinate.GetValue(segment);
-                var offsetY = chartContext.GetOffset(value);
-                drawingContext.DrawEllipse(segment.Fill, 2, Brushes.White, 5, 5, left + barWidth / 2, offsetY);
+                var coordinate = layerContext.GetCoordinate(position.X);
 
-                left += (barWidth + Spacing);
+                var offsetX = coordinate.Offset;
+                var totalWidth = chartContext.CalculateWidth(Width);
+                var left = offsetX - totalWidth / 2;
+                var barWidth = CalculateBarWidth(totalWidth);
+
+                foreach (var segment in Segments)
+                {
+                    var value = coordinate.GetValue(segment);
+                    var offsetY = chartContext.GetOffset(value);
+                    drawingContext.DrawEllipse(segment.Fill, 2, Brushes.White, 5, 5, left + barWidth / 2, offsetY);
+
+                    left += (barWidth + Spacing);
+                }
             }
         }
         #endregion

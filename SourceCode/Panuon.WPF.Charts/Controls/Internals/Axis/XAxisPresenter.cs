@@ -56,6 +56,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             _formattedTexts.Clear();
 
+            if(XAxis == null)
+            {
+                return new Size(0, 0);
+            }
+
             foreach(var coordinate in _chartPanel.Coordinates)
             {
                 var formattedText = new FormattedText(coordinate.Title,
@@ -76,7 +81,12 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
-                return new Size(finalSize.Width, DesiredSize.Height);
+            if (XAxis == null)
+            {
+                return new Size(0, 0);
+            }
+
+            return new Size(finalSize.Width, DesiredSize.Height);
         }
         #endregion
 

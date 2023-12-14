@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace Panuon.WPF.Charts
@@ -7,8 +8,6 @@ namespace Panuon.WPF.Charts
         : IChartContext
     {
         #region Fields
-
-
         private double _deltaX;
         private double _minMaxDelta;
         #endregion
@@ -16,21 +15,22 @@ namespace Panuon.WPF.Charts
         #region Ctor
         internal ChartContextImpl(double areaWidth,
             double areaHeight,
-            int _coordinatesCount,
             double minValue,
             double maxValue,
-            IEnumerable<SeriesBase> series)
+            IEnumerable<SeriesBase> series,
+            IEnumerable<ICoordinate> coordinates)
         {
             AreaWidth = areaWidth;
             AreaHeight = areaHeight;
-            CoordinatesCount = _coordinatesCount;
             MinValue = minValue;
             MaxValue = maxValue;
             Series = series;
 
-            _deltaX = AreaWidth / _coordinatesCount;
+            _deltaX = AreaWidth / coordinates.Count();
 
             _minMaxDelta = MaxValue - MinValue;
+
+            Coordinates = coordinates;
         }
         #endregion
 
@@ -39,11 +39,11 @@ namespace Panuon.WPF.Charts
 
         public double AreaHeight { get; }
 
-        public int CoordinatesCount { get; }
-
         public double MinValue { get; }
 
         public double MaxValue { get; }
+
+        public IEnumerable<ICoordinate> Coordinates { get; }
 
         public IEnumerable<SeriesBase> Series { get; }
         #endregion

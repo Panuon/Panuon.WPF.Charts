@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class LineSeries
-        : SingleSeriesBase
+        : ValueProviderSeriesBase
     {
         #region Properties
 
@@ -102,9 +102,10 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            IEnumerable<ICoordinate> coordinates)
+            IChartContext chartContext)
         {
+            var coordinates = chartContext.Coordinates;
+
             ICoordinate lastCoordinate = null;
             foreach (var coordinate in coordinates)
             {
@@ -138,13 +139,18 @@ namespace Panuon.WPF.Charts
             }
         }
 
-        protected override void OnHighlighting(ICoordinate coordinate,
-            IDrawingContext drawingContext,
-            IChartContext chartContext)
+        protected override void OnHighlighting(IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext)
         {
-            var value = coordinate.GetValue(this);
-            var offsetY = chartContext.GetOffset(value);
-            drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+            if (layerContext.GetMousePosition() is Point position)
+            {
+                var coordinate = layerContext.GetCoordinate(position.X);
+
+                var value = coordinate.GetValue(this);
+                var offsetY = chartContext.GetOffset(value);
+                drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+            }
         }
         #endregion
     }

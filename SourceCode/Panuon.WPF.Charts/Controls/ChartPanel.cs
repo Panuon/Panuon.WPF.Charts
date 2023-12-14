@@ -225,10 +225,10 @@ namespace Panuon.WPF.Charts
                         ? (string)titleValue
                         : titleValue.ToString();
 
-                    var values = new Dictionary<IChartUnit, double>();
+                    var values = new Dictionary<IChartValueProvider, double>();
                     foreach (var series in Series)
                     {
-                        if (series is SingleSeriesBase singleSeries)
+                        if (series is ValueProviderSeriesBase singleSeries)
                         {
                             if (string.IsNullOrEmpty(singleSeries.ValueMemberPath))
                             {
@@ -251,7 +251,7 @@ namespace Panuon.WPF.Charts
                             {
                                 if (string.IsNullOrEmpty(segment.ValueMemberPath))
                                 {
-                                    throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
+                                    throw new NullReferenceException("Property ValueMemberPath of Segment can not be null.");
                                 }
 
                                 var valueProperty = itemType.GetProperty(segment.ValueMemberPath);
@@ -277,14 +277,22 @@ namespace Panuon.WPF.Charts
                 }
             }
 
-            CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
-                coordinates.SelectMany(x => x.Values.Values).Max(),
-                out int minValue,
-                out int maxValue);
-
             Coordinates = coordinates;
-            MinValue = minValue;
-            MaxValue = maxValue;
+            if (coordinates.Any())
+            {
+                CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
+                    coordinates.SelectMany(x => x.Values.Values).Max(),
+                    out int minValue,
+                    out int maxValue);
+
+                MinValue = minValue;
+                MaxValue = maxValue;
+            }
+            else
+            {
+                MinValue = 0;
+                MaxValue = 10;
+            }
 
             _xAxisPresenter.Measure(availableSize);
             _yAxisPresenter.Measure(availableSize);
@@ -354,14 +362,14 @@ namespace Panuon.WPF.Charts
                 _chartContext.MaxValue != MaxValue ||
                 _chartContext.AreaWidth != _seriesPanel.RenderSize.Width || 
                 _chartContext.AreaHeight != _seriesPanel.RenderSize.Height ||
-                _chartContext.CoordinatesCount != Coordinates.Count)
+                _chartContext.Coordinates != Coordinates)
             {
                 _chartContext = new ChartContextImpl(_seriesPanel.RenderSize.Width,
                     _seriesPanel.RenderSize.Height,
-                    Coordinates.Count,
                     MinValue,
                     MaxValue,
-                    Series);
+                    Series,
+                    Coordinates);
             }
 
             return _chartContext;
@@ -371,53 +379,7 @@ namespace Panuon.WPF.Charts
         {
             if (_layerContext == null)
             {
-                var chartContext = GetCanvasContext();
-
-                _layerContext = new LayerContextImpl(getMousePosition: () =>
-                {
-                    if (_layersPanel.IsMouseOver)
-                    {
-                        return Mouse.GetPosition(_layersPanel);
-                    }
-                    return null;
-                }, getCoordinate: (offsetX) =>
-                {
-                    if(offsetX < 0 ||
-                        offsetX > ActualWidth)
-                    {
-                        return null;
-                    }
-                    var leftCoordinate = Coordinates.LastOrDefault(x => x.Offset <= offsetX);
-                    var rightCoordinate = Coordinates.FirstOrDefault(y => y.Offset >= offsetX);
-                    if (leftCoordinate == null &&
-                        rightCoordinate == null)
-                    {
-                        return null;
-                    }
-                    if (leftCoordinate == null)
-                    {
-                        return rightCoordinate;
-                    }
-                    if (rightCoordinate == null)
-                    {
-                        return leftCoordinate;
-                    }
-                    return Math.Abs(leftCoordinate.Offset - offsetX) <= Math.Abs(rightCoordinate.Offset - offsetX)
-                        ? leftCoordinate
-                        : rightCoordinate;
-                }, getValue: (index, seriesOrSegment) =>
-                {
-                    var coordinate = Coordinates.FirstOrDefault(x => x.Index == index);
-                    if (coordinate == null ||
-                        !coordinate.Values.ContainsKey(seriesOrSegment))
-                    {
-                        return MinValue;
-                    }
-                    else
-                    {
-                        return coordinate.Values[seriesOrSegment];
-                    }
-                });
+                _layerContext = new LayerContextImpl(this);
             }
             return _layerContext;
         }

@@ -4,8 +4,8 @@ using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
-    public class ClusteredColumnSeriesSegment
-        : ValueProviderSegmentBase
+    public class PieSeriesSegment
+        : SegmentBase
     {
         #region Properties
 
@@ -17,7 +17,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(PieSeriesSegment), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
         #endregion
 
         #region Stroke
@@ -28,7 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(PieSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
         #endregion
 
         #region StrokeThickness
@@ -39,7 +39,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(1d, OnRenderPropertyChanged));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(PieSeriesSegment), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
         #endregion

@@ -31,11 +31,12 @@ namespace Samples
                 new { Title = "2", Value1 = 9, Value2 = 6, Value3 = 3, },
                 new { Title = "3", Value1 = 7, Value2 = 4, Value3 = 1, },
                 new { Title = "4", Value1 = 8, Value2 = 5, Value3 = 4, },
-                new { Title = "5", Value1 = 9, Value2 = 6, Value3 = 6, },
+                new { Title = "5", Value1 = 9, Value2 = 6, Value3 = 60, },
             };
 
             chartPanel1.ItemsSource = itemsSource;
             chartPanel2.ItemsSource = itemsSource;
+            chartPanel3.ItemsSource = itemsSource;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

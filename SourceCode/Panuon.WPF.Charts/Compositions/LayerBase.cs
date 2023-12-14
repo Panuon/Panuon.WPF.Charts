@@ -1,10 +1,17 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class LayerBase
         : DependencyObject
     {
+        #region Fields
+        internal readonly List<UIElement> _children = 
+            new List<UIElement>();
+        #endregion
+
         #region Ctor
         #endregion
 
@@ -62,11 +69,13 @@ namespace Panuon.WPF.Charts
 
         protected void AddChild(UIElement child)
         {
+            _children.Add(child);
             InternalAddChild?.Invoke(child);
         }
 
         protected void RemoveChild(UIElement child)
         {
+            _children.Remove(child);
             InternalRemoveChild?.Invoke(child);
         }
 

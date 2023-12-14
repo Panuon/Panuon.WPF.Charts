@@ -1,6 +1,6 @@
 ﻿namespace Panuon.WPF.Charts
 {
-    public interface IChartUnit
+    public interface IChartValueProvider
     {
         string ValueMemberPath { get; set; }
     }

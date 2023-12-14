@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
@@ -20,7 +21,7 @@ namespace Panuon.WPF.Charts
         #region Methods
 
         #region Protected Methods
-        protected static void OnRenderPropertyChanged(DependencyObject d, 
+        protected static void OnRenderPropertyChanged(DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
             var series = (SeriesBase)d;
@@ -35,31 +36,35 @@ namespace Panuon.WPF.Charts
 
         #region Internal Methods
         internal void Render(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            IEnumerable<ICoordinate> coordinates)
-        {
-            OnRendering(drawingContext, chartContext, coordinates);
-        }
-
-        internal void Highlight(ICoordinate coordinate,
-            IDrawingContext drawingContext,
             IChartContext chartContext)
         {
-            OnHighlighting(coordinate, drawingContext, chartContext);
+            OnRendering(drawingContext, chartContext);
+        }
+
+        internal void Highlight(IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            out IEnumerable<Tuple<Brush, string>> tooltips)
+        {
+            OnHighlighting(drawingContext,
+                chartContext,
+                layerContext,
+                out tooltips);
         }
         #endregion
 
         #region Abstract Methods
 
         protected abstract void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            IEnumerable<ICoordinate> coordinates);
-
-        protected abstract void OnHighlighting(ICoordinate coordinate,
-            IDrawingContext drawingContext,
             IChartContext chartContext);
+
+        protected abstract void OnHighlighting(IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            out IEnumerable<Tuple<Brush, string>> tooltips);
         #endregion
 
         #endregion
     }
+
 }
