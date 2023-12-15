@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
@@ -82,6 +83,14 @@ namespace Panuon.WPF.Charts
         protected void InvalidRender()
         {
             InternalInvalidRender?.Invoke();
+        }
+
+
+        protected static void OnInvalidRenderPropertyChanged(DependencyObject d, 
+            DependencyPropertyChangedEventArgs e)
+        {
+            var layer = (LayerBase)d;
+            layer.InvalidRender();
         }
         #endregion
     }

@@ -91,7 +91,7 @@
             </pc:ChartPanel.Series>
             <pc:ChartPanel.Layers>
                 <!--悬浮放大-->
-                <pc:ToolTipLayer />
+                <pc:ToolTipLayer Visibility="Visible" />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
     </Grid>

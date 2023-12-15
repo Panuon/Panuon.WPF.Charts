@@ -151,6 +151,8 @@ namespace Panuon.WPF.Charts
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffset(value);
                 drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+
+                tooltips.Add(new SeriesTooltip(Stroke, coordinate.Title, value.ToString()));
             }
         }
         #endregion

@@ -27,11 +27,11 @@ namespace Samples
 
             var itemsSource = new object[]
             {
-                new { Title = "1", Value1 = 5, Value2 = 4, Value3 = 2, },
-                new { Title = "2", Value1 = 9, Value2 = 6, Value3 = 3, },
-                new { Title = "3", Value1 = 7, Value2 = 4, Value3 = 1, },
-                new { Title = "4", Value1 = 8, Value2 = 5, Value3 = 4, },
-                new { Title = "5", Value1 = 9, Value2 = 6, Value3 = 60, },
+                new { Title = "数据1", Value1 = 5, Value2 = 4, Value3 = 2, },
+                new { Title = "数据2", Value1 = 9, Value2 = 6, Value3 = 3, },
+                new { Title = "数据3", Value1 = 7, Value2 = 4, Value3 = 1, },
+                new { Title = "数据4", Value1 = 8, Value2 = 5, Value3 = 4, },
+                new { Title = "数据5", Value1 = 9, Value2 = 6, Value3 = 60, },
             };
 
             chartPanel1.ItemsSource = itemsSource;

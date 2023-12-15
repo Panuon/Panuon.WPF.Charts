@@ -95,7 +95,6 @@ namespace Panuon.WPF.Charts
             var figure = new PathFigure
             {
                 StartPoint = startPoint,
-
             };
             figure.Segments.Add(new ArcSegment
             {
@@ -107,10 +106,12 @@ namespace Panuon.WPF.Charts
             figure.Segments.Add(new LineSegment
             {
                 Point = new Point(centerX, centerY),
+                IsSmoothJoin = true,
             });
             figure.Segments.Add(new LineSegment
             {
                 Point = startPoint,
+                IsSmoothJoin = true,
             });
 
             var geometry = new PathGeometry();

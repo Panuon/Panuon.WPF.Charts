@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -118,6 +119,8 @@ namespace Panuon.WPF.Charts
                                 radius,
                                 totalAngle,
                                 totalAngle + angle);
+                        tooltips.Add(new SeriesTooltip(segment.Fill, coordinate.Title, value.ToString()));
+                        return;
                     }
 
                     totalAngle += angle;
