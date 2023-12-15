@@ -92,14 +92,16 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnMouseIn(IChartContext chartContext, ILayerContext layerContext)
+        protected override void OnMouseIn(IChartContext chartContext, 
+            ILayerContext layerContext)
         {
             _label.Content = null;
             _label.Visibility = System.Windows.Visibility.Visible;
             InvalidRender();
         }
 
-        protected override void OnMouseOut(IChartContext chartContext, ILayerContext layerContext)
+        protected override void OnMouseOut(IChartContext chartContext, 
+            ILayerContext layerContext)
         {
             _label.Content = null;
             _label.Visibility = System.Windows.Visibility.Collapsed;
