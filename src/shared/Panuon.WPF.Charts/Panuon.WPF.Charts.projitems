@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f71c19fe-de7b-4747-9510-be8b429bd804</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Panuon.WPF.Charts</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\Generic.Core.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\AxisBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\LayerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrossLineLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToolTipLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\PieSeriesSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ClusteredColumnSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ColumnSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\LineSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\PieSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\XAxis.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\YAxis.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartValueProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICoordinate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IDrawingContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ILayerContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\ChartPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Axis\AxisPresenterBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Axis\XAxisPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Axis\YAxisPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\GridLinesPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayerPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayersPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPanel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\ChartPanelGridLinesVisibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPlacement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPosition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipVisibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\ChartContextImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\CoordinateImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\LayerContextImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\WPFDrawingContextImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LayerCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SegmentCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SeriesCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SeriesTooltip.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources\ResourceKeys.cs" />
+  </ItemGroup>
+</Project>

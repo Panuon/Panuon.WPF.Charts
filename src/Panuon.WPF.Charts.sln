@@ -1,0 +1,89 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Panuon.WPF.Charts", "net6\Panuon.WPF.Charts.csproj", "{371CBEED-6ACD-4541-B8B5-D5B0D4872D81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net6", "net6", "{CDAF5DC5-6BC4-47CB-B0AA-479FEF50EBA9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net452", "net452", "{DD8A502E-9E48-4CD6-AE9A-71B9C643FE95}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net462", "net462", "{EB19BE46-4F69-4919-B522-BBB2C6BF3857}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net472", "net472", "{B6AADE3F-17CA-4AC7-95FB-1AC3463CEC24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net48", "net48", "{93985EE9-65AC-41D3-B664-8B5D0D0C9EA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net7", "net7", "{F4E812A9-7531-48E3-9861-2D418292EA10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net452\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net462\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{84D9EF91-C8AC-4123-9CA8-A5A038668863}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net472\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net48\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{D44299B3-A1B6-4172-840B-230C40D73AC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net7\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{1848B483-47BE-40D8-B341-A17A7802C986}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{68ABB7DB-ACAF-4B9A-AA67-9F27370480D3}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Panuon.WPF.Charts", "shared\Panuon.WPF.Charts\Panuon.WPF.Charts.shproj", "{F71C19FE-DE7B-4747-9510-BE8B429BD804}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{371CBEED-6ACD-4541-B8B5-D5B0D4872D81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{371CBEED-6ACD-4541-B8B5-D5B0D4872D81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{371CBEED-6ACD-4541-B8B5-D5B0D4872D81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{371CBEED-6ACD-4541-B8B5-D5B0D4872D81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84D9EF91-C8AC-4123-9CA8-A5A038668863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84D9EF91-C8AC-4123-9CA8-A5A038668863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84D9EF91-C8AC-4123-9CA8-A5A038668863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84D9EF91-C8AC-4123-9CA8-A5A038668863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D44299B3-A1B6-4172-840B-230C40D73AC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D44299B3-A1B6-4172-840B-230C40D73AC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D44299B3-A1B6-4172-840B-230C40D73AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D44299B3-A1B6-4172-840B-230C40D73AC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1848B483-47BE-40D8-B341-A17A7802C986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1848B483-47BE-40D8-B341-A17A7802C986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1848B483-47BE-40D8-B341-A17A7802C986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1848B483-47BE-40D8-B341-A17A7802C986}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{371CBEED-6ACD-4541-B8B5-D5B0D4872D81} = {CDAF5DC5-6BC4-47CB-B0AA-479FEF50EBA9}
+		{D064E35D-BAB0-4A4A-B5E1-6109ABFA24C9} = {DD8A502E-9E48-4CD6-AE9A-71B9C643FE95}
+		{84D9EF91-C8AC-4123-9CA8-A5A038668863} = {EB19BE46-4F69-4919-B522-BBB2C6BF3857}
+		{9DA0E1A3-6B7C-442F-BFA4-EE41F9D827C4} = {B6AADE3F-17CA-4AC7-95FB-1AC3463CEC24}
+		{D44299B3-A1B6-4172-840B-230C40D73AC6} = {93985EE9-65AC-41D3-B664-8B5D0D0C9EA4}
+		{1848B483-47BE-40D8-B341-A17A7802C986} = {F4E812A9-7531-48E3-9861-2D418292EA10}
+		{F71C19FE-DE7B-4747-9510-BE8B429BD804} = {68ABB7DB-ACAF-4B9A-AA67-9F27370480D3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B239D8B-7D53-4F31-892A-1B1ACEBB5837}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{1848b483-47be-40d8-b341-a17a7802c986}*SharedItemsImports = 5
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{371cbeed-6acd-4541-b8b5-d5b0d4872d81}*SharedItemsImports = 5
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{84d9ef91-c8ac-4123-9ca8-a5a038668863}*SharedItemsImports = 4
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{9da0e1a3-6b7c-442f-bfa4-ee41f9d827c4}*SharedItemsImports = 4
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{d064e35d-bab0-4a4a-b5e1-6109abfa24c9}*SharedItemsImports = 4
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{d44299b3-a1b6-4172-840b-230c40d73ac6}*SharedItemsImports = 4
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{f71c19fe-de7b-4747-9510-be8b429bd804}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal

@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{ABA7FC9B-FD18-49C4-983F-39111EF098D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{ABA7FC9B-FD18-49C4-983F-39111EF098D0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedResources", "SharedResources", "{878EC97B-4B34-4789-820D-6629F9653975}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net6", "Net6", "{CEFB1443-7A52-4C8E-8549-9CD3FCC6A065}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "..\SourceCode\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{FC4E78CB-7C96-4A9C-9386-57F9A196FE45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Panuon.WPF.Charts", "..\src\net6\Panuon.WPF.Charts.csproj", "{FC4E78CB-7C96-4A9C-9386-57F9A196FE45}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Panuon.WPF.Charts", "..\src\shared\Panuon.WPF.Charts\Panuon.WPF.Charts.shproj", "{F71C19FE-DE7B-4747-9510-BE8B429BD804}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,8 +33,13 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FC4E78CB-7C96-4A9C-9386-57F9A196FE45} = {CEFB1443-7A52-4C8E-8549-9CD3FCC6A065}
+		{F71C19FE-DE7B-4747-9510-BE8B429BD804} = {878EC97B-4B34-4789-820D-6629F9653975}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C6071BC-EC38-4DFA-BCD7-F24098B03749}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\src\shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{f71c19fe-de7b-4747-9510-be8b429bd804}*SharedItemsImports = 13
+		..\src\shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{fc4e78cb-7c96-4a9c-9386-57f9a196fe45}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

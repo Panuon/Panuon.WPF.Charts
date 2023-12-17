@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Samples"
         xmlns:pc="clr-namespace:Panuon.WPF.Charts;assembly=Panuon.WPF.Charts"
         mc:Ignorable="d"
-        Title="MainWindow"
+        Title="Panauon.WPF.Charts"
         Height="450"
         Width="1500"
         Loaded="Window_Loaded">
@@ -23,15 +23,15 @@
                        GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title">
             <pc:ChartPanel.Series>
+                <pc:ColumnSeries Fill="#FCBA03"
+                                 Width="15"
+                                 ValueMemberPath="Value3" />
                 <pc:LineSeries Stroke="#36A5EB"
                                StrokeThickness="2"
                                ValueMemberPath="Value1" />
                 <pc:LineSeries Stroke="#F55195"
                                StrokeThickness="2"
                                ValueMemberPath="Value2" />
-                <pc:ColumnSeries Fill="#FCBA03"
-                                 Width="15"
-                                 ValueMemberPath="Value3" />
             </pc:ChartPanel.Series>
             <pc:ChartPanel.Layers>
                 <!--十字交叉线-->
@@ -49,11 +49,14 @@
                                StrokeThickness="2"
                                ValueMemberPath="Value1" />
                 <pc:ClusteredColumnSeries>
-                    <pc:ClusteredColumnSeriesSegment Fill="#36A5EB"
+                    <pc:ClusteredColumnSeriesSegment Title="Data 2-1"
+                                                     Fill="#36A5EB"
                                                      ValueMemberPath="Value1" />
-                    <pc:ClusteredColumnSeriesSegment Fill="#F55195"
+                    <pc:ClusteredColumnSeriesSegment Title="Data 2-2"
+                                                     Fill="#F55195"
                                                      ValueMemberPath="Value2" />
-                    <pc:ClusteredColumnSeriesSegment Fill="#FCBA03"
+                    <pc:ClusteredColumnSeriesSegment Title="Data 2-3"
+                                                     Fill="#FCBA03"
                                                      ValueMemberPath="Value3" />
                 </pc:ClusteredColumnSeries>
             </pc:ChartPanel.Series>
@@ -72,19 +75,24 @@
                        YAxis="{x:Null}">
             <pc:ChartPanel.Series>
                 <pc:PieSeries ValueMemberPath="Value3">
-                    <pc:PieSeriesSegment Fill="#36A5EB"
+                    <pc:PieSeriesSegment LabelFill="#36A5EB"
+                                         Fill="#36A5EB"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment Fill="#F55195"
+                    <pc:PieSeriesSegment LabelFill="#F55195"
+                                         Fill="#F55195"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment Fill="#FCBA03"
+                    <pc:PieSeriesSegment LabelFill="#FCBA03"
+                                         Fill="#FCBA03"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment Fill="#A595EB"
+                    <pc:PieSeriesSegment LabelFill="#A595EB"
+                                         Fill="#A595EB"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment Fill="#36A57B"
+                    <pc:PieSeriesSegment LabelFill="#36A57B"
+                                         Fill="#36A57B"
                                          Stroke="White"
                                          StrokeThickness="2" />
                 </pc:PieSeries>
