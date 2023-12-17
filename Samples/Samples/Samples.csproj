@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\SourceCode\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj" />
+    <ProjectReference Include="..\..\src\net6\Panuon.WPF.Charts.csproj" />
   </ItemGroup>
 
 </Project>
