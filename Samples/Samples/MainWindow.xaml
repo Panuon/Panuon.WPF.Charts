@@ -22,6 +22,7 @@
         <pc:ChartPanel x:Name="chartPanel1"
                        GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title"
+                       AnimationDuration="0:0:10"
                        AnimationEasing="CubicInOut">
             <pc:ChartPanel.Series>
                 <pc:ColumnSeries BackgroundFill="#33FCBA03"

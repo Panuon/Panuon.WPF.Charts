@@ -24,6 +24,8 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             _seriesPanel = seriesPanel;
             _chartPanel = chartPanel;
+
+            Loaded += SeriesPresenter_Loaded;
         }
         #endregion
 
@@ -69,12 +71,10 @@ namespace Panuon.WPF.Charts.Controls.Internals
             var presenter = (SeriesPresenter)d;
             presenter.InvalidateVisual();
         }
-        #endregion
 
-        #region Overrides
-        protected override void OnInitialized(EventArgs e)
+        private void SeriesPresenter_Loaded(object sender, RoutedEventArgs e)
         {
-            base.OnInitialized(e);
+            Loaded -= SeriesPresenter_Loaded;
 
             AnimationPercent = 0;
             if (_chartPanel.AnimationDuration is TimeSpan duration
@@ -97,6 +97,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 _isAnimationCompleted = true;
             }
         }
+        #endregion
+
+        #region Overrides
 
         protected override void OnRender(DrawingContext context)
         {

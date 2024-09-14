@@ -117,9 +117,8 @@ namespace Panuon.WPF.Charts
                 return;
             }
 
-            // 计算折线总长度
-            double totalLength = 0;
-            List<double> segmentLengths = new List<double>();
+            var totalLength = 0d;
+            var segmentLengths = new List<double>();
 
             for (int i = 0; i < ValuePoints.Count - 1; i++)
             {
@@ -128,25 +127,40 @@ namespace Panuon.WPF.Charts
                 totalLength += segmentLength;
             }
 
-            double targetLength = totalLength * animationProgress;
+            var targetLength = totalLength * animationProgress;
 
-            double accumulatedLength = 0;
-            Point lastPoint = ValuePoints[0];
+            var accumulatedLength = 0d;
+            var lastPoint = ValuePoints[0];
+            var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
+
             for (int i = 0; i < segmentLengths.Count; i++)
             {
                 var point = ValuePoints[i + 1];
-                double segmentLength = segmentLengths[i];
+                var segmentLength = segmentLengths[i];
+
+                if (i == 0)
+                {
+                    drawingContext.DrawEllipse(
+                        ToggleStroke,
+                        ToggleStrokeThickness,
+                        toggleFill,
+                        ToggleRadius,
+                        ToggleRadius,
+                        ValuePoints[i].X,
+                        ValuePoints[i].Y
+                    );
+                }
 
                 if (accumulatedLength + segmentLength >= targetLength)
                 {
-                    double remainingLength = targetLength - accumulatedLength;
-                    double t = remainingLength / segmentLength;
+                    var remainingLength = targetLength - accumulatedLength;
+                    var t = remainingLength / segmentLength;
 
-                    Point p1 = ValuePoints[i];
-                    Point p2 = ValuePoints[i + 1];
+                    var p1 = ValuePoints[i];
+                    var p2 = ValuePoints[i + 1];
 
-                    double x = p1.X + t * (p2.X - p1.X);
-                    double y = p1.Y + t * (p2.Y - p1.Y);
+                    var x = p1.X + t * (p2.X - p1.X);
+                    var y = p1.Y + t * (p2.Y - p1.Y);
 
                     drawingContext.DrawLine(
                         Stroke,
@@ -156,6 +170,7 @@ namespace Panuon.WPF.Charts
                         x,
                         y
                     );
+
                     return;
                 }
 
@@ -168,29 +183,18 @@ namespace Panuon.WPF.Charts
                     point.Y
                 );
 
-                lastPoint = point;
-                accumulatedLength += segmentLength;
-            }
-
-            /*foreach (var coordinate in coordinates)
-            {
-                var value = coordinate.GetValue(this);
-                var offsetX = coordinate.Offset;
-                var offsetY = chartContext.GetOffsetY(value);
-
-                if (lastCoordinate != null)
+                if (i == segmentLengths.Count - 1)
                 {
-                    var lastValue = lastCoordinate.GetValue(this);
-
-                    drawingContext.DrawLine(Stroke, StrokeThickness,
-                        lastCoordinate.Offset,
-                        chartContext.GetOffsetY(lastValue),
-                        offsetX,
-                        offsetY
+                    drawingContext.DrawEllipse(
+                        ToggleStroke,
+                        ToggleStrokeThickness,
+                        toggleFill,
+                        ToggleRadius,
+                        ToggleRadius,
+                        ValuePoints.Last().X,
+                        ValuePoints.Last().Y
                     );
                 }
-
-                var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
 
                 drawingContext.DrawEllipse(
                     ToggleStroke,
@@ -198,12 +202,14 @@ namespace Panuon.WPF.Charts
                     toggleFill,
                     ToggleRadius,
                     ToggleRadius,
-                    offsetX,
-                    offsetY
+                    point.X,
+                    point.Y
                 );
 
-                lastCoordinate = coordinate;
-            }*/
+                lastPoint = point;
+                accumulatedLength += segmentLength;
+            }
+
         }
         #endregion
 
