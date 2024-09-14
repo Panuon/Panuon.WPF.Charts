@@ -39,22 +39,25 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext)
+        protected override void OnRendering(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        )
         {
             var coordinates = chartContext.Coordinates;
 
             foreach (var coordinate in coordinates)
             {
                 var offsetX = coordinate.Offset;
-                var totalWidth = chartContext.CalculateWidth(Width);
+                var totalWidth = chartContext.CalculateActualWidth(Width);
 
                 var left = offsetX - totalWidth / 2;
                 var barWidth = CalculateBarWidth(totalWidth);
                 foreach (var segment in Segments)
                 {
                     var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffset(value);
+                    var offsetY = chartContext.GetOffsetY(value);
 
                     drawingContext.DrawRectangle(segment.Stroke,
                         segment.StrokeThickness,
@@ -79,14 +82,14 @@ namespace Panuon.WPF.Charts
                 var coordinate = layerContext.GetCoordinate(position.X);
 
                 var offsetX = coordinate.Offset;
-                var totalWidth = chartContext.CalculateWidth(Width);
+                var totalWidth = chartContext.CalculateActualWidth(Width);
                 var left = offsetX - totalWidth / 2;
                 var barWidth = CalculateBarWidth(totalWidth);
 
                 foreach (var segment in Segments)
                 {
                     var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffset(value);
+                    var offsetY = chartContext.GetOffsetY(value);
                     drawingContext.DrawEllipse(segment.Fill,
                         2,
                         Brushes.White,

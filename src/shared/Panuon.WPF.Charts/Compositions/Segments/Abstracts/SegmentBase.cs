@@ -1,5 +1,4 @@
-﻿using Panuon.WPF.Chart;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Panuon.WPF.Charts
 {

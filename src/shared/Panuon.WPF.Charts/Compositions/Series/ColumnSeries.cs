@@ -13,6 +13,17 @@ namespace Panuon.WPF.Charts
     {
         #region Properties
 
+        #region BackgroundFill
+        public Brush BackgroundFill
+        {
+            get { return (Brush)GetValue(BackgroundFillProperty); }
+            set { SetValue(BackgroundFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty BackgroundFillProperty =
+            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+        #endregion
+
         #region Fill
         public Brush Fill
         {
@@ -61,22 +72,48 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext)
+
+        #region OnRendering
+        protected override void OnRendering(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        )
         {
-            var coordinates = chartContext.Coordinates;
+            var columnWidth = chartContext.CalculateActualWidth(Width);
 
-            foreach (var coordinate in coordinates)
+            foreach (var valuePoint in ValuePoints)
             {
-                var value = coordinate.GetValue(this);
-                var columnWidth = chartContext.CalculateWidth(Width);
-                var offsetX = coordinate.Offset;
-                var offsetY = chartContext.GetOffset(value);
+                var offsetX = valuePoint.X;
+                var offsetY = valuePoint.Y;
 
-                drawingContext.DrawRectangle(Stroke, StrokeThickness, Fill, offsetX - columnWidth / 2, offsetY, columnWidth, chartContext.AreaHeight - offsetY);
+                if (BackgroundFill != null)
+                {
+                    drawingContext.DrawRectangle(
+                        stroke: null,
+                        strokeThickness: 0,
+                        fill: BackgroundFill,
+                        startX: offsetX - columnWidth / 2,
+                        startY: 0,
+                        width: columnWidth,
+                        height: chartContext.AreaHeight
+                    );
+                }
+
+                drawingContext.DrawRectangle(
+                       stroke: Stroke,
+                       strokeThickness: StrokeThickness,
+                       fill: Fill,
+                       startX: offsetX - columnWidth / 2,
+                       startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
+                       width: columnWidth,
+                       height: (chartContext.AreaHeight - offsetY) * animationProgress
+                   );
             }
         }
+        #endregion
 
+        #region OnHighlighting
         protected override void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
@@ -87,12 +124,14 @@ namespace Panuon.WPF.Charts
                 var coordinate = layerContext.GetCoordinate(position.X);
 
                 var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffset(value);
+                var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawEllipse(Fill, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
                 tooltips.Add(new SeriesTooltip(Fill, Title ?? coordinate.Title, value.ToString()));
             }
 
         }
+        #endregion
+
         #endregion
     }
 }

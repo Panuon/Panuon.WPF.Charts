@@ -35,13 +35,13 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        public double GetOffset(double value)
+        public double GetOffsetY(double value)
         {
             var minMaxDelta = MaxValue - MinValue;
             return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
         }
 
-        public double CalculateWidth(GridLength width)
+        public double CalculateActualWidth(GridLength width)
         {
             var deltaX = AreaWidth / ChartPanel.Coordinates.Count();
 

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -101,17 +104,79 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext)
-        {
-            var coordinates = chartContext.Coordinates;
 
-            ICoordinate lastCoordinate = null;
-            foreach (var coordinate in coordinates)
+        #region OnRendering
+        protected override void OnRendering(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        )
+        {
+            if (ValuePoints.Count < 2)
+            {
+                return;
+            }
+
+            // 计算折线总长度
+            double totalLength = 0;
+            List<double> segmentLengths = new List<double>();
+
+            for (int i = 0; i < ValuePoints.Count - 1; i++)
+            {
+                double segmentLength = (ValuePoints[i + 1] - ValuePoints[i]).Length;
+                segmentLengths.Add(segmentLength);
+                totalLength += segmentLength;
+            }
+
+            double targetLength = totalLength * animationProgress;
+
+            double accumulatedLength = 0;
+            Point lastPoint = ValuePoints[0];
+            for (int i = 0; i < segmentLengths.Count; i++)
+            {
+                var point = ValuePoints[i + 1];
+                double segmentLength = segmentLengths[i];
+
+                if (accumulatedLength + segmentLength >= targetLength)
+                {
+                    double remainingLength = targetLength - accumulatedLength;
+                    double t = remainingLength / segmentLength;
+
+                    Point p1 = ValuePoints[i];
+                    Point p2 = ValuePoints[i + 1];
+
+                    double x = p1.X + t * (p2.X - p1.X);
+                    double y = p1.Y + t * (p2.Y - p1.Y);
+
+                    drawingContext.DrawLine(
+                        Stroke,
+                        StrokeThickness,
+                        lastPoint.X,
+                        lastPoint.Y,
+                        x,
+                        y
+                    );
+                    return;
+                }
+
+                drawingContext.DrawLine(
+                    Stroke,
+                    StrokeThickness,
+                    lastPoint.X,
+                    lastPoint.Y,
+                    point.X,
+                    point.Y
+                );
+
+                lastPoint = point;
+                accumulatedLength += segmentLength;
+            }
+
+            /*foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
                 var offsetX = coordinate.Offset;
-                var offsetY = chartContext.GetOffset(value);
+                var offsetY = chartContext.GetOffsetY(value);
 
                 if (lastCoordinate != null)
                 {
@@ -119,26 +184,30 @@ namespace Panuon.WPF.Charts
 
                     drawingContext.DrawLine(Stroke, StrokeThickness,
                         lastCoordinate.Offset,
-                        chartContext.GetOffset(lastValue),
+                        chartContext.GetOffsetY(lastValue),
                         offsetX,
-                        offsetY);
-
+                        offsetY
+                    );
                 }
 
                 var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
 
-                drawingContext.DrawEllipse(ToggleStroke,
+                drawingContext.DrawEllipse(
+                    ToggleStroke,
                     ToggleStrokeThickness,
                     toggleFill,
                     ToggleRadius,
                     ToggleRadius,
                     offsetX,
-                    offsetY);
+                    offsetY
+                );
 
                 lastCoordinate = coordinate;
-            }
+            }*/
         }
+        #endregion
 
+        #region OnHighlighting
         protected override void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
@@ -149,12 +218,17 @@ namespace Panuon.WPF.Charts
                 var coordinate = layerContext.GetCoordinate(position.X);
 
                 var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffset(value);
+                var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
 
                 tooltips.Add(new SeriesTooltip(Stroke, Title ?? coordinate.Title, value.ToString()));
             }
         }
+        #endregion
+
+        #endregion
+
+        #region Functions
         #endregion
     }
 }

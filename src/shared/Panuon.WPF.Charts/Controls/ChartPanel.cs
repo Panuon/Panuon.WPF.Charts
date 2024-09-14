@@ -178,6 +178,30 @@ namespace Panuon.WPF.Charts
                 FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
+        #region AnimationEasing
+        public AnimationEasing AnimationEasing
+        {
+            get { return (AnimationEasing)GetValue(AnimationEasingProperty); }
+            set { SetValue(AnimationEasingProperty, value); }
+        }
+
+        public static readonly DependencyProperty AnimationEasingProperty =
+            DependencyProperty.Register("AnimationEasing", typeof(AnimationEasing), typeof(ChartPanel), new PropertyMetadata(AnimationEasing.None));
+        #endregion
+
+        #region AnimationDuration
+        public TimeSpan? AnimationDuration
+        {
+            get { return (TimeSpan?)GetValue(AnimationDurationProperty); }
+            set { SetValue(AnimationDurationProperty, value); }
+        }
+
+        public static readonly DependencyProperty AnimationDurationProperty =
+            DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartPanel), new PropertyMetadata(TimeSpan.FromSeconds(0.3)));
+        #endregion
+
+        #endregion
+
         #region Internal Properties
 
         internal List<CoordinateImpl> Coordinates { get; private set; }
@@ -185,8 +209,6 @@ namespace Panuon.WPF.Charts
         internal double MinValue { get; private set; }
 
         internal double MaxValue { get; private set; }
-        #endregion
-
         #endregion
 
         #region Overrides

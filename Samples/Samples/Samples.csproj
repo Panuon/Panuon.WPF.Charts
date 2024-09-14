@@ -11,4 +11,10 @@
     <ProjectReference Include="..\..\src\net6\Panuon.WPF.Charts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Panuon.WPF">
+      <HintPath>..\..\src\references\net6.0-windows\Panuon.WPF.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

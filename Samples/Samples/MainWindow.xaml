@@ -21,9 +21,11 @@
         </Grid.ColumnDefinitions>
         <pc:ChartPanel x:Name="chartPanel1"
                        GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title">
+                       TitleMemberPath="Title"
+                       AnimationEasing="CubicInOut">
             <pc:ChartPanel.Series>
-                <pc:ColumnSeries Fill="#FCBA03"
+                <pc:ColumnSeries BackgroundFill="#33FCBA03"
+                                 Fill="#FCBA03"
                                  Width="15"
                                  ValueMemberPath="Value3" />
                 <pc:LineSeries Stroke="#36A5EB"
@@ -36,7 +38,7 @@
             <pc:ChartPanel.Layers>
                 <!--十字交叉线-->
                 <pc:CrossLineLayer />
-                <!--悬浮放大-->
+                <!--悬浮圆点-->
                 <pc:ToolTipLayer />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
@@ -63,7 +65,7 @@
             <pc:ChartPanel.Layers>
                 <!--十字交叉线-->
                 <pc:CrossLineLayer />
-                <!--悬浮放大-->
+                <!--悬浮圆点-->
                 <pc:ToolTipLayer />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
@@ -75,30 +77,30 @@
                        YAxis="{x:Null}">
             <pc:ChartPanel.Series>
                 <pc:PieSeries ValueMemberPath="Value3">
-                    <pc:PieSeriesSegment LabelFill="#36A5EB"
+                    <pc:PieSeriesSegment LabelForeground="#36A5EB"
                                          Fill="#36A5EB"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment LabelFill="#F55195"
+                    <pc:PieSeriesSegment LabelForeground="#F55195"
                                          Fill="#F55195"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment LabelFill="#FCBA03"
+                    <pc:PieSeriesSegment LabelForeground="#FCBA03"
                                          Fill="#FCBA03"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment LabelFill="#A595EB"
+                    <pc:PieSeriesSegment LabelForeground="#A595EB"
                                          Fill="#A595EB"
                                          Stroke="White"
                                          StrokeThickness="2" />
-                    <pc:PieSeriesSegment LabelFill="#36A57B"
+                    <pc:PieSeriesSegment LabelForeground="#36A57B"
                                          Fill="#36A57B"
                                          Stroke="White"
                                          StrokeThickness="2" />
                 </pc:PieSeries>
             </pc:ChartPanel.Series>
             <pc:ChartPanel.Layers>
-                <!--悬浮放大-->
+                <!--悬浮圆点-->
                 <pc:ToolTipLayer Visibility="Visible" />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>

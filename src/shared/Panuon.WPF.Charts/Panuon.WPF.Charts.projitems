@@ -46,6 +46,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayersPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\AnimationEasing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ChartPanelGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPlacement.cs" />

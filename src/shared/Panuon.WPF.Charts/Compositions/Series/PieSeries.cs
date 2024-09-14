@@ -38,8 +38,11 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext)
+        protected override void OnRendering(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        )
         {
             var chartPanel = chartContext.ChartPanel;
             var coordinates = chartContext.Coordinates;
