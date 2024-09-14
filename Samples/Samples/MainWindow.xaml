@@ -22,12 +22,12 @@
         <pc:ChartPanel x:Name="chartPanel1"
                        GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title"
-                       AnimationDuration="0:0:10"
-                       AnimationEasing="CubicInOut">
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
             <pc:ChartPanel.Series>
                 <pc:ColumnSeries BackgroundFill="#33FCBA03"
                                  Fill="#FCBA03"
-                                 Width="15"
+                                 ColumnWidth="15"
                                  ValueMemberPath="Value3" />
                 <pc:LineSeries Stroke="#36A5EB"
                                StrokeThickness="2"
@@ -46,7 +46,9 @@
         <pc:ChartPanel x:Name="chartPanel2"
                        Grid.Column="1"
                        GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title">
+                       TitleMemberPath="Title"
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
             <pc:ChartPanel.Series>
                 <pc:LineSeries Stroke="#AE4EED"
                                StrokeThickness="2"
@@ -75,7 +77,9 @@
                        GridLinesBrush="#EFEFEF"
                        TitleMemberPath="Title"
                        XAxis="{x:Null}"
-                       YAxis="{x:Null}">
+                       YAxis="{x:Null}"
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
             <pc:ChartPanel.Series>
                 <pc:PieSeries ValueMemberPath="Value3">
                     <pc:PieSeriesSegment LabelForeground="#36A5EB"

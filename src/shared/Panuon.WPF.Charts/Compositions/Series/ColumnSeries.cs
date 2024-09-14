@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
@@ -11,6 +7,10 @@ namespace Panuon.WPF.Charts
     public class ColumnSeries
         : ValueProviderSeriesBase
     {
+        #region Fields
+        private List<Point> _valuePoints;
+        #endregion
+
         #region Properties
 
         #region BackgroundFill
@@ -58,20 +58,45 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("StrokeThickness", typeof(double), typeof(ColumnSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
-        #region Width
-        public GridLength Width
+        #region ColumnWidth
+        public GridLength ColumnWidth
         {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
+            get { return (GridLength)GetValue(ColumnWidthProperty); }
+            set { SetValue(ColumnWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(ColumnSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
+        public static readonly DependencyProperty ColumnWidthProperty =
+            DependencyProperty.Register("ColumnWidth", typeof(GridLength), typeof(ColumnSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
         #endregion
 
         #endregion
 
         #region Overrides
+
+        #region OnRenderBegin
+        protected override void OnRenderBegin(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
+        {
+            var coordinates = chartContext.Coordinates;
+
+            _valuePoints = new List<Point>();
+            foreach (var coordinate in coordinates)
+            {
+                var value = coordinate.GetValue(this);
+                var offsetX = coordinate.Offset;
+                var offsetY = chartContext.GetOffsetY(value);
+
+                _valuePoints.Add(
+                    new Point(
+                        x: coordinate.Offset,
+                        y: chartContext.GetOffsetY(value)
+                    )
+                );
+            }
+        }
+        #endregion
 
         #region OnRendering
         protected override void OnRendering(
@@ -80,9 +105,9 @@ namespace Panuon.WPF.Charts
             double animationProgress
         )
         {
-            var columnWidth = chartContext.CalculateActualWidth(Width);
+            var columnWidth = chartContext.CalculateActualWidth(ColumnWidth);
 
-            foreach (var valuePoint in ValuePoints)
+            foreach (var valuePoint in _valuePoints)
             {
                 var offsetX = valuePoint.X;
                 var offsetY = valuePoint.Y;

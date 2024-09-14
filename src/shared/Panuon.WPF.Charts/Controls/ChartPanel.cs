@@ -86,18 +86,6 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(ChartPanel));
         #endregion
 
-        #region Padding
-        public Thickness Padding
-        {
-            get { return (Thickness)GetValue(PaddingProperty); }
-            set { SetValue(PaddingProperty, value); }
-        }
-
-        public static readonly DependencyProperty PaddingProperty =
-            DependencyProperty.Register("Padding", typeof(Thickness), typeof(ChartPanel), new FrameworkPropertyMetadata(new Thickness(),
-                FrameworkPropertyMetadataOptions.AffectsParentMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
-        #endregion
-
         #region XAxis
         public XAxis XAxis
         {
@@ -197,7 +185,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AnimationDurationProperty =
-            DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartPanel), new PropertyMetadata(TimeSpan.FromSeconds(0.3)));
+            DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartPanel), new PropertyMetadata(TimeSpan.FromSeconds(1)));
         #endregion
 
         #endregion

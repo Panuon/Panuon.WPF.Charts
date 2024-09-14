@@ -24,7 +24,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\PieSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSegmentsSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ClusteredColumnSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ColumnSeries.cs" />

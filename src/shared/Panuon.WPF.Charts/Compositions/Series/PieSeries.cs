@@ -62,7 +62,7 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var angle = Math.Round(angleDelta * value, 2);
+                var angle = Math.Round(angleDelta * value, 2) * animationProgress;
                 if (index >= Segments.Count)
                 {
                     break;
@@ -87,7 +87,7 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var angle = Math.Round(angleDelta * value, 2);
+                var angle = Math.Round(angleDelta * value, 2) * animationProgress;
                 if (index >= Segments.Count)
                 {
                     break;
@@ -101,9 +101,9 @@ namespace Panuon.WPF.Charts
                     chartPanel.FontSize,
                     chartPanel.Foreground
 #if NET452 || NET462 || NET472 || NET48
-                    );
+                );
 #else
-                    ,VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip);
+                    , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip);
 #endif
 
                 double radian = (totalAngle + angle / 2 - 90) * Math.PI / 180.0;

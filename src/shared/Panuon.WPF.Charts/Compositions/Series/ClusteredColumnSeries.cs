@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Ink;
 using System.Windows.Media;
@@ -12,6 +8,10 @@ namespace Panuon.WPF.Charts
     public class ClusteredColumnSeries
         : SegmentsSeriesBase<ClusteredColumnSeriesSegment>
     {
+        #region Fields
+        private Dictionary<ClusteredColumnSeriesSegment, List<Point>> _segmentPoints;
+        #endregion
+
         #region Properties
 
         #region Spacing
@@ -39,6 +39,40 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
+
+        #region OnRenderBegin
+        protected override void OnRenderBegin(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
+        {
+            _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
+
+            var coordinates = chartContext.Coordinates;
+            foreach (var coordinate in coordinates)
+            {
+                var offsetX = coordinate.Offset;
+                var totalWidth = chartContext.CalculateActualWidth(Width);
+
+                var barWidth = CalculateBarWidth(totalWidth);
+                var left = offsetX - totalWidth / 2 + barWidth / 2;
+                foreach (var segment in Segments)
+                {
+                    var value = coordinate.GetValue(segment);
+                    var offsetY = chartContext.GetOffsetY(value);
+
+                    if (!_segmentPoints.ContainsKey(segment))
+                    {
+                        _segmentPoints[segment] = new List<Point>();
+                    }
+                    _segmentPoints[segment].Add(new Point(left, offsetY));
+                    left += (barWidth + Spacing);
+                }
+            }
+        }
+        #endregion
+
+        #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
             IChartContext chartContext,
@@ -47,31 +81,30 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            foreach (var coordinate in coordinates)
+            var totalWidth = chartContext.CalculateActualWidth(Width);
+            var barWidth = CalculateBarWidth(totalWidth);
+
+            foreach (var segmentPoint in _segmentPoints)
             {
-                var offsetX = coordinate.Offset;
-                var totalWidth = chartContext.CalculateActualWidth(Width);
+                var segment = segmentPoint.Key;
 
-                var left = offsetX - totalWidth / 2;
-                var barWidth = CalculateBarWidth(totalWidth);
-                foreach (var segment in Segments)
+                foreach (var point in segmentPoint.Value)
                 {
-                    var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffsetY(value);
-
-                    drawingContext.DrawRectangle(segment.Stroke,
-                        segment.StrokeThickness,
-                        segment.Fill,
-                        left,
-                        offsetY,
-                        barWidth,
-                        chartContext.AreaHeight - offsetY);
-
-                    left += (barWidth + Spacing);
+                    drawingContext.DrawRectangle(
+                        stroke: segment.Stroke,
+                        strokeThickness: segment.StrokeThickness,
+                        fill: segment.Fill,
+                        startX: point.X - barWidth / 2,
+                        startY: chartContext.AreaHeight - (chartContext.AreaHeight - point.Y) * animationProgress,
+                        width: barWidth,
+                        height: (chartContext.AreaHeight - point.Y) * animationProgress
+                    );
                 }
             }
         }
+        #endregion
 
+        #region OnHighlighting
         protected override void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
@@ -102,6 +135,8 @@ namespace Panuon.WPF.Charts
                 }
             }
         }
+        #endregion
+
         #endregion
 
         #region Functions
