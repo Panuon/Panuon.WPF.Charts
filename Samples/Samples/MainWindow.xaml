@@ -7,11 +7,12 @@
         xmlns:pc="clr-namespace:Panuon.WPF.Charts;assembly=Panuon.WPF.Charts"
         mc:Ignorable="d"
         Title="Panauon.WPF.Charts"
-        Height="450"
-        Width="1500"
+        Height="750"
+        Width="1200"
         Loaded="Window_Loaded">
     <Grid Margin="15">
         <Grid.RowDefinitions>
+            <RowDefinition />
             <RowDefinition />
             <RowDefinition />
         </Grid.RowDefinitions>
@@ -25,7 +26,7 @@
                        AnimationDuration="0:0:3"
                        AnimationEasing="CubicOut">
             <pc:ChartPanel.Series>
-                <pc:ColumnSeries BackgroundFill="#33FCBA03"
+                <pc:ColumnSeries BackgroundFill="#1AFCBA03"
                                  Fill="#FCBA03"
                                  ColumnWidth="15"
                                  ValueMemberPath="Value3" />
@@ -55,12 +56,15 @@
                                ValueMemberPath="Value1" />
                 <pc:ClusteredColumnSeries>
                     <pc:ClusteredColumnSeriesSegment Title="Data 2-1"
+                                                     BackgroundFill="#1A36A5EB"
                                                      Fill="#36A5EB"
                                                      ValueMemberPath="Value1" />
                     <pc:ClusteredColumnSeriesSegment Title="Data 2-2"
+                                                     BackgroundFill="#1AF55195"
                                                      Fill="#F55195"
                                                      ValueMemberPath="Value2" />
                     <pc:ClusteredColumnSeriesSegment Title="Data 2-3"
+                                                     BackgroundFill="#1AFCBA03"
                                                      Fill="#FCBA03"
                                                      ValueMemberPath="Value3" />
                 </pc:ClusteredColumnSeries>
@@ -109,5 +113,68 @@
                 <pc:ToolTipLayer Visibility="Visible" />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
+        <pc:ChartPanel x:Name="chartPanel4"
+                       Grid.Row="1"
+                       Grid.Column="1"
+                       GridLinesBrush="#EFEFEF"
+                       TitleMemberPath="Title"
+                       XAxis="{x:Null}"
+                       YAxis="{x:Null}"
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
+            <pc:ChartPanel.Series>
+                <pc:DoughnutSeries ValueMemberPath="Value3">
+                    <pc:DoughnutSeriesSegment LabelForeground="#36A5EB"
+                                              Fill="#36A5EB"
+                                              Stroke="White"
+                                              StrokeThickness="2" />
+                    <pc:DoughnutSeriesSegment LabelForeground="#F55195"
+                                              Fill="#F55195"
+                                              Stroke="White"
+                                              StrokeThickness="2" />
+                    <pc:DoughnutSeriesSegment LabelForeground="#FCBA03"
+                                              Fill="#FCBA03"
+                                              Stroke="White"
+                                              StrokeThickness="2" />
+                    <pc:DoughnutSeriesSegment LabelForeground="#A595EB"
+                                              Fill="#A595EB"
+                                              Stroke="White"
+                                              StrokeThickness="2" />
+                    <pc:DoughnutSeriesSegment LabelForeground="#36A57B"
+                                              Fill="#36A57B"
+                                              Stroke="White"
+                                              StrokeThickness="2" />
+                </pc:DoughnutSeries>
+            </pc:ChartPanel.Series>
+            <pc:ChartPanel.Layers>
+                <!--悬浮圆点-->
+                <pc:ToolTipLayer Visibility="Visible" />
+            </pc:ChartPanel.Layers>
+        </pc:ChartPanel>
+        <pc:ChartPanel x:Name="chartPanel5"
+                       Grid.Row="2"
+                       GridLinesBrush="#EFEFEF"
+                       TitleMemberPath="Title"
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
+            <pc:ChartPanel.Series>
+                <pc:DotSeries ToggleStroke="#FCBA03"
+                              ToggleStrokeThickness="2"
+                              ValueMemberPath="Value3" />
+                <pc:DotSeries ToggleStroke="#36A5EB"
+                              ToggleStrokeThickness="2"
+                              ValueMemberPath="Value1" />
+                <pc:DotSeries ToggleStroke="#F55195"
+                              ToggleStrokeThickness="2"
+                              ValueMemberPath="Value2" />
+            </pc:ChartPanel.Series>
+            <pc:ChartPanel.Layers>
+                <!--十字交叉线-->
+                <pc:CrossLineLayer />
+                <!--悬浮圆点-->
+                <pc:ToolTipLayer />
+            </pc:ChartPanel.Layers>
+        </pc:ChartPanel>
+
     </Grid>
 </Window>

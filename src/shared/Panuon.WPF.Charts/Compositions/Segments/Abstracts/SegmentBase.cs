@@ -37,6 +37,7 @@ namespace Panuon.WPF.Charts
             DependencyPropertyChangedEventArgs e)
         {
             var segments = (SegmentBase)d;
+
             //segments.InvalidRender();
         }
         #endregion

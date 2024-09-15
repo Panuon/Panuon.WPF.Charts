@@ -1,7 +1,4 @@
-﻿using Panuon.WPF.Charts.Controls.Internals;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
+﻿using System.Collections.Generic;
 
 namespace Panuon.WPF.Charts
 {
@@ -39,25 +36,6 @@ namespace Panuon.WPF.Charts
         {
             var minMaxDelta = MaxValue - MinValue;
             return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
-        }
-
-        public double CalculateActualWidth(GridLength width)
-        {
-            var deltaX = AreaWidth / ChartPanel.Coordinates.Count();
-
-            if (width.IsAbsolute)
-            {
-                return width.Value;
-            }
-            else if (width.IsStar)
-            {
-                return (deltaX * width.Value);
-            }
-
-            else
-            {
-                return deltaX / 2;
-            }
         }
         #endregion
     }

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Panuon.WPF.Charts.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Ink;
 using System.Windows.Media;
@@ -48,14 +51,16 @@ namespace Panuon.WPF.Charts
         {
             _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
 
+            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var columnWidth = CalculateBarWidth(clusterWidth);
+
             var coordinates = chartContext.Coordinates;
             foreach (var coordinate in coordinates)
             {
                 var offsetX = coordinate.Offset;
-                var totalWidth = chartContext.CalculateActualWidth(Width);
 
-                var barWidth = CalculateBarWidth(totalWidth);
-                var left = offsetX - totalWidth / 2 + barWidth / 2;
+                var left = offsetX - clusterWidth / 2 + columnWidth / 2;
                 foreach (var segment in Segments)
                 {
                     var value = coordinate.GetValue(segment);
@@ -66,7 +71,7 @@ namespace Panuon.WPF.Charts
                         _segmentPoints[segment] = new List<Point>();
                     }
                     _segmentPoints[segment].Add(new Point(left, offsetY));
-                    left += (barWidth + Spacing);
+                    left += (columnWidth + Spacing);
                 }
             }
         }
@@ -81,8 +86,9 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            var totalWidth = chartContext.CalculateActualWidth(Width);
-            var barWidth = CalculateBarWidth(totalWidth);
+            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var columnWidth = CalculateBarWidth(clusterWidth);
 
             foreach (var segmentPoint in _segmentPoints)
             {
@@ -90,13 +96,26 @@ namespace Panuon.WPF.Charts
 
                 foreach (var point in segmentPoint.Value)
                 {
+                    if (segment.BackgroundFill != null)
+                    {
+                        drawingContext.DrawRectangle(
+                            stroke: null,
+                            strokeThickness: 0,
+                            fill: segment.BackgroundFill,
+                            startX: point.X - columnWidth / 2,
+                            startY: 0,
+                            width: columnWidth,
+                            height: chartContext.AreaHeight
+                        );
+                    }
+
                     drawingContext.DrawRectangle(
                         stroke: segment.Stroke,
                         strokeThickness: segment.StrokeThickness,
                         fill: segment.Fill,
-                        startX: point.X - barWidth / 2,
+                        startX: point.X - columnWidth / 2,
                         startY: chartContext.AreaHeight - (chartContext.AreaHeight - point.Y) * animationProgress,
-                        width: barWidth,
+                        width: columnWidth,
                         height: (chartContext.AreaHeight - point.Y) * animationProgress
                     );
                 }
@@ -115,9 +134,12 @@ namespace Panuon.WPF.Charts
                 var coordinate = layerContext.GetCoordinate(position.X);
 
                 var offsetX = coordinate.Offset;
-                var totalWidth = chartContext.CalculateActualWidth(Width);
-                var left = offsetX - totalWidth / 2;
-                var barWidth = CalculateBarWidth(totalWidth);
+
+                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+                var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+                var columnWidth = CalculateBarWidth(clusterWidth);
+
+                var left = offsetX - clusterWidth / 2;
 
                 foreach (var segment in Segments)
                 {
@@ -128,8 +150,8 @@ namespace Panuon.WPF.Charts
                         Brushes.White,
                         5,
                         5,
-                        left + barWidth / 2, offsetY);
-                    left += (barWidth + Spacing);
+                        left + columnWidth / 2, offsetY);
+                    left += (columnWidth + Spacing);
 
                     tooltips.Add(new SeriesTooltip(segment.Fill, segment.Title ?? coordinate.Title, value.ToString()));
                 }
@@ -142,7 +164,7 @@ namespace Panuon.WPF.Charts
         #region Functions
         private double CalculateBarWidth(double totalWidth)
         {
-            return (totalWidth - (Segments.Count - 1) * Spacing) / Segments.Count;
+            return Math.Max(0, (totalWidth - (Segments.Count - 1) * Spacing) / Segments.Count);
         }
         #endregion
 

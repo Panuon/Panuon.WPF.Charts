@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Panuon.WPF.Charts.Utils;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 
@@ -21,7 +23,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty BackgroundFillProperty =
-            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
         #endregion
 
         #region Fill
@@ -105,7 +107,8 @@ namespace Panuon.WPF.Charts
             double animationProgress
         )
         {
-            var columnWidth = chartContext.CalculateActualWidth(ColumnWidth);
+            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+            var columnWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
 
             foreach (var valuePoint in _valuePoints)
             {

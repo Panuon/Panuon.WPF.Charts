@@ -9,6 +9,17 @@ namespace Panuon.WPF.Charts
     {
         #region Properties
 
+        #region BackgroundFill
+        public Brush BackgroundFill
+        {
+            get { return (Brush)GetValue(BackgroundFillProperty); }
+            set { SetValue(BackgroundFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty BackgroundFillProperty =
+            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ClusteredColumnSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+        #endregion
+
         #region Fill
         public Brush Fill
         {
