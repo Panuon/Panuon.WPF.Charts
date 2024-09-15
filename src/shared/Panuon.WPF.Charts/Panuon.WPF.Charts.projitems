@@ -22,13 +22,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\DoughnutSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\PieSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSegmentsSeriesBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\ValueProviderSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ClusteredColumnSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\ColumnSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\DotSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\LineSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\DoughnutSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\PieSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\XAxis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\YAxis.cs" />
@@ -46,6 +52,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayersPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPresenter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\AnimationEasing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ChartPanelGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPlacement.cs" />
@@ -60,5 +67,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\SeriesCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SeriesTooltip.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Resources\ResourceKeys.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\GridLengthUtil.cs" />
   </ItemGroup>
 </Project>

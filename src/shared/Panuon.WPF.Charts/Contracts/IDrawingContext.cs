@@ -43,13 +43,27 @@ namespace Panuon.WPF.Charts
             double width,
             double height);
 
-        void DrawArc(Brush stroke,
+        void DrawArc(
+            Brush stroke,
             double strokeThickness,
             Brush fill,
             double centerX,
             double centerY,
             double radius,
             double startAngle,
-            double endAngle);
+            double endAngle
+        );
+
+        void DrawArc(
+            Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double centerX,
+            double centerY,
+            double innerRadius,
+            double outterRadius,
+            double startAngle,
+            double endAngle
+        );
     }
 }

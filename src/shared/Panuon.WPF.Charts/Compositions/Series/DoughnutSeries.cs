@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Panuon.WPF.Charts.Utils;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
-    public class PieSeries
-        : ValueProviderSegmentsSeriesBase<PieSeriesSegment>
+    public class DoughnutSeries
+        : ValueProviderSegmentsSeriesBase<DoughnutSeriesSegment>
     {
         #region Properties
 
@@ -21,18 +21,18 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(PieSeries), new PropertyMetadata(20d));
+            DependencyProperty.Register("Spacing", typeof(double), typeof(DoughnutSeries), new PropertyMetadata(20d));
         #endregion
 
-        #region Width
-        public GridLength Width
+        #region Thickness
+        public GridLength Thickness
         {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
+            get { return (GridLength)GetValue(ThicknessProperty); }
+            set { SetValue(ThicknessProperty, value); }
         }
 
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(PieSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
+        public static readonly DependencyProperty ThicknessProperty =
+            DependencyProperty.Register("Thickness", typeof(GridLength), typeof(DoughnutSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto)));
         #endregion
 
         #endregion
@@ -50,7 +50,9 @@ namespace Panuon.WPF.Charts
             var areaWidth = chartContext.AreaWidth - Spacing * 2;
             var areaHeight = chartContext.AreaHeight - Spacing * 2;
 
-            var radius = Math.Min(areaWidth, areaHeight) / 2;
+            var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
+            var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
+
             var centerX = areaWidth / 2 + Spacing;
             var centerY = areaHeight / 2 + Spacing;
 
@@ -74,7 +76,8 @@ namespace Panuon.WPF.Charts
                         segment.Fill,
                         centerX,
                         centerY,
-                        radius,
+                        outterRadius - thickness,
+                        outterRadius,
                         totalAngle,
                         totalAngle + angle);
 
@@ -108,8 +111,8 @@ namespace Panuon.WPF.Charts
 
                 double radian = (totalAngle + angle / 2 - 90) * Math.PI / 180.0;
 
-                var halfPoint = new Point(centerX + radius * Math.Cos(radian) + (2 + formattedText.Width / 2) * Math.Cos(radian),
-                    centerY + radius * Math.Sin(radian) + (1 + formattedText.Height / 2) * Math.Sin(radian));
+                var halfPoint = new Point(centerX + outterRadius * Math.Cos(radian) + (2 + formattedText.Width / 2) * Math.Cos(radian),
+                    centerY + outterRadius * Math.Sin(radian) + (1 + formattedText.Height / 2) * Math.Sin(radian));
 
                 if (segment.LabelStroke == null && segment.LabelForeground == null)
                 {
@@ -137,7 +140,9 @@ namespace Panuon.WPF.Charts
                 var areaWidth = chartContext.AreaWidth - Spacing * 2;
                 var areaHeight = chartContext.AreaHeight - Spacing * 2;
 
-                var radius = Math.Min(areaWidth, areaHeight) / 2;
+                var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
+                var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
+
                 var centerX = areaWidth / 2 + Spacing;
                 var centerY = areaHeight / 2 + Spacing;
 
@@ -158,14 +163,20 @@ namespace Panuon.WPF.Charts
 
                     if (IsPointInsideSector(position,
                         centerX, centerY,
-                        radius,
+                        outterRadius,
                         totalAngle, totalAngle + angle))
                     {
-                        drawingContext.DrawArc(Brushes.Gold, 2,
-                                null,
-                                centerX, centerY,
-                                radius,
-                                totalAngle, totalAngle + angle);
+                        drawingContext.DrawArc(
+                            Brushes.Gold, 
+                            2,
+                            null,
+                            centerX,
+                            centerY,
+                            outterRadius - thickness,
+                            outterRadius,
+                            totalAngle,
+                            totalAngle + angle
+                        );
                         tooltips.Add(new SeriesTooltip(segment.Fill, segment.Title ?? coordinate.Title, value.ToString()));
                         return;
                     }

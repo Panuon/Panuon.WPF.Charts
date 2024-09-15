@@ -1,5 +1,4 @@
-﻿using Panuon.WPF.Chart;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
@@ -38,6 +37,7 @@ namespace Panuon.WPF.Charts
             DependencyPropertyChangedEventArgs e)
         {
             var segments = (SegmentBase)d;
+
             //segments.InvalidRender();
         }
         #endregion

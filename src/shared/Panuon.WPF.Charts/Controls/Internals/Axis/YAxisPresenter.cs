@@ -117,7 +117,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 var value = valueText.Key;
                 var text = valueText.Value;
 
-                var offsetY = chartContext.GetOffset(value);
+                var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
                 drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
             }

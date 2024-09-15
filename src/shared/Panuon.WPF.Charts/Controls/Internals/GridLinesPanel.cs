@@ -79,7 +79,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 {
                     var value = valueText.Key;
 
-                    var offsetY = chartContext.GetOffset(value);
+                    var offsetY = chartContext.GetOffsetY(value);
 
                     drawingContext.DrawLine(_chartPanel.GridLinesBrush,
                         _chartPanel.GridLinesThickness,

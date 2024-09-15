@@ -56,12 +56,12 @@ namespace Panuon.WPF.Charts.Controls.Internals
         {
             _formattedTexts.Clear();
 
-            if(XAxis == null)
+            if (XAxis == null)
             {
                 return new Size(0, 0);
             }
 
-            foreach(var coordinate in _chartPanel.Coordinates)
+            foreach (var coordinate in _chartPanel.Coordinates)
             {
                 var formattedText = new FormattedText(coordinate.Title,
                     System.Globalization.CultureInfo.CurrentCulture,
@@ -72,12 +72,16 @@ namespace Panuon.WPF.Charts.Controls.Internals
 #if NET452 || NET462 || NET472 || NET48
                     );
 #else
-                    ,VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                    , VisualTreeHelper.GetDpi(this).PixelsPerDip);
 #endif
 
                 _formattedTexts.Add(coordinate, formattedText);
             }
 
+            if (!_formattedTexts.Any())
+            {
+                return new Size(0, 0);
+            }
             return new Size(0, _formattedTexts.Values.Max(x => x.Height) + XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);
         }
 #endregion

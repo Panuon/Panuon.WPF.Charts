@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System;
 using System.Windows;
-using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
@@ -35,16 +33,47 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Internal Methods
-        internal void Render(IDrawingContext drawingContext,
-            IChartContext chartContext)
+        internal void BeginRender(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
         {
-            OnRendering(drawingContext, chartContext);
+            OnRenderBegin(
+                drawingContext,
+                chartContext
+            );
         }
 
-        internal void Highlight(IDrawingContext drawingContext,
+        internal void Render(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        )
+        {
+            OnRendering(
+                drawingContext: drawingContext,
+                chartContext: chartContext,
+                animationProgress: animationProgress
+            );
+        }
+
+        internal void CompleteRender(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
+        {
+            OnRenderCompleted(
+                drawingContext: drawingContext,
+                chartContext: chartContext
+            );
+        }
+
+        internal void Highlight(
+            IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+            in IList<SeriesTooltip> tooltips
+        )
         {
             OnHighlighting(drawingContext,
                 chartContext,
@@ -54,9 +83,32 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Abstract Methods
+        protected virtual void OnRenderBegin(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
+        {
 
-        protected abstract void OnRendering(IDrawingContext drawingContext,
-            IChartContext chartContext);
+        }
+
+        /// <summary>
+        /// Call this method during rendering chart.
+        /// </summary>
+        /// <param name="drawingContext">DrawingContext.</param>
+        /// <param name="chartContext">ChartContext</param>
+        /// <param name="animationProgress">Animation progress. From 0 to 1.</param>
+        protected abstract void OnRendering(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            double animationProgress
+        );
+
+        protected virtual void OnRenderCompleted(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
+        {
+        }
 
         protected abstract void OnHighlighting(IDrawingContext drawingContext,
             IChartContext chartContext,
