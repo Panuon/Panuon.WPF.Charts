@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Markup;
 
 [assembly: AssemblyTitle("Panuon.WPF.Charts")]
+[assembly: AssemblyDescription("A professional UI engine for customization.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Panuon.WPF.Charts")]
@@ -21,5 +22,5 @@ using System.Windows.Markup;
     ResourceDictionaryLocation.SourceAssembly
 )]
 
-[assembly: AssemblyVersion("0.1.0")]
-[assembly: AssemblyFileVersion("0.1.0")]
+[assembly: AssemblyVersion("0.1.0.0")]
+[assembly: AssemblyFileVersion("0.1.0.0")]
