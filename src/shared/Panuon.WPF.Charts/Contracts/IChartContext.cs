@@ -19,8 +19,6 @@ namespace Panuon.WPF.Charts
 
         IEnumerable<SeriesBase> Series { get; }
 
-        double GetOffset(double value);
-
-        double CalculateWidth(GridLength width);
+        double GetOffsetY(double value);
     }
 }

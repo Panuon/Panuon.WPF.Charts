@@ -41,8 +41,5 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #endregion
-
-        #region Event Handlers
-        #endregion
     }
 }

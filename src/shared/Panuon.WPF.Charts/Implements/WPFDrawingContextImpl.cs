@@ -94,15 +94,15 @@ namespace Panuon.WPF.Charts
             Brush fill,
             double centerX,
             double centerY,
-            double radius,
+            double outterRadius,
             double startAngle,
             double endAngle)
         {
             var angleRadians = (startAngle - 90) * Math.PI / 180.0;
             var endAngleRadians = (endAngle - 90) * Math.PI / 180.0;
 
-            var startPoint = new Point(centerX + radius * Math.Cos(angleRadians), centerY + radius * Math.Sin(angleRadians));
-            var endPoint = new Point(centerX + radius * Math.Cos(endAngleRadians), centerY + radius * Math.Sin(endAngleRadians));
+            var startPoint = new Point(centerX + outterRadius * Math.Cos(angleRadians), centerY + outterRadius * Math.Sin(angleRadians));
+            var endPoint = new Point(centerX + outterRadius * Math.Cos(endAngleRadians), centerY + outterRadius * Math.Sin(endAngleRadians));
 
             var figure = new PathFigure
             {
@@ -111,7 +111,7 @@ namespace Panuon.WPF.Charts
             figure.Segments.Add(new ArcSegment
             {
                 Point = endPoint,
-                Size = new Size(radius, radius),
+                Size = new Size(outterRadius, outterRadius),
                 SweepDirection = SweepDirection.Clockwise,
                 IsLargeArc = (endAngle - startAngle) > 180,
             });
@@ -131,6 +131,61 @@ namespace Panuon.WPF.Charts
 
             _drawingContext.DrawGeometry(fill, 
                 GetPen(stroke, strokeThickness), 
+                geometry);
+        }
+
+        public void DrawArc(Brush stroke,
+           double strokeThickness,
+           Brush fill,
+           double centerX,
+           double centerY,
+           double innerRadius,
+           double outterRadius,
+           double startAngle,
+           double endAngle)
+        {
+            var angleRadians = (startAngle - 90) * Math.PI / 180.0;
+            var endAngleRadians = (endAngle - 90) * Math.PI / 180.0;
+
+            var outterStartPoint = new Point(centerX + outterRadius * Math.Cos(angleRadians), centerY + outterRadius * Math.Sin(angleRadians));
+            var outterEndPoint = new Point(centerX + outterRadius * Math.Cos(endAngleRadians), centerY + outterRadius * Math.Sin(endAngleRadians));
+            var innerStartPoint = new Point(centerX + innerRadius * Math.Cos(angleRadians), centerY + innerRadius * Math.Sin(angleRadians));
+            var innerEndPoint = new Point(centerX + innerRadius * Math.Cos(endAngleRadians), centerY + innerRadius * Math.Sin(endAngleRadians));
+
+            var figure = new PathFigure
+            {
+                StartPoint = outterStartPoint,
+            };
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = outterEndPoint,
+                Size = new Size(outterRadius, outterRadius),
+                SweepDirection = SweepDirection.Clockwise,
+                IsLargeArc = (endAngle - startAngle) > 180,
+            });
+            figure.Segments.Add(new LineSegment
+            {
+                Point = innerEndPoint,
+                IsSmoothJoin = true,
+            });
+            figure.Segments.Add(new ArcSegment
+            {
+                Point = innerStartPoint,
+                Size = new Size(innerRadius, innerRadius),
+                SweepDirection = SweepDirection.Counterclockwise,
+                IsLargeArc = (endAngle - startAngle) > 180,
+            });
+            figure.Segments.Add(new LineSegment
+            {
+                Point = outterStartPoint,
+                IsSmoothJoin = true,
+            });
+
+            var geometry = new PathGeometry();
+            geometry.Figures.Add(figure);
+
+            _drawingContext.DrawGeometry(fill,
+                GetPen(stroke, strokeThickness),
                 geometry);
         }
         #endregion

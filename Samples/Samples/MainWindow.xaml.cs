@@ -37,6 +37,8 @@ namespace Samples
             chartPanel1.ItemsSource = itemsSource;
             chartPanel2.ItemsSource = itemsSource;
             chartPanel3.ItemsSource = itemsSource;
+            chartPanel4.ItemsSource = itemsSource;
+            chartPanel5.ItemsSource = itemsSource;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
