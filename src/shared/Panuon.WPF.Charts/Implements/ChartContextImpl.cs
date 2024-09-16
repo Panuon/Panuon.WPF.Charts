@@ -22,9 +22,9 @@ namespace Panuon.WPF.Charts
 
         public double AreaHeight => ChartPanel._seriesPanel.RenderSize.Height;
 
-        public double MinValue => ChartPanel.MinValue;
+        public double MinValue => ChartPanel.ActualMinValue;
 
-        public double MaxValue => ChartPanel.MaxValue;
+        public double MaxValue => ChartPanel.ActualMaxValue;
 
         public IEnumerable<ICoordinate> Coordinates => ChartPanel.Coordinates;
 

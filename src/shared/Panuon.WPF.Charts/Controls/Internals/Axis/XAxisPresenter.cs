@@ -63,6 +63,10 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
             foreach (var coordinate in _chartPanel.Coordinates)
             {
+                if(coordinate.Title == null)
+                {
+                    continue;
+                }
                 var formattedText = new FormattedText(coordinate.Title,
                     System.Globalization.CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
@@ -109,9 +113,14 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
             var drawingContext = _chartPanel.CreateDrawingContext(context);
 
-            drawingContext.DrawLine(XAxis.Stroke, 
+            drawingContext.DrawLine(
+                XAxis.Stroke, 
                 XAxis.StrokeThickness, 
-                0, 0, ActualWidth, 0);
+                0, 
+                0,
+                ActualWidth, 
+                0
+            );
             foreach(var coordinateText in _formattedTexts)
             {
                 var coordinate = coordinateText.Key;
@@ -119,8 +128,19 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
                 var offsetX = coordinate.Offset;
 
-                drawingContext.DrawLine(XAxis.TicksBrush, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness + XAxis.TicksSize);
-                drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);
+                drawingContext.DrawLine(
+                    XAxis.TicksBrush,
+                    XAxis.StrokeThickness,
+                    offsetX, 
+                    XAxis.StrokeThickness,
+                    offsetX,
+                    XAxis.StrokeThickness + XAxis.TicksSize
+                );
+                drawingContext.DrawText(
+                    text,
+                    offsetX - text.Width / 2,
+                    XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness
+                );
             }
         }
         #endregion

@@ -65,7 +65,7 @@ namespace Panuon.WPF.Charts.Implements
             if (coordinate == null ||
                 !coordinate.Values.ContainsKey(seriesOrSegment))
             {
-                return _chartPanel.MinValue;
+                return _chartPanel.ActualMinValue;
             }
             else
             {

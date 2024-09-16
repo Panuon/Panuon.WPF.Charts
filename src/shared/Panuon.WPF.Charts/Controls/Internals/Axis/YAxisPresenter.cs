@@ -62,25 +62,29 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 return new Size(0, 0);
             }
 
-            var deltaX = (_chartPanel.MaxValue - _chartPanel.MinValue) / 5;
+            var deltaX = (_chartPanel.ActualMaxValue - _chartPanel.ActualMinValue) / 5;
 
             for(int i = 0; i <= 5; i++)
             {
-                var formattedText = new FormattedText((deltaX * i).ToString(),
+                var value = _chartPanel.ActualMinValue + deltaX * i;
+                var formattedText = new FormattedText(
+                    value.ToString(),
                     System.Globalization.CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
                     new Typeface(YAxis.FontFamily, YAxis.FontStyle, YAxis.FontWeight, YAxis.FontStretch),
                     YAxis.FontSize,
                     YAxis.Foreground
 #if NET452 || NET462 || NET472 || NET48
-                    );
 #else
-                    ,VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                    ,VisualTreeHelper.GetDpi(this).PixelsPerDip
 #endif
-
-                _formattedTexts.Add(deltaX * i, formattedText);
+                );
+                _formattedTexts.Add(value, formattedText);
             }
-            return new Size(_formattedTexts.Values.Max(x => x.Width) + YAxis.Spacing + YAxis.TicksSize + YAxis.StrokeThickness, 0);
+            return new Size(
+                _formattedTexts.Values.Max(x => x.Width) + YAxis.Spacing + YAxis.TicksSize + YAxis.StrokeThickness,
+                0
+            );
         }
         #endregion
 
@@ -118,8 +122,19 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 var text = valueText.Value;
 
                 var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
-                drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
+                drawingContext.DrawLine(
+                    YAxis.TicksBrush, 
+                    YAxis.StrokeThickness, 
+                    ActualWidth - YAxis.StrokeThickness, 
+                    offsetY, 
+                    ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, 
+                    offsetY
+                );
+                drawingContext.DrawText(
+                    text, 
+                    ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width,
+                    offsetY - text.Height / 2
+                );
             }
         }
         #endregion

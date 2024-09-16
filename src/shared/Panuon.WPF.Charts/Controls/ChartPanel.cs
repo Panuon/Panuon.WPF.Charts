@@ -194,9 +194,23 @@ namespace Panuon.WPF.Charts
 
         internal List<CoordinateImpl> Coordinates { get; private set; }
 
-        internal double MinValue { get; private set; }
+        internal double ActualMinValue
+        {
+            get
+            {
+                return YAxis?.MinValue ?? _measuredMinValue;
+            }
+        }
+        private double _measuredMinValue;
 
-        internal double MaxValue { get; private set; }
+        internal double ActualMaxValue
+        {
+            get
+            {
+                return YAxis?.MaxValue ?? _measuredMaxValue;
+            }
+        }
+        private double _measuredMaxValue;
         #endregion
 
         #region Overrides
@@ -294,13 +308,13 @@ namespace Panuon.WPF.Charts
                     out int minValue,
                     out int maxValue);
 
-                MinValue = minValue;
-                MaxValue = maxValue;
+                _measuredMinValue = minValue;
+                _measuredMaxValue = maxValue;
             }
             else
             {
-                MinValue = 0;
-                MaxValue = 10;
+                _measuredMinValue = 0;
+                _measuredMaxValue = 10;
             }
 
             _xAxisPresenter.Measure(availableSize);

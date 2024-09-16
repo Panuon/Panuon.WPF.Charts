@@ -175,6 +175,26 @@
                 <pc:ToolTipLayer />
             </pc:ChartPanel.Layers>
         </pc:ChartPanel>
+        <pc:ChartPanel x:Name="chartPanel6"
+                       Grid.Row="2"
+                       Grid.Column="2"
+                       XAxis="{x:Null}"
+                       YAxis="{x:Null}"
+                       GridLinesBrush="#EFEFEF"
+                       TitleMemberPath="Title"
+                       AnimationDuration="0:0:3"
+                       AnimationEasing="CubicOut">
+            <pc:ChartPanel.Series>
+                <pc:RadarSeries ValueMemberPath="Value1">
+                    <pc:RadarSeriesSegment />
+                    <pc:RadarSeriesSegment />
+                    <pc:RadarSeriesSegment />
+                    <pc:RadarSeriesSegment />
+                    <pc:RadarSeriesSegment />
+                    <pc:RadarSeriesSegment />
+                </pc:RadarSeries>
+            </pc:ChartPanel.Series>
+        </pc:ChartPanel>
 
     </Grid>
 </Window>

@@ -48,15 +48,27 @@ namespace Panuon.WPF.Charts
                 FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
-        #region Background
-        public Brush Background
+        #region StrokeThickness
+        public double StrokeThickness
         {
-            get { return (Brush)GetValue(BackgroundProperty); }
-            set { SetValue(BackgroundProperty, value); }
+            get { return (double)GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
         }
 
-        public static readonly DependencyProperty BackgroundProperty =
-            AxisPresenterBase.BackgroundProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(null,
+        public static readonly DependencyProperty StrokeThicknessProperty =
+            AxisPresenterBase.StrokeThicknessProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(1d,
+                FrameworkPropertyMetadataOptions.Inherits));
+        #endregion
+
+        #region Stroke
+        public Brush Stroke
+        {
+            get { return (Brush)GetValue(StrokeProperty); }
+            set { SetValue(StrokeProperty, value); }
+        }
+
+        public static readonly DependencyProperty StrokeProperty =
+            AxisPresenterBase.StrokeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
                 FrameworkPropertyMetadataOptions.Inherits));
         #endregion
 
@@ -119,31 +131,6 @@ namespace Panuon.WPF.Charts
             AxisPresenterBase.FontSizeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontSize,
                 FrameworkPropertyMetadataOptions.Inherits));
         #endregion
-
-        #region StrokeThickness
-        public double StrokeThickness
-        {
-            get { return (double)GetValue(StrokeThicknessProperty); }
-            set { SetValue(StrokeThicknessProperty, value); }
-        }
-
-        public static readonly DependencyProperty StrokeThicknessProperty =
-            AxisPresenterBase.StrokeThicknessProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(1d,
-                FrameworkPropertyMetadataOptions.Inherits));
-        #endregion
-
-        #region Stroke
-        public Brush Stroke
-        {
-            get { return (Brush)GetValue(StrokeProperty); }
-            set { SetValue(StrokeProperty, value); }
-        }
-
-        public static readonly DependencyProperty StrokeProperty =
-            AxisPresenterBase.StrokeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
-                FrameworkPropertyMetadataOptions.Inherits));
-        #endregion
-
 
         #region TicksSize
         public double TicksSize

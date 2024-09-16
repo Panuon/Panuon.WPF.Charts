@@ -93,21 +93,23 @@ namespace Panuon.WPF.Charts
                 {
                     StartAngle = totalAngle,
                     Angle = angle,
-                    Title = new FormattedText(
-                    generatingTitleArgs.Title,
-                    CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
-                    chartPanel.FontSize,
-                    chartPanel.Foreground
-#if NET452 || NET462 || NET472 || NET48
-#else
-                    , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
-#endif
-                )
-                    {
-                        TextAlignment = TextAlignment.Center
-                    }
+                    Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
+                        ? null
+                        : new FormattedText(
+                            generatingTitleArgs.Title,
+                            CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
+                            chartPanel.FontSize,
+                            chartPanel.Foreground
+        #if NET452 || NET462 || NET472 || NET48
+        #else
+                            , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
+        #endif
+                        )
+                            {
+                                TextAlignment = TextAlignment.Center
+                            }
                 };
 
                 totalAngle += angle;
