@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\DoughnutSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\PieSeriesSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\RadarSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
@@ -35,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\LineSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\DoughnutSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\PieSeries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\RadarSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\XAxis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\YAxis.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartContext.cs" />
