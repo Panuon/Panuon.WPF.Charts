@@ -218,20 +218,21 @@ namespace Panuon.WPF.Charts
                 var index = 0;
                 foreach (var item in ItemsSource)
                 {
-                    if (string.IsNullOrEmpty(TitleMemberPath))
-                    {
-                        throw new System.NullReferenceException("Property TitleMemberPath of ChartPanel can not be null.");
-                    }
                     var itemType = item.GetType();
-                    var titleProperty = itemType.GetProperty(TitleMemberPath);
-                    if (titleProperty == null)
+                    string title = null;
+                    if (!string.IsNullOrEmpty(TitleMemberPath))
                     {
-                        throw new System.NullReferenceException($"Property {TitleMemberPath} does not exists.");
+                        var titleProperty = itemType.GetProperty(TitleMemberPath);
+                        if (titleProperty == null)
+                        {
+                            throw new System.NullReferenceException($"Property {TitleMemberPath} does not exists.");
+                        }
+
+                        var titleValue = titleProperty.GetValue(item);
+                        title = titleValue is string
+                            ? (string)titleValue
+                            : titleValue.ToString();
                     }
-                    var titleValue = titleProperty.GetValue(item);
-                    var title = titleValue is string
-                        ? (string)titleValue
-                        : titleValue.ToString();
 
                     var values = new Dictionary<IChartValueProvider, double>();
                     foreach (var series in Series)
@@ -246,7 +247,7 @@ namespace Panuon.WPF.Charts
                             var valueProperty = itemType.GetProperty(singleSeries.ValueMemberPath);
                             if (valueProperty == null)
                             {
-                                throw new System.NullReferenceException($"Property {singleSeries.ValueMemberPath} does not exists.");
+                                throw new System.NullReferenceException($"Property named '{singleSeries.ValueMemberPath}' does not exists.");
                             }
                             var valueValue = valueProperty.GetValue(item);
                             var value = Convert.ToDouble(valueValue);
@@ -265,7 +266,7 @@ namespace Panuon.WPF.Charts
                                 var valueProperty = itemType.GetProperty(segment.ValueMemberPath);
                                 if (valueProperty == null)
                                 {
-                                    throw new System.NullReferenceException($"Property {segment.ValueMemberPath} does not exists.");
+                                    throw new System.NullReferenceException($"Property named '{segment.ValueMemberPath}' does not exists.");
                                 }
                                 var valueValue = valueProperty.GetValue(item);
                                 var value = Convert.ToDouble(valueValue);

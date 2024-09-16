@@ -57,6 +57,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPlacement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPosition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipVisibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)events\GeneratingTitleEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\ChartContextImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\CoordinateImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\LayerContextImpl.cs" />
