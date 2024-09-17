@@ -8,6 +8,28 @@ namespace Panuon.WPF.Charts
     {
         #region Properties
 
+        #region AxisStroke
+        public Brush AxisStroke
+        {
+            get { return (Brush)GetValue(AxisStrokeProperty); }
+            set { SetValue(AxisStrokeProperty, value); }
+        }
+
+        public static readonly DependencyProperty AxisStrokeProperty =
+            DependencyProperty.Register("AxisStroke", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(Brushes.LightGray, OnRenderPropertyChanged));
+        #endregion
+
+        #region AxisStrokeThickness
+        public double AxisStrokeThickness
+        {
+            get { return (double)GetValue(AxisStrokeThicknessProperty); }
+            set { SetValue(AxisStrokeThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty AxisStrokeThicknessProperty =
+            DependencyProperty.Register("AxisStrokeThickness", typeof(double), typeof(RadarSeriesSegment), new PropertyMetadata(2d, OnRenderPropertyChanged));
+        #endregion
+
         #region LabelForeground
         public Brush LabelForeground
         {

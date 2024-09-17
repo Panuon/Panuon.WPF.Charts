@@ -1,9 +1,9 @@
 ﻿using Panuon.WPF.Charts.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -11,7 +11,33 @@ namespace Panuon.WPF.Charts
     public class RadarSeries
         : RadialValueProviderSegmentsSeriesBase<RadarSeriesSegment>
     {
+        #region Structs
+        private struct RadarSeriesSegmentInfo
+        {
+            public double Angle { get; set; }
+
+            public double Percent { get; set; }
+
+            public FormattedText Title { get; set; }
+        }
+        #endregion
+
+        #region Fields
+        private Dictionary<RadarSeriesSegment, RadarSeriesSegmentInfo> _segmentInfos;
+        #endregion
+
         #region Properties
+
+        #region Spacing
+        public double Spacing
+        {
+            get { return (double)GetValue(SpacingProperty); }
+            set { SetValue(SpacingProperty, value); }
+        }
+
+        public static readonly DependencyProperty SpacingProperty =
+            DependencyProperty.Register("Spacing", typeof(double), typeof(RadarSeries), new PropertyMetadata(5d));
+        #endregion
 
         #region Fill
         public Brush Fill
@@ -120,7 +146,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeProperty =
-            DependencyProperty.Register("AxisStroke", typeof(Brush), typeof(RadarSeries), new PropertyMetadata(Brushes.LightGray, OnRenderPropertyChanged));
+            RadarSeriesSegment.AxisStrokeProperty.AddOwner(typeof(RadarSeries), new PropertyMetadata(OnRenderPropertyChanged));
         #endregion
 
         #region AxisStrokeThickness
@@ -131,7 +157,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeThicknessProperty =
-            DependencyProperty.Register("AxisStrokeThickness", typeof(double), typeof(RadarSeries), new PropertyMetadata(2d, OnRenderPropertyChanged));
+            RadarSeriesSegment.AxisStrokeThicknessProperty.AddOwner(typeof(RadarSeries), new PropertyMetadata(OnRenderPropertyChanged));
         #endregion
 
         #region Minimum
@@ -158,11 +184,72 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
+        #region Events
+        public event GeneratingTitleEventHandler GeneratingTitle;
+        #endregion
+
         #region Methods
 
         #region OnHighlighting
         protected override void OnHighlighting(IDrawingContext drawingContext, IChartContext chartContext, ILayerContext layerContext, in IList<SeriesTooltip> tooltips)
         {
+        }
+        #endregion
+
+        #region OnRenderBegin
+        protected override void OnRenderBegin(IDrawingContext drawingContext, IChartContext chartContext)
+        {
+            base.OnRenderBegin(drawingContext, chartContext);
+
+            _segmentInfos = new Dictionary<RadarSeriesSegment, RadarSeriesSegmentInfo>();
+
+            var chartPanel = chartContext.ChartPanel;
+            var coordinates = chartContext.Coordinates;
+
+            var index = 0;
+            var totalAngle = 0d;
+            var angleOffset = 360d / Segments.Count;
+            foreach (var coordinate in coordinates)
+            {
+                var value = coordinate.GetValue(this);
+                var angle = index * angleOffset;
+                if (index >= Segments.Count)
+                {
+                    break;
+                }
+                var segment = Segments[index];
+                var generatingTitleArgs = new GeneratingTitleEventArgs(
+                    value: value,
+                    title: segment.Title ?? coordinate.Title
+                );
+                GeneratingTitle?.Invoke(this, generatingTitleArgs);
+
+                _segmentInfos[segment] = new RadarSeriesSegmentInfo()
+                {
+                    Percent = value / Maximum,
+                    Angle = angle,
+                    Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
+                        ? null
+                        : new FormattedText(
+                            generatingTitleArgs.Title,
+                            CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
+                            chartPanel.FontSize,
+                            chartPanel.Foreground
+#if NET452 || NET462 || NET472 || NET48
+#else
+                            , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
+#endif
+                        )
+                        {
+                            TextAlignment = TextAlignment.Center
+                        }
+                };
+
+                totalAngle += angle;
+                index++;
+            }
         }
         #endregion
 
@@ -182,9 +269,12 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.ChartPanel;
             var coordinates = chartContext.Coordinates;
 
-            var centerX = chartContext.AreaWidth / 2;
-            var centerY = chartContext.AreaHeight / 2;
-            var radius = Math.Min(chartContext.AreaWidth, chartContext.AreaHeight) / 2;
+            var areaWidth = chartContext.AreaWidth - Spacing * 2;
+            var areaHeight = chartContext.AreaHeight - Spacing * 2;
+
+            var centerX = areaWidth / 2;
+            var centerY = areaHeight / 2;
+            var radius = Math.Min(areaWidth, areaHeight) / 2;
 
             #region GridLines
 
@@ -206,8 +296,8 @@ namespace Panuon.WPF.Charts
                         DrawPolygon(
                             drawingContext: drawingContext,
                             sides: segments.Count,
-                            centerX: chartContext.AreaWidth / 2,
-                            centerY: chartContext.AreaHeight / 2,
+                            centerX: centerX,
+                            centerY: centerY,
                             radius: radius,
                             stroke: OutterGridLineBrush ?? GridLinesBrush,
                             strokThickness: OutterGridLineThickness ?? GridLinesThickness,
@@ -219,8 +309,8 @@ namespace Panuon.WPF.Charts
                         DrawPolygon(
                             drawingContext: drawingContext,
                             sides: segments.Count,
-                            centerX: chartContext.AreaWidth / 2,
-                            centerY: chartContext.AreaHeight / 2,
+                            centerX: centerX,
+                            centerY: centerY,
                             radius: (gridLinesIndex + 1) * gridLinesSpacing,
                             stroke: GridLinesBrush,
                             strokThickness: GridLinesThickness,
@@ -236,17 +326,17 @@ namespace Panuon.WPF.Charts
             if (AxisStroke != null
                 && AxisStrokeThickness > 1)
             {
-                var angleOffset = -Math.PI / 2;
-                var angleIncrement = 2 * Math.PI / segments.Count;
-                for (int stickIndex = 0; stickIndex < segments.Count; stickIndex++)
+                foreach (var segmentInfo in _segmentInfos)
                 {
-                    var angle = stickIndex * angleIncrement + angleOffset;
-                    var x = centerX + radius * Math.Cos(angle);
-                    var y = centerY + radius * Math.Sin(angle);
+                    var segment = segmentInfo.Key;
+                    var angle = segmentInfo.Value.Angle;
+                    var radian = (angle - 90) * Math.PI / 180.0;
+                    var x = centerX + radius * Math.Cos(radian);
+                    var y = centerY + radius * Math.Sin(radian);
 
                     drawingContext.DrawLine(
-                        stroke: AxisStroke,
-                        strokeThickness: AxisStrokeThickness,
+                        stroke: segment.AxisStroke,
+                        strokeThickness: segment.AxisStrokeThickness,
                         startX: centerX,
                         startY: centerY,
                         endX: x,
@@ -258,21 +348,17 @@ namespace Panuon.WPF.Charts
 
             #region RadarArea
             {
-                var angleOffset = -Math.PI / 2;
-                var angleIncrement = 2 * Math.PI / segments.Count;
                 var points = new List<Point>();
 
-                for (int stickIndex = 0; stickIndex < segments.Count; stickIndex++)
+                foreach (var segmentInfo in _segmentInfos)
                 {
-                    var segment = Segments[stickIndex];
-                    var angle = stickIndex * angleIncrement + angleOffset;
+                    var segment = segmentInfo.Key;
+                    var angle = segmentInfo.Value.Angle;
+                    var radian = (angle - 90) * Math.PI / 180.0;
+                    var percent = segmentInfo.Value.Percent;
 
-                    var coordinate = coordinates.ElementAt(stickIndex);
-                    var value = coordinate.GetValue(this);
-                    var percent = value / Maximum;
-
-                    var x = centerX + radius * percent * Math.Cos(angle);
-                    var y = centerY + radius * percent * Math.Sin(angle);
+                    var x = centerX + radius * percent * Math.Cos(radian);
+                    var y = centerY + radius * percent * Math.Sin(radian);
 
                     points.Add(new Point(x, y));
                 }
@@ -296,6 +382,44 @@ namespace Panuon.WPF.Charts
                     fill: Fill,
                     geometry
                 );
+            }
+            #endregion
+
+            #region Text
+            {
+                foreach (var segmentInfo in _segmentInfos)
+                {
+                    var segment = segmentInfo.Key;
+                    var formattedText = segmentInfo.Value.Title;
+                    var angle = segmentInfo.Value.Angle;
+                    var radian = (angle - 90) * Math.PI / 180.0;
+                    var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, angle + 90);
+
+                    var halfPoint = new Point(
+                        centerX + (radius + Spacing + rayLength) * Math.Cos(radian),
+                        centerY + (radius + Spacing + rayLength) * Math.Sin(radian)
+                    );
+
+                    if (segment.LabelStroke == null && segment.LabelForeground == null)
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
+                    else
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            segment.LabelForeground,
+                            segment.LabelStroke,
+                            segment.LabelStrokeThickness,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
+                }
             }
             #endregion
         }
@@ -342,6 +466,66 @@ namespace Panuon.WPF.Charts
             }
 
             drawingContext.DrawGeometry(stroke, strokThickness, fill, geometry);
+        }
+
+        private static double CalculateRayLength(
+            double width,
+            double height,
+            double angle
+        )
+        {
+            var theta = angle * Math.PI / 180;
+
+            var cx = width / 2;
+            var cy = height / 2;
+
+            var left = 0;
+            var right = width;
+            var top = height;
+            var bottom = 0;
+
+            var dx = Math.Cos(theta);
+            var dy = Math.Sin(theta);
+
+            var intersectionDistance = double.MaxValue;
+
+            if (dx != 0)
+            {
+                if (dx > 0)
+                {
+                    var t = (right - cx) / dx;
+                    var y = cy + t * dy;
+                    if (y >= bottom && y <= top)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+                else
+                {
+                    var t = (left - cx) / dx;
+                    var y = cy + t * dy;
+                    if (y >= bottom && y <= top)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+            }
+
+            if (dy != 0)
+            {
+                if (dy > 0)
+                {
+                    var t = (top - cy) / dy;
+                    var x = cx + t * dx;
+                    if (x >= left && x <= right)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+                else
+                {
+                    var t = (bottom - cy) / dy;
+                    var x = cx + t * dx;
+                    if (x >= left && x <= right)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+            }
+
+            return intersectionDistance;
         }
         #endregion
     }
