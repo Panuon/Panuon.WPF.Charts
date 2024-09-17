@@ -1,4 +1,5 @@
-﻿using Panuon.WPF.Charts.Controls.Internals;
+﻿using Panuon.WPF.Chart;
+using Panuon.WPF.Charts.Controls.Internals;
 using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
@@ -7,55 +8,32 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
-    [ContentProperty(nameof(Series))]
-    public class ChartPanel
+    public abstract class ChartBase
         : Control
     {
         #region Fields
+        protected readonly UIElementCollection _children;
 
-        private readonly UIElementCollection _children;
-
-        internal GridLinesPanel _gridLinesPanel;
         internal SeriesPanel _seriesPanel;
         internal LayersPanel _layersPanel;
-        internal XAxisPresenter _xAxisPresenter;
-        internal YAxisPresenter _yAxisPresenter;
 
         private ChartContextImpl _chartContext;
         private LayerContextImpl _layerContext;
         #endregion
 
         #region Ctor
-        public ChartPanel()
+        public ChartBase()
         {
             _children = new UIElementCollection(this, this);
 
-            Series = new SeriesCollection();
             Layers = new LayerCollection();
-
-            XAxis = new XAxis();
-            YAxis = new YAxis();
-
-            _gridLinesPanel = new GridLinesPanel(this);
-            _children.Add(_gridLinesPanel);
-
-            _seriesPanel = new SeriesPanel(this);
-            _children.Add(_seriesPanel);
 
             _layersPanel = new LayersPanel(this);
             _children.Add(_layersPanel);
-            
-            _xAxisPresenter = new XAxisPresenter(this);
-            _children.Add(_xAxisPresenter);
-
-            _yAxisPresenter = new YAxisPresenter(this);
-            _children.Add(_yAxisPresenter);
-
         }
         #endregion
 
@@ -69,7 +47,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ChartPanel), new FrameworkPropertyMetadata(null, 
+            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ChartBase), new FrameworkPropertyMetadata(null, 
                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsRender,
                 OnItemsSourceChanged,
                 null));
@@ -83,40 +61,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty TitleMemberPathProperty =
-            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(ChartPanel));
-        #endregion
-
-        #region XAxis
-        public XAxis XAxis
-        {
-            get { return (XAxis)GetValue(XAxisProperty); }
-            set { SetValue(XAxisProperty, value); }
-        }
-
-        public static readonly DependencyProperty XAxisProperty =
-            DependencyProperty.Register("XAxis", typeof(XAxis), typeof(ChartPanel), new PropertyMetadata(null));
-        #endregion
-
-        #region YAxis
-        public YAxis YAxis
-        {
-            get { return (YAxis)GetValue(YAxisProperty); }
-            set { SetValue(YAxisProperty, value); }
-        }
-
-        public static readonly DependencyProperty YAxisProperty =
-            DependencyProperty.Register("YAxis", typeof(YAxis), typeof(ChartPanel), new PropertyMetadata(null));
-        #endregion
-
-        #region Series
-        public SeriesCollection Series
-        {
-            get { return (SeriesCollection)GetValue(SeriesProperty); }
-            set { SetValue(SeriesProperty, value); }
-        }
-
-        public static readonly DependencyProperty SeriesProperty =
-            DependencyProperty.Register("Series", typeof(SeriesCollection), typeof(ChartPanel), new PropertyMetadata(null));
+            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(ChartBase));
         #endregion
 
         #region Layers
@@ -127,43 +72,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LayersProperty =
-            DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartPanel), new PropertyMetadata(null));
-        #endregion
-
-        #region GridLinesVisibility
-        public ChartPanelGridLinesVisibility GridLinesVisibility
-        {
-            get { return (ChartPanelGridLinesVisibility)GetValue(GridLinesVisibilityProperty); }
-            set { SetValue(GridLinesVisibilityProperty, value); }
-        }
-
-        public static readonly DependencyProperty GridLinesVisibilityProperty =
-            GridLinesPanel.GridLinesVisibilityProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(ChartPanelGridLinesVisibility.Both,
-                FrameworkPropertyMetadataOptions.Inherits));
-        #endregion
-
-        #region GridLinesBrush
-        public Brush GridLinesBrush
-        {
-            get { return (Brush)GetValue(GridLinesBrushProperty); }
-            set { SetValue(GridLinesBrushProperty, value); }
-        }
-
-        public static readonly DependencyProperty GridLinesBrushProperty =
-            GridLinesPanel.GridLinesBrushProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(Brushes.LightGray,
-                FrameworkPropertyMetadataOptions.Inherits));
-        #endregion
-
-        #region GridLinesThickness
-        public double GridLinesThickness
-        {
-            get { return (double)GetValue(GridLinesThicknessProperty); }
-            set { SetValue(GridLinesThicknessProperty, value); }
-        }
-
-        public static readonly DependencyProperty GridLinesThicknessProperty =
-            GridLinesPanel.GridLinesThicknessProperty.AddOwner(typeof(ChartPanel), new FrameworkPropertyMetadata(1d,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartBase), new PropertyMetadata(null));
         #endregion
 
         #region AnimationEasing
@@ -174,7 +83,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AnimationEasingProperty =
-            DependencyProperty.Register("AnimationEasing", typeof(AnimationEasing), typeof(ChartPanel), new PropertyMetadata(AnimationEasing.None));
+            DependencyProperty.Register("AnimationEasing", typeof(AnimationEasing), typeof(ChartBase), new PropertyMetadata(AnimationEasing.None));
         #endregion
 
         #region AnimationDuration
@@ -185,7 +94,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AnimationDurationProperty =
-            DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartPanel), new PropertyMetadata(TimeSpan.FromSeconds(1)));
+            DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartBase), new PropertyMetadata(TimeSpan.FromSeconds(1)));
         #endregion
 
         #endregion
@@ -194,20 +103,20 @@ namespace Panuon.WPF.Charts
 
         internal List<CoordinateImpl> Coordinates { get; private set; }
 
-        internal double ActualMinValue
+        internal virtual double ActualMinValue
         {
             get
             {
-                return YAxis?.MinValue ?? _measuredMinValue;
+                return _measuredMinValue;
             }
         }
         private double _measuredMinValue;
 
-        internal double ActualMaxValue
+        internal virtual double ActualMaxValue
         {
             get
             {
-                return YAxis?.MaxValue ?? _measuredMaxValue;
+                return _measuredMaxValue;
             }
         }
         private double _measuredMaxValue;
@@ -249,42 +158,26 @@ namespace Panuon.WPF.Charts
                     }
 
                     var values = new Dictionary<IChartValueProvider, double>();
-                    foreach (var series in Series)
+                    foreach (var series in GetSeries())
                     {
-                        if (series is ValueProviderSeriesBase singleSeries)
+                        if (series is IChartValueProvider valueProvider)
                         {
-                            if (string.IsNullOrEmpty(singleSeries.ValueMemberPath))
-                            {
-                                throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
-                            }
-
-                            var valueProperty = itemType.GetProperty(singleSeries.ValueMemberPath);
-                            if (valueProperty == null)
-                            {
-                                throw new System.NullReferenceException($"Property named '{singleSeries.ValueMemberPath}' does not exists.");
-                            }
-                            var valueValue = valueProperty.GetValue(item);
-                            var value = Convert.ToDouble(valueValue);
-
-                            values.Add(singleSeries, value);
+                            var value = GetValueFromValueProvider(valueProvider, item);
+                            values.Add(valueProvider, value);
                         }
-                        if(series is SegmentsSeriesBase segmentsSeries)
+                        if (series is CartesianSegmentsSeriesBase cartesianSeries)
                         {
-                            foreach(var segment in segmentsSeries.GetSegments())
+                            foreach (ValueProviderSegmentBase segment in cartesianSeries.GetSegments())
                             {
-                                if (string.IsNullOrEmpty(segment.ValueMemberPath))
-                                {
-                                    throw new NullReferenceException("Property ValueMemberPath of Segment can not be null.");
-                                }
-
-                                var valueProperty = itemType.GetProperty(segment.ValueMemberPath);
-                                if (valueProperty == null)
-                                {
-                                    throw new System.NullReferenceException($"Property named '{segment.ValueMemberPath}' does not exists.");
-                                }
-                                var valueValue = valueProperty.GetValue(item);
-                                var value = Convert.ToDouble(valueValue);
-
+                                var value = GetValueFromValueProvider(segment, item);
+                                values.Add(segment, value);
+                            }
+                        }
+                        if (series is RadialSegmentsSeriesBase radialSeries)
+                        {
+                            foreach (ValueProviderSegmentBase segment in radialSeries.GetSegments())
+                            {
+                                var value = GetValueFromValueProvider(segment, item);
                                 values.Add(segment, value);
                             }
                         }
@@ -317,11 +210,8 @@ namespace Panuon.WPF.Charts
                 _measuredMaxValue = 10;
             }
 
-            _xAxisPresenter.Measure(availableSize);
-            _yAxisPresenter.Measure(availableSize);
             _seriesPanel.Measure(availableSize);
             _layersPanel.Measure(availableSize);
-            _gridLinesPanel.Measure(availableSize);
 
             return base.MeasureOverride(availableSize);
         }
@@ -333,10 +223,7 @@ namespace Panuon.WPF.Charts
             var renderWidth = finalSize.Width - Padding.Left - Padding.Right;
             var renderHeight = finalSize.Height - Padding.Top - Padding.Bottom;
 
-            var xAxisHeight = _xAxisPresenter.DesiredSize.Height;
-            var yAxisWidth = _yAxisPresenter.DesiredSize.Width;
-
-            var deltaX = (renderWidth - yAxisWidth) / Coordinates.Count;
+            var deltaX = renderWidth / Coordinates.Count;
 
             for (int i = 0; i < Coordinates.Count; i++)
             {
@@ -344,17 +231,11 @@ namespace Panuon.WPF.Charts
                 coordinate.Offset = (i + 0.5) * deltaX;
             }
 
-            _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _seriesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _layersPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _xAxisPresenter.Arrange(new Rect(Padding.Left + yAxisWidth, renderHeight - xAxisHeight, renderWidth - yAxisWidth, xAxisHeight));
-            _yAxisPresenter.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, renderHeight - xAxisHeight));
+            _seriesPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
+            _layersPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
 
-            _gridLinesPanel.InvalidateVisual();
             _seriesPanel.InvalidateVisual();
             _layersPanel.InvalidateVisual();
-            _xAxisPresenter.InvalidateVisual();
-            _yAxisPresenter.InvalidateVisual();
 
             return base.ArrangeOverride(finalSize);
         }
@@ -363,6 +244,8 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
+
+        public abstract IEnumerable<SeriesBase> GetSeries();
 
         #region Internal Methods
         internal bool IsCanvasReady()
@@ -402,7 +285,7 @@ namespace Panuon.WPF.Charts
         #region Event Handlers
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var chartPanel = (ChartPanel)d;
+            var chartPanel = (ChartBase)d;
             if (e.OldValue is INotifyCollectionChanged oldCollection)
             {
                 oldCollection.CollectionChanged -= chartPanel.ObservableItemsSource_CollectionChanged;
@@ -438,6 +321,29 @@ namespace Panuon.WPF.Charts
             resultMin = (int)Math.Floor(min / baseValue) * (int)baseValue;
             resultMax = (int)Math.Ceiling(max / baseValue) * (int)baseValue;
 
+        }
+
+        private double GetValueFromValueProvider(
+            IChartValueProvider valueProvider,
+            object item
+        )
+        {
+            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
+            {
+                throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
+            }
+
+            var itemType = item.GetType();
+
+            var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
+            if (valueProperty == null)
+            {
+                throw new System.NullReferenceException($"Property named '{valueProvider.ValueMemberPath}' does not exists.");
+            }
+            var valueValue = valueProperty.GetValue(item);
+            var value = Convert.ToDouble(valueValue);
+
+            return value;
         }
         #endregion
     }

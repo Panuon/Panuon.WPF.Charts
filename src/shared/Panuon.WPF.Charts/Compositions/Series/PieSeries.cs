@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class PieSeries
-        : ValueProviderSegmentsSeriesBase<PieSeriesSegment>
+        : RadialValueProviderSegmentsSeriesBase<PieSeriesSegment>
     {
         #region Structs
         private struct PieSeriesSegmentInfo

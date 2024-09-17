@@ -9,7 +9,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class DoughnutSeries
-        : ValueProviderSegmentsSeriesBase<DoughnutSeriesSegment>
+        : RadialValueProviderSegmentsSeriesBase<DoughnutSeriesSegment>
     {
         #region Structs
         private struct DoughnutSeriesSegmentInfo

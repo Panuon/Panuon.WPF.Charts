@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
     public interface IChartContext
     {
-        ChartPanel ChartPanel { get; }
+        ChartBase ChartPanel { get; }
 
         double AreaWidth { get; }
 

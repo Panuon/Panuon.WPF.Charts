@@ -1,9 +1,5 @@
-﻿using Panuon.WPF.Charts.Implements;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,7 +10,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : AxisPresenterBase
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private CartesianChart _chart;
 
 
         internal readonly Dictionary<double, FormattedText> _formattedTexts =
@@ -22,13 +18,13 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Ctor
-        internal YAxisPresenter(ChartPanel chartPanel)
+        internal YAxisPresenter(CartesianChart chart)
         {
-            _chartPanel = chartPanel;
+            _chart = chart;
             SetBinding(YAxisProperty, new Binding()
             {
-                Path = new PropertyPath(ChartPanel.YAxisProperty),
-                Source = _chartPanel,
+                Path = new PropertyPath(CartesianChart.YAxisProperty),
+                Source = _chart,
             });
         }
         #endregion
@@ -62,11 +58,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 return new Size(0, 0);
             }
 
-            var deltaX = (_chartPanel.ActualMaxValue - _chartPanel.ActualMinValue) / 5;
+            var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
 
             for(int i = 0; i <= 5; i++)
             {
-                var value = _chartPanel.ActualMinValue + deltaX * i;
+                var value = _chart.ActualMinValue + deltaX * i;
                 var formattedText = new FormattedText(
                     value.ToString(),
                     System.Globalization.CultureInfo.CurrentCulture,
@@ -104,13 +100,13 @@ namespace Panuon.WPF.Charts.Controls.Internals
         protected override void OnRender(DrawingContext context)
         {
             if (YAxis == null
-                || !_chartPanel.IsCanvasReady())
+                || !_chart.IsCanvasReady())
             {
                 return;
             }
 
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var chartContext = _chartPanel.GetCanvasContext();
+            var drawingContext = _chart.CreateDrawingContext(context);
+            var chartContext = _chart.GetCanvasContext();
 
             drawingContext.DrawLine(YAxis.Stroke, YAxis.StrokeThickness, ActualWidth, 0, ActualWidth, ActualHeight);
 

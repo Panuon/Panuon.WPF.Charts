@@ -13,7 +13,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : FrameworkElement
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private ChartBase _chartPanel;
 
         private UIElementCollection _children;
 
@@ -24,7 +24,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Ctor
-        internal LayersPanel(ChartPanel chartPanel)
+        internal LayersPanel(ChartBase chartPanel)
         {
             _chartPanel = chartPanel;
             _chartPanel.Layers.CollectionChanged += ChartPanelLayers_CollectionChanged;

@@ -4,13 +4,14 @@ using System.Windows.Markup;
 
 namespace Panuon.WPF.Charts
 {
+
     [ContentProperty(nameof(Segments))]
-    public abstract class ValueProviderSegmentsSeriesBase<TSegment>
-        : ValueProviderSegmentsSeriesBase
+    public abstract class RadialValueProviderSegmentsSeriesBase<TSegment>
+        : RadialValueProviderSegmentsSeriesBase
         where TSegment : SegmentBase
     {
         #region Ctor
-        public ValueProviderSegmentsSeriesBase()
+        public RadialValueProviderSegmentsSeriesBase()
         {
             Segments = new SegmentCollection<TSegment>();
         }
@@ -26,7 +27,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SegmentsProperty =
-            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(ValueProviderSegmentsSeriesBase<TSegment>), new PropertyMetadata(null, OnSegmentsChanged));
+            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(RadialValueProviderSegmentsSeriesBase<TSegment>), new PropertyMetadata(null, OnSegmentsChanged));
         #endregion
 
         #endregion

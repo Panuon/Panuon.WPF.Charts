@@ -9,14 +9,14 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Ctor
-        internal ChartContextImpl(ChartPanel chartPanel)
+        internal ChartContextImpl(ChartBase chartPanel)
         {
             ChartPanel = chartPanel;
         }
         #endregion
 
         #region Properties
-        public ChartPanel ChartPanel { get; }
+        public ChartBase ChartPanel { get; }
 
         public double AreaWidth => ChartPanel._seriesPanel.RenderSize.Width;
 
@@ -28,7 +28,7 @@ namespace Panuon.WPF.Charts
 
         public IEnumerable<ICoordinate> Coordinates => ChartPanel.Coordinates;
 
-        public IEnumerable<SeriesBase> Series => ChartPanel.Series;
+        public IEnumerable<SeriesBase> Series => ChartPanel.GetSeries();
         #endregion
 
         #region Methods

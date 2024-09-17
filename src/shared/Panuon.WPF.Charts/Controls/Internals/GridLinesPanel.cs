@@ -7,13 +7,13 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : FrameworkElement
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private CartesianChart _chart;
         #endregion
 
         #region Ctor
-        internal GridLinesPanel(ChartPanel chartPanel)
+        internal GridLinesPanel(CartesianChart chart)
         {
-            _chartPanel = chartPanel;
+            _chart = chart;
         }
         #endregion
 
@@ -21,7 +21,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
        
         #region GridLinesVisibility
         public static readonly DependencyProperty GridLinesVisibilityProperty =
-            DependencyProperty.Register("GridLinesVisibility", typeof(ChartPanelGridLinesVisibility), typeof(GridLinesPanel), new FrameworkPropertyMetadata(ChartPanelGridLinesVisibility.Both,
+            DependencyProperty.Register("GridLinesVisibility", typeof(CartesianChartGridLinesVisibility), typeof(GridLinesPanel), new FrameworkPropertyMetadata(CartesianChartGridLinesVisibility.Both,
                 FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
@@ -42,47 +42,47 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Overrides
         protected override void OnRender(DrawingContext context)
         {
-            if (_chartPanel.GridLinesBrush == null ||
-                _chartPanel.GridLinesThickness == 0 ||
-                !_chartPanel.IsCanvasReady())
+            if (_chart.GridLinesBrush == null ||
+                _chart.GridLinesThickness == 0 ||
+                !_chart.IsCanvasReady())
             {
                 return;
             }
 
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var chartContext = _chartPanel.GetCanvasContext();
+            var drawingContext = _chart.CreateDrawingContext(context);
+            var chartContext = _chart.GetCanvasContext();
 
-            var pen = new Pen(_chartPanel.GridLinesBrush, _chartPanel.GridLinesThickness);
+            var pen = new Pen(_chart.GridLinesBrush, _chart.GridLinesThickness);
             pen.Freeze();
 
-            if (_chartPanel.GridLinesVisibility == ChartPanelGridLinesVisibility.Vertical
-                || _chartPanel.GridLinesVisibility == ChartPanelGridLinesVisibility.Both)
+            if (_chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Vertical
+                || _chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Both)
             {
-                foreach(var coordinateText in _chartPanel._xAxisPresenter._formattedTexts)
+                foreach(var coordinateText in _chart._xAxisPresenter._formattedTexts)
                 {
                     var coordinate = coordinateText.Key;
 
                     var offsetX = coordinate.Offset;
 
-                    drawingContext.DrawLine(_chartPanel.GridLinesBrush,
-                        _chartPanel.GridLinesThickness,
+                    drawingContext.DrawLine(_chart.GridLinesBrush,
+                        _chart.GridLinesThickness,
                         offsetX,
                         0,
                         offsetX,
                         ActualHeight);
                 }
             }
-            if (_chartPanel.GridLinesVisibility == ChartPanelGridLinesVisibility.Horizontal
-                || _chartPanel.GridLinesVisibility == ChartPanelGridLinesVisibility.Both)
+            if (_chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Horizontal
+                || _chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Both)
             {
-                foreach (var valueText in _chartPanel._yAxisPresenter._formattedTexts)
+                foreach (var valueText in _chart._yAxisPresenter._formattedTexts)
                 {
                     var value = valueText.Key;
 
                     var offsetY = chartContext.GetOffsetY(value);
 
-                    drawingContext.DrawLine(_chartPanel.GridLinesBrush,
-                        _chartPanel.GridLinesThickness,
+                    drawingContext.DrawLine(_chart.GridLinesBrush,
+                        _chart.GridLinesThickness,
                         0,
                         offsetY,
                         ActualWidth,

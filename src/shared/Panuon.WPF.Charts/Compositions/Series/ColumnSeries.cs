@@ -7,7 +7,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class ColumnSeries
-        : ValueProviderSeriesBase
+        : CartesianValueProviderSeriesBase
     {
         #region Fields
         private List<Point> _valuePoints;

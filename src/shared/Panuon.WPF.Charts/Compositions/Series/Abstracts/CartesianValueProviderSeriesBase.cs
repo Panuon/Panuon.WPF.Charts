@@ -2,8 +2,8 @@
 
 namespace Panuon.WPF.Charts
 {
-    public abstract class ValueProviderSeriesBase
-        : SeriesBase, IChartValueProvider
+    public abstract class CartesianValueProviderSeriesBase
+        : CartesianSeriesBase, IChartValueProvider
     {
         #region Properties
 
@@ -15,7 +15,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty TitleProperty =
-            DependencyProperty.Register("Title", typeof(string), typeof(SeriesBase), new PropertyMetadata(null));
+            DependencyProperty.Register("Title", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
         #endregion
 
         #region TitleMemberPath
@@ -26,7 +26,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty TitleMemberPathProperty =
-            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(SeriesBase), new PropertyMetadata(null));
+            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
         #endregion
 
         #region ValueMemberPath
@@ -37,7 +37,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ValueMemberPathProperty =
-            DependencyProperty.Register("ValueMemberPath", typeof(string), typeof(ValueProviderSeriesBase));
+            DependencyProperty.Register("ValueMemberPath", typeof(string), typeof(CartesianValueProviderSeriesBase));
         #endregion
 
         #endregion

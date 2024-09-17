@@ -3,8 +3,8 @@ using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
-    public abstract class ValueProviderSegmentsSeriesBase
-       : ValueProviderSeriesBase
+    public abstract class RadialSegmentsSeriesBase
+       : RadialSeriesBase, IChartSegmentsSeries
     {
         #region Fields
         private Dictionary<SegmentBase, Point> _segmentPoints;

@@ -1,6 +1,6 @@
 ﻿namespace Panuon.WPF.Charts
 {
-    public enum ChartPanelGridLinesVisibility
+    public enum CartesianChartGridLinesVisibility
     {
         Both = 0,
         Horizontal = 1,

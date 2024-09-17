@@ -11,7 +11,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Fields
         private SeriesPanel _seriesPanel;
 
-        private ChartPanel _chartPanel;
+        private ChartBase _chartPanel;
 
         private bool _isAnimationCompleted;
         #endregion
@@ -19,7 +19,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Ctor
         public SeriesPresenter(
             SeriesPanel seriesPanel,
-            ChartPanel chartPanel
+            ChartBase chartPanel
         )
         {
             _seriesPanel = seriesPanel;

@@ -1,9 +1,6 @@
 ﻿using Panuon.WPF.Charts.Implements;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,20 +11,20 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : AxisPresenterBase
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private CartesianChart _chart;
 
         internal readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts = 
             new Dictionary<CoordinateImpl, FormattedText>();
         #endregion
 
         #region Ctor
-        internal XAxisPresenter(ChartPanel chartPanel)
+        internal XAxisPresenter(CartesianChart chart)
         {
-            _chartPanel = chartPanel;
+            _chart = chart;
             SetBinding(XAxisProperty, new Binding()
             {
-                Path = new PropertyPath(ChartPanel.XAxisProperty),
-                Source = _chartPanel,
+                Path = new PropertyPath(CartesianChart.XAxisProperty),
+                Source = _chart,
             });
         }
         #endregion
@@ -54,6 +51,8 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
+            base.MeasureOverride(availableSize);
+
             _formattedTexts.Clear();
 
             if (XAxis == null)
@@ -61,7 +60,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 return new Size(0, 0);
             }
 
-            foreach (var coordinate in _chartPanel.Coordinates)
+            foreach (var coordinate in _chart.Coordinates)
             {
                 if(coordinate.Title == null)
                 {
@@ -106,12 +105,12 @@ namespace Panuon.WPF.Charts.Controls.Internals
         protected override void OnRender(DrawingContext context)
         {
             if(XAxis == null
-                || !_chartPanel.IsCanvasReady())
+                || !_chart.IsCanvasReady())
             {
                 return;
             }
 
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
+            var drawingContext = _chart.CreateDrawingContext(context);
 
             drawingContext.DrawLine(
                 XAxis.Stroke, 

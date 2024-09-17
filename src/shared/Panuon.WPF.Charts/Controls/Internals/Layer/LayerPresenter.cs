@@ -16,14 +16,14 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Fields
         private LayersPanel _layersPanel;
 
-        private ChartPanel _chartPanel;
+        private ChartBase _chartPanel;
 
         private UIElementCollection _children;
         #endregion
 
         #region Ctor
         public LayerPresenter(LayersPanel layersPanel,
-            ChartPanel chartPanel)
+            ChartBase chartPanel)
         {
             _layersPanel = layersPanel;
             _chartPanel = chartPanel;
