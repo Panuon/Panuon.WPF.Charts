@@ -4,7 +4,6 @@ using System.Windows.Markup;
 
 namespace Panuon.WPF.Charts
 {
-
     [ContentProperty(nameof(Segments))]
     public abstract class RadialValueProviderSegmentsSeriesBase<TSegment>
         : RadialValueProviderSegmentsSeriesBase
@@ -47,5 +46,4 @@ namespace Panuon.WPF.Charts
         }
         #endregion
     }
-
 }

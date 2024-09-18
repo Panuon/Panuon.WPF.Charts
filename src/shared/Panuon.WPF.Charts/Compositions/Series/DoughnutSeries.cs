@@ -173,24 +173,27 @@ namespace Panuon.WPF.Charts
                     centerY + (outterRadius + Spacing + rayLength) * Math.Sin(radian)
                 );
 
-                if (segment.LabelStroke == null && segment.LabelForeground == null)
+                if (formattedText != null)
                 {
-                    drawingContext.DrawText(
-                        formattedText,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
-                }
-                else
-                {
-                    drawingContext.DrawText(
-                        formattedText,
-                        segment.LabelForeground,
-                        segment.LabelStroke,
-                        segment.LabelStrokeThickness,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
+                    if (segment.LabelStroke == null && segment.LabelForeground == null)
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
+                    else
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            segment.LabelForeground,
+                            segment.LabelStroke,
+                            segment.LabelStrokeThickness,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
                 }
             }
         }

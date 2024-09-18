@@ -9,6 +9,7 @@
         Title="Panauon.WPF.Charts"
         Height="750"
         Width="1200"
+        Background="Red"
         Loaded="Window_Loaded">
     <Grid Margin="15">
         <Grid.RowDefinitions>

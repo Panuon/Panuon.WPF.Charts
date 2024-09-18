@@ -34,7 +34,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialValueProviderSegmentsSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)contracts\IChartSegmentsSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\RadialChart.cs" />
-    <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Series\Abstracts\CartesianSegmentsSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianValueProviderSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialSegmentsSeriesBase.cs" />
@@ -54,7 +53,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IDrawingContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ILayerContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Abstracts\ChartBase.cs" />
-    <Compile Include="..\shared\Panuon.WPF.Charts\Controls\RadialChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\CartesianChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Axis\AxisPresenterBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Axis\XAxisPresenter.cs" />

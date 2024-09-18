@@ -105,6 +105,17 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("GridLinesThickness", typeof(double), typeof(RadarSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
         #endregion
 
+        #region GridLinesDashArray
+        public DoubleCollection GridLinesDashArray
+        {
+            get { return (DoubleCollection)GetValue(GridLinesDashArrayProperty); }
+            set { SetValue(GridLinesDashArrayProperty, value); }
+        }
+
+        public static readonly DependencyProperty GridLinesDashArrayProperty =
+            DependencyProperty.Register("GridLinesDashArray", typeof(DoubleCollection), typeof(RadarSeries));
+        #endregion
+
         #region OutterGridLineBrush
         public Brush OutterGridLineBrush
         {
@@ -261,7 +272,7 @@ namespace Panuon.WPF.Charts
         )
         {
             var segments = Segments;
-            if (segments.Count < 3)
+            if (segments.Count() < 3)
             {
                 throw new InvalidOperationException("RadarSeries requires at least 3 segments to be formed.");
             }
@@ -280,7 +291,6 @@ namespace Panuon.WPF.Charts
 
             if (GridLinesVisibility == RadialChartGridLinesVisibility.Visible)
             {
-
                 var gridLinesSpacing = GridLengthUtil.GetActualValue(
                     GridLinesSpacing,
                     radius,
@@ -301,7 +311,8 @@ namespace Panuon.WPF.Charts
                             radius: radius,
                             stroke: OutterGridLineBrush ?? GridLinesBrush,
                             strokThickness: OutterGridLineThickness ?? GridLinesThickness,
-                            fill: null
+                            fill: null,
+                            dashArray: null
                         );
                     }
                     else
@@ -314,7 +325,8 @@ namespace Panuon.WPF.Charts
                             radius: (gridLinesIndex + 1) * gridLinesSpacing,
                             stroke: GridLinesBrush,
                             strokThickness: GridLinesThickness,
-                            fill: null
+                            fill: null,
+                            dashArray: GridLinesDashArray
                         );
                     }
                 }
@@ -436,7 +448,8 @@ namespace Panuon.WPF.Charts
             double radius,
             Brush stroke,
             double strokThickness,
-            Brush fill
+            Brush fill,
+            DoubleCollection dashArray
         )
         {
             var angleOffset = -Math.PI / 2;
@@ -465,7 +478,7 @@ namespace Panuon.WPF.Charts
                 ctx.LineTo(points[0], true, false);
             }
 
-            drawingContext.DrawGeometry(stroke, strokThickness, fill, geometry);
+            drawingContext.DrawGeometry(stroke, strokThickness, dashArray, fill, geometry);
         }
 
         private static double CalculateRayLength(
