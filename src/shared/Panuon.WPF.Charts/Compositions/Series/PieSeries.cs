@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class PieSeries
-        : ValueProviderSegmentsSeriesBase<PieSeriesSegment>
+        : RadialValueProviderSegmentsSeriesBase<PieSeriesSegment>
     {
         #region Structs
         private struct PieSeriesSegmentInfo
@@ -17,7 +17,7 @@ namespace Panuon.WPF.Charts
 
             public double Angle { get; set; }
 
-            public string Title { get; set; }
+            public FormattedText Title { get; set; }
         }
         #endregion
 
@@ -88,11 +88,28 @@ namespace Panuon.WPF.Charts
                 );
                 GeneratingTitle?.Invoke(this, generatingTitleArgs);
 
+                var title = generatingTitleArgs.Title;
                 _segmentInfos[segment] = new PieSeriesSegmentInfo()
                 {
                     StartAngle = totalAngle,
                     Angle = angle,
-                    Title = generatingTitleArgs.Title
+                    Title = title == null
+                        ? null
+                        : new FormattedText(
+                            generatingTitleArgs.Title,
+                            CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
+                            chartPanel.FontSize,
+                            chartPanel.Foreground
+    #if NET452 || NET462 || NET472 || NET48
+    #else
+                            , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
+    #endif
+                        )
+                            {
+                                TextAlignment = TextAlignment.Center
+                            }
                 };
 
                 totalAngle += angle;
@@ -140,25 +157,15 @@ namespace Panuon.WPF.Charts
             foreach (var segmentInfo in _segmentInfos)
             {
                 var segment = segmentInfo.Key;
-                var title = segmentInfo.Value.Title;
                 var startAngle = segmentInfo.Value.StartAngle * animationProgress;
                 var angle = Math.Round(segmentInfo.Value.Angle, 2) * animationProgress;
 
-                var formattedText = new FormattedText(
-                    title,
-                    CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
-                    chartPanel.FontSize,
-                    chartPanel.Foreground
-#if NET452 || NET462 || NET472 || NET48
-#else
-                    , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
-#endif
-                )
+                var formattedText = segmentInfo.Value.Title;
+
+                if(formattedText == null)
                 {
-                    TextAlignment = TextAlignment.Center
-                };
+                    continue;
+                }
 
                 var currentAngle = startAngle + angle / 2;
                 var radian = (currentAngle - 90) * Math.PI / 180.0;

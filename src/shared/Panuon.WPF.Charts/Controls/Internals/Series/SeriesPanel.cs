@@ -1,4 +1,4 @@
-﻿using Panuon.WPF.Charts.Implements;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : FrameworkElement
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private ChartBase _chartPanel;
 
         private UIElementCollection _children;
 
@@ -23,10 +23,21 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Ctor
-        internal SeriesPanel(ChartPanel chartPanel)
+        internal SeriesPanel(ChartBase chartPanel)
         {
             _chartPanel = chartPanel;
-            _chartPanel.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
+            if (chartPanel is CartesianChart cartesianChart)
+            {
+                cartesianChart.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
+            }
+            else if (chartPanel is RadialChart radialChart)
+            {
+                radialChart.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
 
             _children = new UIElementCollection(this, this);
         }

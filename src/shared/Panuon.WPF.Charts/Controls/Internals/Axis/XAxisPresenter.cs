@@ -1,9 +1,6 @@
 ﻿using Panuon.WPF.Charts.Implements;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,20 +11,20 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : AxisPresenterBase
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private CartesianChart _chart;
 
         internal readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts = 
             new Dictionary<CoordinateImpl, FormattedText>();
         #endregion
 
         #region Ctor
-        internal XAxisPresenter(ChartPanel chartPanel)
+        internal XAxisPresenter(CartesianChart chart)
         {
-            _chartPanel = chartPanel;
+            _chart = chart;
             SetBinding(XAxisProperty, new Binding()
             {
-                Path = new PropertyPath(ChartPanel.XAxisProperty),
-                Source = _chartPanel,
+                Path = new PropertyPath(CartesianChart.XAxisProperty),
+                Source = _chart,
             });
         }
         #endregion
@@ -54,6 +51,8 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
+            base.MeasureOverride(availableSize);
+
             _formattedTexts.Clear();
 
             if (XAxis == null)
@@ -61,8 +60,12 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 return new Size(0, 0);
             }
 
-            foreach (var coordinate in _chartPanel.Coordinates)
+            foreach (var coordinate in _chart.Coordinates)
             {
+                if(coordinate.Title == null)
+                {
+                    continue;
+                }
                 var formattedText = new FormattedText(coordinate.Title,
                     System.Globalization.CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
@@ -102,16 +105,21 @@ namespace Panuon.WPF.Charts.Controls.Internals
         protected override void OnRender(DrawingContext context)
         {
             if(XAxis == null
-                || !_chartPanel.IsCanvasReady())
+                || !_chart.IsCanvasReady())
             {
                 return;
             }
 
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
+            var drawingContext = _chart.CreateDrawingContext(context);
 
-            drawingContext.DrawLine(XAxis.Stroke, 
+            drawingContext.DrawLine(
+                XAxis.Stroke, 
                 XAxis.StrokeThickness, 
-                0, 0, ActualWidth, 0);
+                0, 
+                0,
+                ActualWidth, 
+                0
+            );
             foreach(var coordinateText in _formattedTexts)
             {
                 var coordinate = coordinateText.Key;
@@ -119,8 +127,19 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
                 var offsetX = coordinate.Offset;
 
-                drawingContext.DrawLine(XAxis.TicksBrush, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness, offsetX, XAxis.StrokeThickness + XAxis.TicksSize);
-                drawingContext.DrawText(text, offsetX - text.Width / 2, XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness);
+                drawingContext.DrawLine(
+                    XAxis.TicksBrush,
+                    XAxis.StrokeThickness,
+                    offsetX, 
+                    XAxis.StrokeThickness,
+                    offsetX,
+                    XAxis.StrokeThickness + XAxis.TicksSize
+                );
+                drawingContext.DrawText(
+                    text,
+                    offsetX - text.Width / 2,
+                    XAxis.Spacing + XAxis.TicksSize + XAxis.StrokeThickness
+                );
             }
         }
         #endregion

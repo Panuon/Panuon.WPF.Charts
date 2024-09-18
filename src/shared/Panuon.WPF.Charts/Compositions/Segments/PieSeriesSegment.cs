@@ -1,5 +1,4 @@
-﻿using Panuon.WPF.Chart;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts

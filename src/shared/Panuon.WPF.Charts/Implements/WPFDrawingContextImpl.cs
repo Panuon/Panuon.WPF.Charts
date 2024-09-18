@@ -19,29 +19,65 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        public void DrawGeometry(Brush stroke, 
+        public void DrawGeometry(
+            Brush stroke, 
             double strokeThickness,
             Brush fill,
-            Geometry geometry)
+            Geometry geometry
+        )
+        {
+            _drawingContext.DrawGeometry(
+                fill,
+                GetPen(stroke, strokeThickness),
+                geometry
+            );
+        }
+
+        public void DrawGeometry(
+            Brush stroke,
+            double strokeThickness,
+            DoubleCollection dashArray,
+            Brush fill,
+            Geometry geometry
+        )
         {
             _drawingContext.DrawGeometry(fill,
-                GetPen(stroke, strokeThickness),
+                GetPen(stroke, strokeThickness, dashArray),
                 geometry);
         }
 
-        public void DrawLine(Brush stroke,
+        public void DrawLine(
+            Brush stroke,
             double strokeThickness,
             double startX,
             double startY,
             double endX,
-            double endY)
+            double endY
+        )
         {
             _drawingContext.DrawLine(GetPen(stroke, strokeThickness),
                 new Point(startX, startY), 
                 new Point(endX, endY));
         }
 
-        public void DrawEllipse(Brush stroke,
+        public void DrawLine(
+            Brush stroke,
+            double strokeThickness,
+            DoubleCollection dashArray,
+            double startX,
+            double startY,
+            double endX,
+            double endY
+        )
+        {
+            _drawingContext.DrawLine(
+                GetPen(stroke, strokeThickness, dashArray),
+                new Point(startX, startY),
+                new Point(endX, endY));
+        }
+
+        public void DrawEllipse(
+            Brush stroke,
             double strokeThickness,
             Brush fill,
             double radiusX,
@@ -49,11 +85,32 @@ namespace Panuon.WPF.Charts
             double offsetX,
             double offsetY)
         {
-            _drawingContext.DrawEllipse(fill, 
+            _drawingContext.DrawEllipse(
+                fill, 
                 GetPen(stroke, strokeThickness), 
                 new Point(offsetX, offsetY), 
                 radiusX, 
-                radiusY);
+                radiusY
+            );
+        }
+
+        public void DrawEllipse(
+            Brush stroke,
+            double strokeThickness,
+            DoubleCollection dashArray,
+            Brush fill,
+            double radiusX,
+            double radiusY,
+            double offsetX,
+            double offsetY)
+        {
+            _drawingContext.DrawEllipse(
+                fill,
+                GetPen(stroke, strokeThickness, dashArray),
+                new Point(offsetX, offsetY),
+                radiusX,
+                radiusY
+            );
         }
 
         public void DrawText(FormattedText text, 
@@ -192,7 +249,8 @@ namespace Panuon.WPF.Charts
 
         #region Functions
         private Pen GetPen(Brush stroke,
-            double strokeThickness)
+            double strokeThickness,
+            DoubleCollection dashArray = null)
         {
             if(stroke == null
                 || !(strokeThickness > 0))
@@ -200,6 +258,10 @@ namespace Panuon.WPF.Charts
                 return null;
             }
             var pen = new Pen(stroke, strokeThickness);
+            if (dashArray != null)
+            {
+                pen.DashStyle = new DashStyle(dashArray, 0);
+            }
             pen.Freeze();
             return pen;
         }

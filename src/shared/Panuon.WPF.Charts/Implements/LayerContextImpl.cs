@@ -10,12 +10,12 @@ namespace Panuon.WPF.Charts.Implements
         : ILayerContext
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private ChartBase _chartPanel;
         
         #endregion
 
         #region Ctor
-        internal LayerContextImpl(ChartPanel chartPanel)
+        internal LayerContextImpl(ChartBase chartPanel)
         {
             _chartPanel = chartPanel;
         }
@@ -65,7 +65,7 @@ namespace Panuon.WPF.Charts.Implements
             if (coordinate == null ||
                 !coordinate.Values.ContainsKey(seriesOrSegment))
             {
-                return _chartPanel.MinValue;
+                return _chartPanel.ActualMinValue;
             }
             else
             {

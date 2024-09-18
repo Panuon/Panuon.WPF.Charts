@@ -20,12 +20,12 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <pc:ChartPanel x:Name="chartPanel1"
-                       GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title"
-                       AnimationDuration="0:0:3"
-                       AnimationEasing="CubicOut">
-            <pc:ChartPanel.Series>
+        <pc:CartesianChart x:Name="chartPanel1"
+                           GridLinesBrush="#EFEFEF"
+                           TitleMemberPath="Title"
+                           AnimationDuration="0:0:3"
+                           AnimationEasing="CubicOut">
+            <pc:CartesianChart.Series>
                 <pc:ColumnSeries BackgroundFill="#1AFCBA03"
                                  Fill="#FCBA03"
                                  ColumnWidth="15"
@@ -36,21 +36,21 @@
                 <pc:LineSeries Stroke="#F55195"
                                StrokeThickness="2"
                                ValueMemberPath="Value2" />
-            </pc:ChartPanel.Series>
-            <pc:ChartPanel.Layers>
+            </pc:CartesianChart.Series>
+            <pc:CartesianChart.Layers>
                 <!--十字交叉线-->
                 <pc:CrossLineLayer />
                 <!--悬浮圆点-->
                 <pc:ToolTipLayer />
-            </pc:ChartPanel.Layers>
-        </pc:ChartPanel>
-        <pc:ChartPanel x:Name="chartPanel2"
-                       Grid.Column="1"
-                       GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title"
-                       AnimationDuration="0:0:3"
-                       AnimationEasing="CubicOut">
-            <pc:ChartPanel.Series>
+            </pc:CartesianChart.Layers>
+        </pc:CartesianChart>
+        <pc:CartesianChart x:Name="chartPanel2"
+                           Grid.Column="1"
+                           GridLinesBrush="#EFEFEF"
+                           TitleMemberPath="Title"
+                           AnimationDuration="0:0:3"
+                           AnimationEasing="CubicOut">
+            <pc:CartesianChart.Series>
                 <pc:LineSeries Stroke="#AE4EED"
                                StrokeThickness="2"
                                ValueMemberPath="Value1" />
@@ -68,23 +68,20 @@
                                                      Fill="#FCBA03"
                                                      ValueMemberPath="Value3" />
                 </pc:ClusteredColumnSeries>
-            </pc:ChartPanel.Series>
-            <pc:ChartPanel.Layers>
+            </pc:CartesianChart.Series>
+            <pc:CartesianChart.Layers>
                 <!--十字交叉线-->
                 <pc:CrossLineLayer />
                 <!--悬浮圆点-->
                 <pc:ToolTipLayer />
-            </pc:ChartPanel.Layers>
-        </pc:ChartPanel>
-        <pc:ChartPanel x:Name="chartPanel3"
-                       Grid.Row="1"
-                       GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title"
-                       XAxis="{x:Null}"
-                       YAxis="{x:Null}"
-                       AnimationDuration="0:0:3"
-                       AnimationEasing="CubicOut">
-            <pc:ChartPanel.Series>
+            </pc:CartesianChart.Layers>
+        </pc:CartesianChart>
+        <pc:RadialChart x:Name="chartPanel3"
+                        Grid.Row="1"
+                        TitleMemberPath="Title"
+                        AnimationDuration="0:0:3"
+                        AnimationEasing="CubicOut">
+            <pc:RadialChart.Series>
                 <pc:PieSeries ValueMemberPath="Value3">
                     <pc:PieSeriesSegment LabelForeground="#36A5EB"
                                          Fill="#36A5EB"
@@ -107,22 +104,19 @@
                                          Stroke="White"
                                          StrokeThickness="2" />
                 </pc:PieSeries>
-            </pc:ChartPanel.Series>
-            <pc:ChartPanel.Layers>
+            </pc:RadialChart.Series>
+            <pc:RadialChart.Layers>
                 <!--悬浮圆点-->
                 <pc:ToolTipLayer Visibility="Visible" />
-            </pc:ChartPanel.Layers>
-        </pc:ChartPanel>
-        <pc:ChartPanel x:Name="chartPanel4"
-                       Grid.Row="1"
-                       Grid.Column="1"
-                       GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title"
-                       XAxis="{x:Null}"
-                       YAxis="{x:Null}"
-                       AnimationDuration="0:0:3"
-                       AnimationEasing="CubicOut">
-            <pc:ChartPanel.Series>
+            </pc:RadialChart.Layers>
+        </pc:RadialChart>
+        <pc:RadialChart x:Name="chartPanel4"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        TitleMemberPath="Title"
+                        AnimationDuration="0:0:3"
+                        AnimationEasing="CubicOut">
+            <pc:RadialChart.Series>
                 <pc:DoughnutSeries ValueMemberPath="Value3">
                     <pc:DoughnutSeriesSegment LabelForeground="#36A5EB"
                                               Fill="#36A5EB"
@@ -145,19 +139,19 @@
                                               Stroke="White"
                                               StrokeThickness="2" />
                 </pc:DoughnutSeries>
-            </pc:ChartPanel.Series>
-            <pc:ChartPanel.Layers>
+            </pc:RadialChart.Series>
+            <pc:RadialChart.Layers>
                 <!--悬浮圆点-->
                 <pc:ToolTipLayer Visibility="Visible" />
-            </pc:ChartPanel.Layers>
-        </pc:ChartPanel>
-        <pc:ChartPanel x:Name="chartPanel5"
-                       Grid.Row="2"
-                       GridLinesBrush="#EFEFEF"
-                       TitleMemberPath="Title"
-                       AnimationDuration="0:0:3"
-                       AnimationEasing="CubicOut">
-            <pc:ChartPanel.Series>
+            </pc:RadialChart.Layers>
+        </pc:RadialChart>
+        <pc:CartesianChart x:Name="chartPanel5"
+                           Grid.Row="2"
+                           GridLinesBrush="#EFEFEF"
+                           TitleMemberPath="Title"
+                           AnimationDuration="0:0:3"
+                           AnimationEasing="CubicOut">
+            <pc:CartesianChart.Series>
                 <pc:DotSeries ToggleStroke="#FCBA03"
                               ToggleStrokeThickness="2"
                               ValueMemberPath="Value3" />
@@ -167,14 +161,38 @@
                 <pc:DotSeries ToggleStroke="#F55195"
                               ToggleStrokeThickness="2"
                               ValueMemberPath="Value2" />
-            </pc:ChartPanel.Series>
-            <pc:ChartPanel.Layers>
+            </pc:CartesianChart.Series>
+            <pc:CartesianChart.Layers>
                 <!--十字交叉线-->
                 <pc:CrossLineLayer />
                 <!--悬浮圆点-->
                 <pc:ToolTipLayer />
-            </pc:ChartPanel.Layers>
-        </pc:ChartPanel>
+            </pc:CartesianChart.Layers>
+        </pc:CartesianChart>
+        <pc:RadialChart x:Name="chartPanel6"
+                        Grid.Row="2"
+                        Grid.Column="2"
+                        TitleMemberPath="Title"
+                        AnimationDuration="0:0:3"
+                        AnimationEasing="CubicOut">
+            <pc:RadialChart.Series>
+                <pc:RadarSeries ValueMemberPath="Value1"
+                                GridLinesBrush="#CDCDCD"
+                                GridLinesThickness="1"
+                                Fill="#3A36A5EB">
+                    <pc:RadarSeriesSegment LabelForeground="#36A5EB"
+                                           AxisStroke="#36A5EB" />
+                    <pc:RadarSeriesSegment LabelForeground="#F55195"
+                                           AxisStroke="#F55195" />
+                    <pc:RadarSeriesSegment LabelForeground="#FCBA03"
+                                           AxisStroke="#FCBA03"/>
+                    <pc:RadarSeriesSegment LabelForeground="#A595EB"
+                                           AxisStroke="#A595EB"/>
+                    <pc:RadarSeriesSegment LabelForeground="#36A57B"
+                                           AxisStroke="#36A57B" />
+                </pc:RadarSeries>
+            </pc:RadialChart.Series>
+        </pc:RadialChart>
 
     </Grid>
 </Window>

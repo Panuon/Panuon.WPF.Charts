@@ -9,7 +9,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public class DoughnutSeries
-        : ValueProviderSegmentsSeriesBase<DoughnutSeriesSegment>
+        : RadialValueProviderSegmentsSeriesBase<DoughnutSeriesSegment>
     {
         #region Structs
         private struct DoughnutSeriesSegmentInfo
@@ -93,21 +93,23 @@ namespace Panuon.WPF.Charts
                 {
                     StartAngle = totalAngle,
                     Angle = angle,
-                    Title = new FormattedText(
-                    generatingTitleArgs.Title,
-                    CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
-                    chartPanel.FontSize,
-                    chartPanel.Foreground
-#if NET452 || NET462 || NET472 || NET48
-#else
-                    , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
-#endif
-                )
-                    {
-                        TextAlignment = TextAlignment.Center
-                    }
+                    Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
+                        ? null
+                        : new FormattedText(
+                            generatingTitleArgs.Title,
+                            CultureInfo.CurrentCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
+                            chartPanel.FontSize,
+                            chartPanel.Foreground
+        #if NET452 || NET462 || NET472 || NET48
+        #else
+                            , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
+        #endif
+                        )
+                            {
+                                TextAlignment = TextAlignment.Center
+                            }
                 };
 
                 totalAngle += angle;
@@ -171,24 +173,27 @@ namespace Panuon.WPF.Charts
                     centerY + (outterRadius + Spacing + rayLength) * Math.Sin(radian)
                 );
 
-                if (segment.LabelStroke == null && segment.LabelForeground == null)
+                if (formattedText != null)
                 {
-                    drawingContext.DrawText(
-                        formattedText,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
-                }
-                else
-                {
-                    drawingContext.DrawText(
-                        formattedText,
-                        segment.LabelForeground,
-                        segment.LabelStroke,
-                        segment.LabelStrokeThickness,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
+                    if (segment.LabelStroke == null && segment.LabelForeground == null)
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
+                    else
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            segment.LabelForeground,
+                            segment.LabelStroke,
+                            segment.LabelStrokeThickness,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
                 }
             }
         }

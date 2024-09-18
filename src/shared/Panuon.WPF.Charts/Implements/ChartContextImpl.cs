@@ -9,26 +9,26 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Ctor
-        internal ChartContextImpl(ChartPanel chartPanel)
+        internal ChartContextImpl(ChartBase chartPanel)
         {
             ChartPanel = chartPanel;
         }
         #endregion
 
         #region Properties
-        public ChartPanel ChartPanel { get; }
+        public ChartBase ChartPanel { get; }
 
         public double AreaWidth => ChartPanel._seriesPanel.RenderSize.Width;
 
         public double AreaHeight => ChartPanel._seriesPanel.RenderSize.Height;
 
-        public double MinValue => ChartPanel.MinValue;
+        public double MinValue => ChartPanel.ActualMinValue;
 
-        public double MaxValue => ChartPanel.MaxValue;
+        public double MaxValue => ChartPanel.ActualMaxValue;
 
         public IEnumerable<ICoordinate> Coordinates => ChartPanel.Coordinates;
 
-        public IEnumerable<SeriesBase> Series => ChartPanel.Series;
+        public IEnumerable<SeriesBase> Series => ChartPanel.GetSeries();
         #endregion
 
         #region Methods

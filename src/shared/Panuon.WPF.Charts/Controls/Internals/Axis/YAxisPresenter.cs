@@ -1,9 +1,5 @@
-﻿using Panuon.WPF.Charts.Implements;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,7 +10,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : AxisPresenterBase
     {
         #region Fields
-        private ChartPanel _chartPanel;
+        private CartesianChart _chart;
 
 
         internal readonly Dictionary<double, FormattedText> _formattedTexts =
@@ -22,13 +18,13 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Ctor
-        internal YAxisPresenter(ChartPanel chartPanel)
+        internal YAxisPresenter(CartesianChart chart)
         {
-            _chartPanel = chartPanel;
+            _chart = chart;
             SetBinding(YAxisProperty, new Binding()
             {
-                Path = new PropertyPath(ChartPanel.YAxisProperty),
-                Source = _chartPanel,
+                Path = new PropertyPath(CartesianChart.YAxisProperty),
+                Source = _chart,
             });
         }
         #endregion
@@ -62,25 +58,29 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 return new Size(0, 0);
             }
 
-            var deltaX = (_chartPanel.MaxValue - _chartPanel.MinValue) / 5;
+            var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
 
             for(int i = 0; i <= 5; i++)
             {
-                var formattedText = new FormattedText((deltaX * i).ToString(),
+                var value = _chart.ActualMinValue + deltaX * i;
+                var formattedText = new FormattedText(
+                    value.ToString(),
                     System.Globalization.CultureInfo.CurrentCulture,
                     FlowDirection.LeftToRight,
                     new Typeface(YAxis.FontFamily, YAxis.FontStyle, YAxis.FontWeight, YAxis.FontStretch),
                     YAxis.FontSize,
                     YAxis.Foreground
 #if NET452 || NET462 || NET472 || NET48
-                    );
 #else
-                    ,VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                    ,VisualTreeHelper.GetDpi(this).PixelsPerDip
 #endif
-
-                _formattedTexts.Add(deltaX * i, formattedText);
+                );
+                _formattedTexts.Add(value, formattedText);
             }
-            return new Size(_formattedTexts.Values.Max(x => x.Width) + YAxis.Spacing + YAxis.TicksSize + YAxis.StrokeThickness, 0);
+            return new Size(
+                _formattedTexts.Values.Max(x => x.Width) + YAxis.Spacing + YAxis.TicksSize + YAxis.StrokeThickness,
+                0
+            );
         }
         #endregion
 
@@ -100,13 +100,13 @@ namespace Panuon.WPF.Charts.Controls.Internals
         protected override void OnRender(DrawingContext context)
         {
             if (YAxis == null
-                || !_chartPanel.IsCanvasReady())
+                || !_chart.IsCanvasReady())
             {
                 return;
             }
 
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var chartContext = _chartPanel.GetCanvasContext();
+            var drawingContext = _chart.CreateDrawingContext(context);
+            var chartContext = _chart.GetCanvasContext();
 
             drawingContext.DrawLine(YAxis.Stroke, YAxis.StrokeThickness, ActualWidth, 0, ActualWidth, ActualHeight);
 
@@ -118,8 +118,19 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 var text = valueText.Value;
 
                 var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawLine(YAxis.TicksBrush, YAxis.StrokeThickness, ActualWidth - YAxis.StrokeThickness, offsetY, ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, offsetY);
-                drawingContext.DrawText(text, ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width, offsetY - text.Height / 2);
+                drawingContext.DrawLine(
+                    YAxis.TicksBrush, 
+                    YAxis.StrokeThickness, 
+                    ActualWidth - YAxis.StrokeThickness, 
+                    offsetY, 
+                    ActualWidth - YAxis.StrokeThickness - YAxis.TicksSize, 
+                    offsetY
+                );
+                drawingContext.DrawText(
+                    text, 
+                    ActualWidth - YAxis.StrokeThickness - YAxis.Spacing - YAxis.TicksSize - text.Width,
+                    offsetY - text.Height / 2
+                );
             }
         }
         #endregion

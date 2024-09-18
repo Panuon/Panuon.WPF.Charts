@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Panuon.WPF.Chart;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Markup;
 
 namespace Panuon.WPF.Charts
 {
     [ContentProperty(nameof(Segments))]
-    public abstract class ValueProviderSegmentsSeriesBase<TSegment>
-        : ValueProviderSegmentsSeriesBase
-        where TSegment : SegmentBase
+    public abstract class RadialSegmentsSeriesBase<TSegment>
+        : RadialSegmentsSeriesBase
+        where TSegment : ValueProviderSegmentBase
     {
         #region Ctor
-        public ValueProviderSegmentsSeriesBase()
+        public RadialSegmentsSeriesBase()
         {
             Segments = new SegmentCollection<TSegment>();
         }
@@ -18,7 +19,7 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region Arguments
+        #region Segments
         public SegmentCollection<TSegment> Segments
         {
             get { return (SegmentCollection<TSegment>)GetValue(SegmentsProperty); }
@@ -26,7 +27,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SegmentsProperty =
-            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(ValueProviderSegmentsSeriesBase<TSegment>), new PropertyMetadata(null, OnSegmentsChanged));
+            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(RadialSegmentsSeriesBase<TSegment>), new PropertyMetadata(null, OnSegmentsChanged));
         #endregion
 
         #endregion
