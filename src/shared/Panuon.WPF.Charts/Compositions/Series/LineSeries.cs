@@ -271,26 +271,100 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinateProgresses
+            IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
-            foreach (var coordinateProgress in coordinateProgresses)
+            foreach (var coordinateProgress in coordinatesProgress)
             {
                 var coordinate = coordinateProgress.Key;
                 var progress = coordinateProgress.Value;
 
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
+                if(progress == 0)
+                {
+                    continue;
+                }
+                var point = _valuePoints[coordinate.Index];
+                Point? lastPoint = null;
+                if (coordinate.Index > 0)
+                {
+                    lastPoint = _valuePoints[coordinate.Index - 1];
+                }
+                Point? nextPoint = null;
+                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
+                {
+                    nextPoint = _valuePoints[coordinate.Index + 1];
+                }
 
-                drawingContext.DrawEllipse(
-                    stroke: Stroke,
-                    strokeThickness: 2,
-                    fill: Brushes.White,
-                    radiusX: ToggleRadius + progress * 2,
-                    radiusY: ToggleRadius + progress * 2,
-                    startX: coordinate.Offset,
-                    startY: offsetY
-                );
+                switch (layerContext.HighlightLayer.HighlightEffect)
+                {
+                    case HighlightEffect.None:
+                        break;
+                    case HighlightEffect.ShowToggle:
+                        drawingContext.DrawEllipse(
+                            stroke: Stroke,
+                            strokeThickness: 2,
+                            fill: ToggleFill,
+                            radiusX: ToggleRadius + progress * 2,
+                            radiusY: ToggleRadius + progress * 2,
+                            startX: coordinate.Offset,
+                            startY: point.Y
+                        );
+                        break;
+                    case HighlightEffect.Scale:
+                        if (lastPoint != null)
+                        {
+                            drawingContext.DrawLine(
+                                stroke: Stroke,
+                                strokeThickness: StrokeThickness + progress * 2,
+                                startX: lastPoint.Value.X,
+                                startY: lastPoint.Value.Y,
+                                endX: point.X,
+                                endY: point.Y
+                            );
+                            drawingContext.DrawEllipse(
+                                stroke: Stroke,
+                                strokeThickness: ToggleStrokeThickness,
+                                fill: ToggleFill,
+                                radiusX: ToggleRadius,
+                                radiusY: ToggleRadius,
+                                startX: lastPoint.Value.X,
+                                startY: lastPoint.Value.Y
+                            );
+                        }
+                        if (nextPoint != null)
+                        {
+                            drawingContext.DrawLine(
+                                stroke: Stroke,
+                                strokeThickness: StrokeThickness + progress * 2,
+                                startX: point.X,
+                                startY: point.Y,
+                                endX: nextPoint.Value.X,
+                                endY: nextPoint.Value.Y
+                            );
+                            drawingContext.DrawEllipse(
+                                stroke: Stroke,
+                                strokeThickness: ToggleStrokeThickness,
+                                fill: ToggleFill,
+                                radiusX: ToggleRadius,
+                                radiusY: ToggleRadius,
+                                startX: nextPoint.Value.X,
+                                startY: nextPoint.Value.Y
+                            );
+                        }
+                        drawingContext.DrawEllipse(
+                            stroke: Stroke,
+                            strokeThickness: ToggleStrokeThickness + progress * 2,
+                            fill: ToggleFill,
+                            radiusX: ToggleRadius + progress * 2,
+                            radiusY: ToggleRadius + progress * 2,
+                            startX: coordinate.Offset,
+                            startY: point.Y
+                        );
+                        break;
+                    case HighlightEffect.Outline:
+
+                        break;
+                }
             }
         }
         #endregion
@@ -315,6 +389,64 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Functions
+        private static double CalculateRayLength(
+            double radius,
+            double angle
+        )
+        {
+            var theta = angle * Math.PI / 180;
+
+            var cx = radius / 2;
+            var cy = radius / 2;
+
+            var left = 0;
+            var right = radius;
+            var top = radius;
+            var bottom = 0;
+
+            var dx = Math.Cos(theta);
+            var dy = Math.Sin(theta);
+
+            var intersectionDistance = double.MaxValue;
+
+            if (dx != 0)
+            {
+                if (dx > 0)
+                {
+                    var t = (right - cx) / dx;
+                    var y = cy + t * dy;
+                    if (y >= bottom && y <= top)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+                else
+                {
+                    var t = (left - cx) / dx;
+                    var y = cy + t * dy;
+                    if (y >= bottom && y <= top)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+            }
+
+            if (dy != 0)
+            {
+                if (dy > 0)
+                {
+                    var t = (top - cy) / dy;
+                    var x = cx + t * dx;
+                    if (x >= left && x <= right)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+                else
+                {
+                    var t = (bottom - cy) / dy;
+                    var x = cx + t * dx;
+                    if (x >= left && x <= right)
+                        intersectionDistance = Math.Min(intersectionDistance, t);
+                }
+            }
+
+            return intersectionDistance;
+        }
         #endregion
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -213,7 +212,7 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinateProgresses
+            IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
             if (layerContext.GetMousePosition() is Point position)

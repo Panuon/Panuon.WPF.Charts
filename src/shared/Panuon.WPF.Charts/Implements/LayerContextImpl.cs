@@ -72,6 +72,8 @@ namespace Panuon.WPF.Charts.Implements
                 return coordinate.Values[seriesOrSegment];
             }
         }
+
+        public HighlightLayer HighlightLayer => (HighlightLayer)_chartPanel.Layers.FirstOrDefault(l => l is HighlightLayer);
         #endregion
     }
 }

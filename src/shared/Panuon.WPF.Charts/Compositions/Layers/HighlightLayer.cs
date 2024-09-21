@@ -36,7 +36,7 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(HighlightLayer));
         #endregion
 
-        #region AnimationDuration
+        #region AnimationEasing
         public AnimationEasing AnimationEasing
         {
             get { return (AnimationEasing)GetValue(AnimationEasingProperty); }
@@ -45,6 +45,17 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty AnimationEasingProperty =
             DependencyProperty.Register("AnimationEasing", typeof(AnimationEasing), typeof(HighlightLayer));
+        #endregion
+
+        #region HighlightEffect
+        public HighlightEffect HighlightEffect
+        {
+            get { return (HighlightEffect)GetValue(HighlightEffectProperty); }
+            set { SetValue(HighlightEffectProperty, value); }
+        }
+
+        public static readonly DependencyProperty HighlightEffectProperty =
+            DependencyProperty.Register("HighlightEffect", typeof(HighlightEffect), typeof(HighlightLayer), new PropertyMetadata(HighlightEffect.Scale));
         #endregion
 
         #endregion

@@ -71,14 +71,14 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinateProgresses
+            IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
             OnHighlighting(
                 drawingContext,
                 chartContext,
                 layerContext,
-                coordinateProgresses: coordinateProgresses
+                coordinatesProgress: coordinatesProgress
             );
         }
         #endregion
@@ -184,7 +184,7 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinateProgresses
+            IDictionary<ICoordinate, double> coordinatesProgress
         );
 
         protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (

@@ -137,7 +137,7 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinateProgresses
+            IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
             if (layerContext.GetMousePosition() is Point position)
