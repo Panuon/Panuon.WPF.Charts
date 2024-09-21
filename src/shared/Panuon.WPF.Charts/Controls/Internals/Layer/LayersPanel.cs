@@ -1,7 +1,5 @@
-﻿using Panuon.WPF.Charts.Implements;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,12 +11,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : FrameworkElement
     {
         #region Fields
-        private ChartBase _chartPanel;
+        private ChartBase _chart;
 
         private UIElementCollection _children;
-
-        private readonly List<LayerPresenter> _layerPresenters =
-            new List<LayerPresenter>();
 
         private IList<ICoordinate> _coordinates;
         #endregion
@@ -26,8 +21,8 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Ctor
         internal LayersPanel(ChartBase chartPanel)
         {
-            _chartPanel = chartPanel;
-            _chartPanel.Layers.CollectionChanged += ChartPanelLayers_CollectionChanged;
+            _chart = chartPanel;
+            _chart.Layers.CollectionChanged += ChartPanelLayers_CollectionChanged;
 
             _children = new UIElementCollection(this, this);
         }
@@ -40,7 +35,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            foreach (LayerPresenter child in _children)
+            foreach (LayerBase child in _children)
             {
                 child.Measure(availableSize);
             }
@@ -49,7 +44,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (LayerPresenter child in _children)
+            foreach (LayerBase child in _children)
             {
                 child.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             }
@@ -63,27 +58,33 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            foreach (LayerPresenter child in _children)
+            base.OnMouseMove(e);
+
+            var chartContext = _chart.GetCanvasContext();
+            var layerContext = _chart.CreateLayerContext();
+
+            foreach (LayerBase child in _children)
             {
-                child.MouseIn();
+                child.MouseIn(
+                    chartContext,
+                    layerContext
+                );
             }
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
         {
-            foreach (LayerPresenter child in _children)
-            {
-                child.MouseOut();
-            }
-        }
-        #endregion
+            base.OnMouseLeave(e);
 
-        #region Methods
-        public new void InvalidateVisual()
-        {
-            foreach (LayerPresenter child in _children)
+            var chartContext = _chart.GetCanvasContext();
+            var layerContext = _chart.CreateLayerContext();
+
+            foreach (LayerBase child in _children)
             {
-                child.InvalidateVisual();
+                child.MouseOut(
+                    chartContext,
+                    layerContext
+                );
             }
         }
         #endregion
@@ -95,30 +96,16 @@ namespace Panuon.WPF.Charts.Controls.Internals
             {
                 foreach (LayerBase layer in e.OldItems)
                 {
-                    var presenter = _layerPresenters.FirstOrDefault(x => x.Layer == layer);
-                    if (presenter != null)
-                    {
-                        presenter.Layer = null; //Clear
-
-                        _children.Remove(presenter);
-                        _layerPresenters.Remove(presenter);
-                    }
+                    _children.Remove(layer);
                 }
             }
             if (e.NewItems != null)
             {
                 foreach (LayerBase layer in e.NewItems)
                 {
-                    var presenter = _layerPresenters.FirstOrDefault(x => x.Layer == layer);
-                    if (presenter == null)
-                    {
-                        presenter = new LayerPresenter(this, _chartPanel)
-                        {
-                            Layer = layer
-                        };
-                        _children.Add(presenter);
-                        _layerPresenters.Add(presenter);
-                    }
+                    layer.OnAttached(_chart);
+                    var index = _chart.Layers.IndexOf(layer);
+                    _children.Insert(index, layer);
                 }
             }
         }

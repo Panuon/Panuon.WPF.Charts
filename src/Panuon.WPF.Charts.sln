@@ -25,11 +25,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net472
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net48\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{D44299B3-A1B6-4172-840B-230C40D73AC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net7\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{1848B483-47BE-40D8-B341-A17A7802C986}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Panuon.WPF.Charts", "net7\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{1848B483-47BE-40D8-B341-A17A7802C986}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{68ABB7DB-ACAF-4B9A-AA67-9F27370480D3}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Panuon.WPF.Charts", "shared\Panuon.WPF.Charts\Panuon.WPF.Charts.shproj", "{F71C19FE-DE7B-4747-9510-BE8B429BD804}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net8", "net8", "{4CF00597-72DF-433E-A212-136A8664AFBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net8\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{3E67A9D7-B7CA-43D6-BB24-253F1C359767}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "net5", "net5", "{E26A7EFC-5AB1-4B52-B705-E8257530E2FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Panuon.WPF.Charts", "net5\Panuon.WPF.Charts\Panuon.WPF.Charts.csproj", "{247063E8-E860-461D-85E3-8703FC1D3F9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +69,14 @@ Global
 		{1848B483-47BE-40D8-B341-A17A7802C986}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1848B483-47BE-40D8-B341-A17A7802C986}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1848B483-47BE-40D8-B341-A17A7802C986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E67A9D7-B7CA-43D6-BB24-253F1C359767}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E67A9D7-B7CA-43D6-BB24-253F1C359767}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E67A9D7-B7CA-43D6-BB24-253F1C359767}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E67A9D7-B7CA-43D6-BB24-253F1C359767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{247063E8-E860-461D-85E3-8703FC1D3F9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{247063E8-E860-461D-85E3-8703FC1D3F9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{247063E8-E860-461D-85E3-8703FC1D3F9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{247063E8-E860-461D-85E3-8703FC1D3F9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,13 +89,17 @@ Global
 		{D44299B3-A1B6-4172-840B-230C40D73AC6} = {93985EE9-65AC-41D3-B664-8B5D0D0C9EA4}
 		{1848B483-47BE-40D8-B341-A17A7802C986} = {F4E812A9-7531-48E3-9861-2D418292EA10}
 		{F71C19FE-DE7B-4747-9510-BE8B429BD804} = {68ABB7DB-ACAF-4B9A-AA67-9F27370480D3}
+		{3E67A9D7-B7CA-43D6-BB24-253F1C359767} = {4CF00597-72DF-433E-A212-136A8664AFBB}
+		{247063E8-E860-461D-85E3-8703FC1D3F9D} = {E26A7EFC-5AB1-4B52-B705-E8257530E2FA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B239D8B-7D53-4F31-892A-1B1ACEBB5837}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{1848b483-47be-40d8-b341-a17a7802c986}*SharedItemsImports = 5
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{247063e8-e860-461d-85e3-8703fc1d3f9d}*SharedItemsImports = 5
 		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{371cbeed-6acd-4541-b8b5-d5b0d4872d81}*SharedItemsImports = 5
+		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{3e67a9d7-b7ca-43d6-bb24-253f1c359767}*SharedItemsImports = 5
 		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{84d9ef91-c8ac-4123-9ca8-a5a038668863}*SharedItemsImports = 4
 		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{9da0e1a3-6b7c-442f-bfa4-ee41f9d827c4}*SharedItemsImports = 4
 		shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems*{d064e35d-bab0-4a4a-b5e1-6109abfa24c9}*SharedItemsImports = 4

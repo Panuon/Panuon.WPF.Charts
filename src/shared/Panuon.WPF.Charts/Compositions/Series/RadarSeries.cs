@@ -202,8 +202,30 @@ namespace Panuon.WPF.Charts
         #region Methods
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext, IChartContext chartContext, ILayerContext layerContext, in IList<SeriesTooltip> tooltips)
+        protected override ICoordinate OnRetrieveCoordinate(
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            Point position
+        )
         {
+            return null;
+        }
+
+        protected override void OnHighlighting(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
+        {
+        }
+
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
+            IChartContext chartContext,
+            ILayerContext layerContext
+        )
+        {
+            yield break;
         }
         #endregion
 
@@ -214,7 +236,7 @@ namespace Panuon.WPF.Charts
 
             _segmentInfos = new Dictionary<RadarSeriesSegment, RadarSeriesSegmentInfo>();
 
-            var chartPanel = chartContext.ChartPanel;
+            var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
             var index = 0;
@@ -277,14 +299,14 @@ namespace Panuon.WPF.Charts
                 throw new InvalidOperationException("RadarSeries requires at least 3 segments to be formed.");
             }
 
-            var chartPanel = chartContext.ChartPanel;
+            var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = chartContext.AreaWidth - Spacing * 2;
-            var areaHeight = chartContext.AreaHeight - Spacing * 2;
+            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
 
-            var centerX = areaWidth / 2;
-            var centerY = areaHeight / 2;
+            var centerX = chartContext.AreaWidth / 2;
+            var centerY = chartContext.AreaHeight / 2;
             var radius = Math.Min(areaWidth, areaHeight) / 2;
 
             #region GridLines
@@ -389,7 +411,7 @@ namespace Panuon.WPF.Charts
                 }
 
                 drawingContext.DrawGeometry(
-                    stroke: Stroke, 
+                    stroke: Stroke,
                     strokeThickness: StrokeThickness,
                     fill: Fill,
                     geometry
@@ -540,6 +562,7 @@ namespace Panuon.WPF.Charts
 
             return intersectionDistance;
         }
+
         #endregion
     }
 }

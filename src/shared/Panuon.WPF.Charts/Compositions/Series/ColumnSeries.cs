@@ -142,10 +142,12 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
+        protected override void OnHighlighting(
+            IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
         {
             if (layerContext.GetMousePosition() is Point position)
             {
@@ -154,9 +156,22 @@ namespace Panuon.WPF.Charts
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawEllipse(Fill, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
-                tooltips.Add(new SeriesTooltip(Fill, Title ?? coordinate.Title, value.ToString()));
             }
+        }
 
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+            IChartContext chartContext, 
+            ILayerContext layerContext
+        )
+        {
+            if (layerContext.GetMousePosition() is Point position)
+            {
+                var coordinate = layerContext.GetCoordinate(position.X);
+
+                var value = coordinate.GetValue(this);
+                var offsetY = chartContext.GetOffsetY(value);
+                yield return new SeriesLegendEntry(Fill, Title ?? coordinate.Title, value.ToString());
+            }
         }
         #endregion
 

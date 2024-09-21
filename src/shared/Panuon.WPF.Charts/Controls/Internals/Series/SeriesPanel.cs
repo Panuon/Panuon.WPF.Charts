@@ -12,12 +12,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
         : FrameworkElement
     {
         #region Fields
-        private ChartBase _chartPanel;
+        private ChartBase _chart;
 
         private UIElementCollection _children;
-
-        private readonly List<SeriesPresenter> _seriesPresenters = 
-            new List<SeriesPresenter>();
 
         private IList<ICoordinate> _coordinates;
         #endregion
@@ -25,7 +22,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #region Ctor
         internal SeriesPanel(ChartBase chartPanel)
         {
-            _chartPanel = chartPanel;
+            _chart = chartPanel;
             if (chartPanel is CartesianChart cartesianChart)
             {
                 cartesianChart.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
@@ -50,7 +47,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            foreach(SeriesPresenter child in _children)
+            foreach(SeriesBase child in _children)
             {
                 child.Measure(availableSize);
             }
@@ -59,21 +56,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (SeriesPresenter child in _children)
+            foreach (SeriesBase child in _children)
             {
                 child.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
             }
             return base.ArrangeOverride(finalSize);
-        }
-        #endregion
-
-        #region Methods
-        public new void InvalidateVisual()
-        {
-            foreach(SeriesPresenter child in _children)
-            {
-                child.InvalidateVisual();
-            }
         }
         #endregion
 
@@ -84,36 +71,37 @@ namespace Panuon.WPF.Charts.Controls.Internals
             {
                 foreach (SeriesBase series in e.OldItems)
                 {
-                    var presenter = _seriesPresenters.FirstOrDefault(x => x.Series == series);
-                    if (presenter != null)
-                    {
-                        presenter.Series = null; //Clear
-
-                        _children.Remove(presenter);
-                        _seriesPresenters.Remove(presenter);
-                    }
+                    _children.Remove(series);
                 }
             }
             if (e.NewItems != null)
             {
                 foreach (SeriesBase series in e.NewItems)
                 {
-                    var presenter = _seriesPresenters.FirstOrDefault(x => x.Series == series);
-                    if (presenter == null)
-                    {
-                        presenter = new SeriesPresenter(this, _chartPanel)
-                        {
-                            Series = series
-                        };
-                        _children.Add(presenter);
-                        _seriesPresenters.Add(presenter);
-                    }
+                    series.OnAttached(_chart);
+                    var index = GetSeries().ToList().IndexOf(series);
+                    _children.Insert(index, series);
                 }
             }
         }
         #endregion
 
         #region Functions
+        private IEnumerable<SeriesBase> GetSeries()
+        {
+            if (_chart is CartesianChart cartesianChart)
+            {
+                return cartesianChart.Series;
+            }
+            else if (_chart is RadialChart radialChart)
+            {
+                return radialChart.Series;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
         #endregion
     }
 }

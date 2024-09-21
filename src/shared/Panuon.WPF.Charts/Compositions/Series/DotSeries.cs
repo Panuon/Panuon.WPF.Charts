@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -173,15 +174,16 @@ namespace Panuon.WPF.Charts
                 lastPoint = point;
                 accumulatedLength += segmentLength;
             }
-
         }
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
+        protected override void OnHighlighting(
+            IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
         {
             if (layerContext.GetMousePosition() is Point position)
             {
@@ -191,8 +193,25 @@ namespace Panuon.WPF.Charts
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawEllipse(toggleBrush, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+            }
+        }
+        #endregion
 
-                tooltips.Add(new SeriesTooltip(toggleBrush, Title ?? coordinate.Title, value.ToString()));
+        #region OnLegend
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+            IChartContext chartContext, 
+            ILayerContext layerContext
+        )
+        {
+            if (layerContext.GetMousePosition() is Point position)
+            {
+                var coordinate = layerContext.GetCoordinate(position.X);
+                var toggleBrush = ToggleFill ?? ToggleStroke;
+
+                var value = coordinate.GetValue(this);
+                var offsetY = chartContext.GetOffsetY(value);
+
+                yield return new SeriesLegendEntry(toggleBrush, Title ?? coordinate.Title, value.ToString());
             }
         }
         #endregion

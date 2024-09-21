@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -91,7 +93,6 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new PropertyMetadata(3d, OnRenderPropertyChanged));
         #endregion
 
-
         #endregion
 
         #region Overrides
@@ -149,6 +150,70 @@ namespace Panuon.WPF.Charts
             var lastPoint = _valuePoints[0];
             var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
 
+            var strokeGeometry = new StreamGeometry();
+            var fillGeometry = new StreamGeometry();
+
+            using (var strokeCtx = strokeGeometry.Open())
+            {
+                using (var fillCtx = fillGeometry.Open())
+                {
+                    strokeCtx.BeginFigure(_valuePoints[0], false, false);
+
+                    fillCtx.BeginFigure(new Point(_valuePoints[0].X, chartContext.AreaHeight), true, true);
+                    fillCtx.LineTo(_valuePoints[0], true, false);
+
+                    for (int i = 0; i < segmentLengths.Count; i++)
+                    {
+                        var point = _valuePoints[i + 1];
+                        var segmentLength = segmentLengths[i];
+
+                        if (accumulatedLength + segmentLength >= targetLength)
+                        {
+                            var remainingLength = targetLength - accumulatedLength;
+                            var t = remainingLength / segmentLength;
+
+                            var p1 = _valuePoints[i];
+                            var p2 = _valuePoints[i + 1];
+
+                            var x = p1.X + t * (p2.X - p1.X);
+                            var y = p1.Y + t * (p2.Y - p1.Y);
+
+                            strokeCtx.LineTo(new Point(x, y), true, false);
+                            fillCtx.LineTo(new Point(x, y), true, false);
+
+                            fillCtx.LineTo(new Point(x, chartContext.AreaHeight), true, false);
+
+
+                            break;
+                        }
+
+                        strokeCtx.LineTo(point, true, false);
+                        fillCtx.LineTo(point, true, false);
+
+                        lastPoint = point;
+                        accumulatedLength += segmentLength;
+                    }
+
+                }
+            }
+
+
+            drawingContext.DrawGeometry(
+               stroke: null,
+               strokeThickness: 0,
+               fill: Fill,
+               fillGeometry
+            );
+
+            drawingContext.DrawGeometry(
+                stroke: Stroke,
+                strokeThickness: StrokeThickness,
+                fill: null,
+                strokeGeometry
+            );
+
+            accumulatedLength = 0d;
+            lastPoint = _valuePoints[0];
             for (int i = 0; i < segmentLengths.Count; i++)
             {
                 var point = _valuePoints[i + 1];
@@ -181,37 +246,10 @@ namespace Panuon.WPF.Charts
 
                 if (accumulatedLength + segmentLength >= targetLength)
                 {
-                    var remainingLength = targetLength - accumulatedLength;
-                    var t = remainingLength / segmentLength;
-
-                    var p1 = _valuePoints[i];
-                    var p2 = _valuePoints[i + 1];
-
-                    var x = p1.X + t * (p2.X - p1.X);
-                    var y = p1.Y + t * (p2.Y - p1.Y);
-
-                    drawingContext.DrawLine(
-                        Stroke,
-                        StrokeThickness,
-                        lastPoint.X,
-                        lastPoint.Y,
-                        x,
-                        y
-                    );
-
-                    return;
+                    break;
                 }
 
-                drawingContext.DrawLine(
-                    Stroke,
-                    StrokeThickness,
-                    lastPoint.X,
-                    lastPoint.Y,
-                    point.X,
-                    point.Y
-                );
-
-
+                //last Ellipse
                 drawingContext.DrawEllipse(
                     ToggleStroke,
                     ToggleStrokeThickness,
@@ -225,15 +263,43 @@ namespace Panuon.WPF.Charts
                 lastPoint = point;
                 accumulatedLength += segmentLength;
             }
-
         }
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
+        protected override void OnHighlighting(
+            IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
+        {
+            foreach (var coordinateProgress in coordinateProgresses)
+            {
+                var coordinate = coordinateProgress.Key;
+                var progress = coordinateProgress.Value;
+
+                var value = coordinate.GetValue(this);
+                var offsetY = chartContext.GetOffsetY(value);
+
+                drawingContext.DrawEllipse(
+                    stroke: Stroke,
+                    strokeThickness: 2,
+                    fill: Brushes.White,
+                    radiusX: ToggleRadius + progress * 2,
+                    radiusY: ToggleRadius + progress * 2,
+                    startX: coordinate.Offset,
+                    startY: offsetY
+                );
+            }
+        }
+        #endregion
+
+        #region OnRetrieveLegendEntries
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+            IChartContext chartContext,
+            ILayerContext layerContext
+        )
         {
             if (layerContext.GetMousePosition() is Point position)
             {
@@ -241,9 +307,7 @@ namespace Panuon.WPF.Charts
 
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawEllipse(Stroke, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
-
-                tooltips.Add(new SeriesTooltip(Stroke, Title ?? coordinate.Title, value.ToString()));
+                yield return new SeriesLegendEntry(Stroke, Title ?? coordinate.Title, value.ToString());
             }
         }
         #endregion

@@ -1,84 +1,149 @@
-﻿using System.Collections.Generic;
+﻿using Panuon.WPF.Charts.Controls.Internals;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class SeriesBase
-        : DependencyObject
+        : FrameworkElement
     {
+        #region Fields
+        private ChartBase _chart;
+
+        private bool _isAnimationCompleted;
+
+        private bool _isAnimationBeginCalled = false;
+        private bool _isAnimationCompletedCalled = false;
+
+        private AnimationProgressObject _loadAnimationProgressObject;
+        #endregion
+
+        #region Ctor
+        public SeriesBase()
+        {
+            Loaded += Series_Loaded;
+        }
+        #endregion
+
         #region Properties
 
         #endregion
 
-        #region Internal Events
-        internal delegate void OnInvalidRender();
+        #region Methods
+        public IEnumerable<SeriesLegendEntry> RetrieveLegendEntries()
+        {
+            if (_chart == null
+                || _chart.Coordinates == null
+                || !_chart.IsCanvasReady()
+                || _loadAnimationProgressObject?.Progress == null)
+            {
+                return Enumerable.Empty<SeriesLegendEntry>(); ;
+            }
 
-        internal event OnInvalidRender InternalInvalidRender;
+            var chartContext = _chart.GetCanvasContext();
+            var layerContext = _chart.CreateLayerContext();
+
+            return OnRetrieveLegendEntries(
+                chartContext: chartContext,
+                layerContext: layerContext
+            );
+        }
+
+        public ICoordinate RetrieveCoordinate(
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            Point position
+        )
+        {
+            return OnRetrieveCoordinate(
+                chartContext,
+                layerContext,
+                position
+            );
+        }
+
+        public void Highlight(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
+        {
+            OnHighlighting(
+                drawingContext,
+                chartContext,
+                layerContext,
+                coordinateProgresses: coordinateProgresses
+            );
+        }
         #endregion
 
-        #region Methods
+        #region Internal Methods
+        internal void OnAttached(ChartBase chart)
+        {
+            _chart = chart;
+        }
+        #endregion
 
         #region Protected Methods
         protected static void OnRenderPropertyChanged(DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
             var series = (SeriesBase)d;
-            series.InvalidRender();
-        }
-
-        protected void InvalidRender()
-        {
-            InternalInvalidRender?.Invoke();
+            series.InvalidateVisual();
         }
         #endregion
 
-        #region Internal Methods
-        internal void BeginRender(
-            IDrawingContext drawingContext,
-            IChartContext chartContext
-        )
+        #region Overrides
+        protected sealed override void OnRender(DrawingContext drawingContext)
         {
-            OnRenderBegin(
-                drawingContext,
-                chartContext
-            );
-        }
+            base.OnRender(drawingContext);
 
-        internal void Render(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            double animationProgress
-        )
-        {
+            if (_chart == null
+                || _chart.Coordinates == null
+                || !_chart.IsCanvasReady()
+                || _loadAnimationProgressObject?.Progress == null)
+            {
+                return;
+            }
+
+            var context = _chart.CreateDrawingContext(drawingContext);
+            var chartContext = _chart.GetCanvasContext();
+            var layerContext = _chart.CreateLayerContext();
+
+            if (!_isAnimationBeginCalled)
+            {
+                OnRenderBegin(
+                    context,
+                    chartContext
+                );
+                _isAnimationBeginCalled = true;
+            }
+
             OnRendering(
-                drawingContext: drawingContext,
+                drawingContext: context,
                 chartContext: chartContext,
-                animationProgress: animationProgress
+                animationProgress: (double)_loadAnimationProgressObject.Progress
             );
+
+            if (!_isAnimationCompletedCalled)
+            {
+                OnRenderCompleted(
+                    drawingContext: context,
+                    chartContext: chartContext
+                );
+                _isAnimationCompletedCalled = true;
+            }
         }
 
-        internal void CompleteRender(
-            IDrawingContext drawingContext,
-            IChartContext chartContext
-        )
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            OnRenderCompleted(
-                drawingContext: drawingContext,
-                chartContext: chartContext
-            );
-        }
-
-        internal void Highlight(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips
-        )
-        {
-            OnHighlighting(drawingContext,
-                chartContext,
-                layerContext,
-                in tooltips);
+            base.OnMouseMove(e);
         }
         #endregion
 
@@ -88,7 +153,6 @@ namespace Panuon.WPF.Charts
             IChartContext chartContext
         )
         {
-
         }
 
         /// <summary>
@@ -110,13 +174,71 @@ namespace Panuon.WPF.Charts
         {
         }
 
-        protected abstract void OnHighlighting(IDrawingContext drawingContext,
+        protected abstract ICoordinate OnRetrieveCoordinate(
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips);
+            Point position
+        );
+
+        protected abstract void OnHighlighting(
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<ICoordinate, double> coordinateProgresses
+        );
+
+        protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+            IChartContext chartContext,
+            ILayerContext layerContext
+        );
         #endregion
 
+        #region 
         #endregion
+
+        #region Event Handlers
+        private static void OnAnimationPercentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var series = (SeriesBase)d;
+            series.InvalidateVisual();
+        }
+
+        private void Series_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= Series_Loaded;
+
+            _loadAnimationProgressObject = new AnimationProgressObject();
+            _loadAnimationProgressObject.ProgressChanged += LoadAnimationProgressObject_ProgressChanged;
+
+            _loadAnimationProgressObject.Progress = 0;
+            if (_chart.AnimationDuration is TimeSpan duration
+                && duration.TotalMilliseconds > 0)
+            {
+                var animation = new DoubleAnimation(0, 1, duration)
+                {
+                    EasingFunction = AnimationUtil.CreateEasingFunction(_chart.AnimationEasing)
+                };
+                animation.Completed += delegate
+                {
+                    _loadAnimationProgressObject.Progress = 1;
+                    _isAnimationCompleted = true;
+                };
+
+                _loadAnimationProgressObject.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
+            }
+            else
+            {
+                _loadAnimationProgressObject.Progress = 1;
+                _isAnimationCompleted = true;
+            }
+        }
+
+        private void LoadAnimationProgressObject_ProgressChanged(object sender, EventArgs e)
+        {
+            InvalidateVisual();
+        }
+        #endregion
+
     }
 
 }

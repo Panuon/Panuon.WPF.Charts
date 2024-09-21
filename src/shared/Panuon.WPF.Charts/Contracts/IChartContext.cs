@@ -4,7 +4,7 @@ namespace Panuon.WPF.Charts
 {
     public interface IChartContext
     {
-        ChartBase ChartPanel { get; }
+        ChartBase Chart { get; }
 
         double AreaWidth { get; }
 

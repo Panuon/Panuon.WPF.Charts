@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -123,10 +124,21 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
+        protected override ICoordinate OnRetrieveCoordinate(
+            IChartContext chartContext,
+            ILayerContext layerContext, 
+            Point position
+        )
+        {
+            return null;
+        }
+
+        protected override void OnHighlighting(
+            IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+            IDictionary<ICoordinate, double> coordinateProgresses
+        )
         {
             if (layerContext.GetMousePosition() is Point position)
             {
@@ -151,8 +163,26 @@ namespace Panuon.WPF.Charts
                         5,
                         left + columnWidth / 2, offsetY);
                     left += (columnWidth + Spacing);
+                }
+            }
 
-                    tooltips.Add(new SeriesTooltip(segment.Fill, segment.Title ?? coordinate.Title, value.ToString()));
+        }
+
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
+            IChartContext chartContext,
+            ILayerContext layerContext
+        )
+        {
+            if (layerContext.GetMousePosition() is Point position)
+            {
+                var coordinate = layerContext.GetCoordinate(position.X);
+
+                foreach (var segment in Segments)
+                {
+                    var value = coordinate.GetValue(segment);
+                    var offsetY = chartContext.GetOffsetY(value);
+
+                    yield return new SeriesLegendEntry(segment.Fill, segment.Title ?? coordinate.Title, value.ToString());
                 }
             }
         }
@@ -165,6 +195,7 @@ namespace Panuon.WPF.Charts
         {
             return Math.Max(0, (totalWidth - (Segments.Count - 1) * Spacing) / Segments.Count);
         }
+
         #endregion
 
     }

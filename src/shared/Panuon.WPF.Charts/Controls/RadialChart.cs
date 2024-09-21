@@ -18,7 +18,7 @@ namespace Panuon.WPF.Charts
             Series = new SeriesCollection<RadialSeriesBase>();
 
             _seriesPanel = new SeriesPanel(this);
-            _children.Add(_seriesPanel);
+            _children.Insert(0, _seriesPanel);
         }
         #endregion
 

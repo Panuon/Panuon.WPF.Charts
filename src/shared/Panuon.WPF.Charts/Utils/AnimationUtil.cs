@@ -1,147 +1,11 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
+﻿using System.Windows.Media.Animation;
 
-namespace Panuon.WPF.Charts.Controls.Internals
+namespace Panuon.WPF.Charts
 {
-    internal class SeriesPresenter
-        : FrameworkElement
+    internal static class AnimationUtil
     {
-        #region Fields
-        private SeriesPanel _seriesPanel;
-
-        private ChartBase _chartPanel;
-
-        private bool _isAnimationCompleted;
-        #endregion
-
-        #region Ctor
-        public SeriesPresenter(
-            SeriesPanel seriesPanel,
-            ChartBase chartPanel
-        )
-        {
-            _seriesPanel = seriesPanel;
-            _chartPanel = chartPanel;
-
-            Loaded += SeriesPresenter_Loaded;
-        }
-        #endregion
-
-        #region Properties
-        public SeriesBase Series
-        {
-            get => _series;
-            set
-            {
-                if (_series != null)
-                {
-                    _series.InternalInvalidRender -= Series_InternalInvalidRender;
-                }
-                if (value != null)
-                {
-                    value.InternalInvalidRender -= Series_InternalInvalidRender;
-                    value.InternalInvalidRender += Series_InternalInvalidRender;
-                }
-                _series = value;
-            }
-        }
-        private SeriesBase _series;
-        #endregion
-
-        #region Internal Properties
-
-        #region AnimationPercent
-        internal double? AnimationPercent
-        {
-            get { return (double?)GetValue(AnimationPercentProperty); }
-            set { SetValue(AnimationPercentProperty, value); }
-        }
-
-        internal static readonly DependencyProperty AnimationPercentProperty =
-            DependencyProperty.Register("AnimationPercent", typeof(double?), typeof(SeriesPresenter), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender, OnAnimationPercentChanged));
-        #endregion
-
-        #endregion
-
-        #region Event Handlers
-        private static void OnAnimationPercentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var presenter = (SeriesPresenter)d;
-            presenter.InvalidateVisual();
-        }
-
-        private void SeriesPresenter_Loaded(object sender, RoutedEventArgs e)
-        {
-            Loaded -= SeriesPresenter_Loaded;
-
-            AnimationPercent = 0;
-            if (_chartPanel.AnimationDuration is TimeSpan duration
-                && duration.TotalMilliseconds > 0)
-            {
-                var animation = new DoubleAnimation(0, 1, duration)
-                {
-                    EasingFunction = CreateEasingFunction(_chartPanel.AnimationEasing)
-                };
-                animation.Completed += delegate
-                {
-                    AnimationPercent = 1;
-                    _isAnimationCompleted = true;
-                };
-                BeginAnimation(AnimationPercentProperty, animation);
-            }
-            else
-            {
-                AnimationPercent = 1;
-                _isAnimationCompleted = true;
-            }
-        }
-        #endregion
-
-        #region Overrides
-
-        protected override void OnRender(DrawingContext context)
-        {
-            if (Series == null
-                || _chartPanel.Coordinates == null
-                || !_chartPanel.IsCanvasReady()
-                || AnimationPercent == null)
-            {
-                return;
-            }
-
-            var drawingContext = _chartPanel.CreateDrawingContext(context);
-            var chartContext = _chartPanel.GetCanvasContext();
-
-            if(AnimationPercent == 0
-                || _isAnimationCompleted)
-            {
-                Series.BeginRender(drawingContext, chartContext);
-            }
-            Series.Render(
-                drawingContext: drawingContext,
-                chartContext: chartContext,
-                animationProgress: (double)AnimationPercent
-            );
-            if (AnimationPercent == 1)
-            {
-                Series.CompleteRender(drawingContext, chartContext);
-            }
-        }
-        #endregion
-
-        #region Event Handlers
-        private void Series_InternalInvalidRender()
-        {
-            InvalidateVisual();
-        }
-        #endregion
-
-        #region Functions
-
         #region CreateEasingFunction
-        private static IEasingFunction CreateEasingFunction(AnimationEasing? animationEasing)
+        public static IEasingFunction CreateEasingFunction(AnimationEasing? animationEasing)
         {
             if (animationEasing == null)
             {
@@ -219,6 +83,6 @@ namespace Panuon.WPF.Charts.Controls.Internals
             return null;
         }
         #endregion
-        #endregion
+
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Panuon.WPF.Charts.Controls.Internals;
+using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 
@@ -12,8 +14,10 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
         internal GridLinesPanel _gridLinesPanel;
-        internal XAxisPresenter _xAxisPresenter;
-        internal YAxisPresenter _yAxisPresenter;
+
+        private Decorator _xAxisDecorator;
+
+        private Decorator _yAxisDecorator;
         #endregion
 
         #region Ctor
@@ -21,20 +25,20 @@ namespace Panuon.WPF.Charts
         {
             Series = new SeriesCollection<CartesianSeriesBase>();
 
-            XAxis = new XAxis();
-            YAxis = new YAxis();
-
-            _seriesPanel = new SeriesPanel(this);
-            _children.Add(_seriesPanel);
-
             _gridLinesPanel = new GridLinesPanel(this);
             _children.Insert(0, _gridLinesPanel);
 
-            _xAxisPresenter = new XAxisPresenter(this);
-            _children.Add(_xAxisPresenter);
+            _xAxisDecorator = new Decorator();
+            _children.Insert(1, _xAxisDecorator);
 
-            _yAxisPresenter = new YAxisPresenter(this);
-            _children.Add(_yAxisPresenter);
+            _yAxisDecorator = new Decorator();
+            _children.Insert(2, _yAxisDecorator);
+
+            _seriesPanel = new SeriesPanel(this);
+            _children.Insert(3, _seriesPanel);
+
+            XAxis = new XAxis();
+            YAxis = new YAxis();
         }
         #endregion
 
@@ -48,7 +52,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty XAxisProperty =
-            DependencyProperty.Register("XAxis", typeof(XAxis), typeof(CartesianChart), new PropertyMetadata(null));
+            DependencyProperty.Register("XAxis", typeof(XAxis), typeof(CartesianChart), new PropertyMetadata(OnXAxisChanged));
         #endregion
 
         #region YAxis
@@ -59,7 +63,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty YAxisProperty =
-            DependencyProperty.Register("YAxis", typeof(YAxis), typeof(CartesianChart), new PropertyMetadata(null));
+            DependencyProperty.Register("YAxis", typeof(YAxis), typeof(CartesianChart), new PropertyMetadata(OnYAxisChanged));
         #endregion
 
         #region Series
@@ -138,8 +142,8 @@ namespace Panuon.WPF.Charts
         {
             var size = base.MeasureOverride(availableSize);
 
-            _xAxisPresenter.Measure(availableSize);
-            _yAxisPresenter.Measure(availableSize);
+            XAxis?.Measure(availableSize);
+            YAxis?.Measure(availableSize);
             _gridLinesPanel.Measure(availableSize);
 
             return size;
@@ -152,10 +156,10 @@ namespace Panuon.WPF.Charts
             var renderWidth = finalSize.Width - Padding.Left - Padding.Right;
             var renderHeight = finalSize.Height - Padding.Top - Padding.Bottom;
 
-            var xAxisHeight = _xAxisPresenter.DesiredSize.Height;
-            var yAxisWidth = _yAxisPresenter.DesiredSize.Width;
+            var xAxisHeight = XAxis?.DesiredSize.Height ?? 0;
+            var yAxisWidth = YAxis?.DesiredSize.Width ?? 0;
 
-            var deltaX = (renderWidth - yAxisWidth) / Coordinates.Count;
+            var deltaX = (Math.Max(0, renderWidth - yAxisWidth)) / Coordinates.Count;
 
             for (int i = 0; i < Coordinates.Count; i++)
             {
@@ -163,22 +167,46 @@ namespace Panuon.WPF.Charts
                 coordinate.Offset = (i + 0.5) * deltaX;
             }
 
-            _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _seriesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _layersPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, renderWidth - yAxisWidth, renderHeight - xAxisHeight));
-            _xAxisPresenter.Arrange(new Rect(Padding.Left + yAxisWidth, renderHeight - xAxisHeight, renderWidth - yAxisWidth, xAxisHeight));
-            _yAxisPresenter.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, renderHeight - xAxisHeight));
-
-            _gridLinesPanel.InvalidateVisual();
-            _seriesPanel.InvalidateVisual();
-            _layersPanel.InvalidateVisual();
-            _xAxisPresenter.InvalidateVisual();
-            _yAxisPresenter.InvalidateVisual();
+            _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, Math.Max(0, renderWidth - yAxisWidth), Math.Max(0, renderHeight - xAxisHeight)));
+            _seriesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, Math.Max(0, renderWidth - yAxisWidth), Math.Max(0, renderHeight - xAxisHeight)));
+            _layersPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, Math.Max(0, renderWidth - yAxisWidth), Math.Max(0, renderHeight - xAxisHeight)));
+            XAxis?.Arrange(new Rect(Padding.Left + yAxisWidth, Math.Max(0, renderHeight - xAxisHeight), Math.Max(0, renderWidth - yAxisWidth), xAxisHeight));
+            YAxis?.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, Math.Max(0, renderHeight - xAxisHeight)));
 
             return finalSize;
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        private static void OnXAxisChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chart = (CartesianChart)d;
+            if(e.OldValue != null)
+            {
+                chart._xAxisDecorator.Child = null;
+            }
+            if (e.NewValue is XAxis xAxis)
+            {
+                xAxis.OnAttached(chart);
+                chart._xAxisDecorator.Child = xAxis;
+            }
+        }
+
+        private static void OnYAxisChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chart = (CartesianChart)d;
+            if (e.OldValue != null)
+            {
+                chart._yAxisDecorator.Child = null;
+            }
+            if (e.NewValue is YAxis yAxis)
+            {
+                yAxis.OnAttached(chart);
+                chart._yAxisDecorator.Child = yAxis;
+            }
+        }
         #endregion
     }
 }

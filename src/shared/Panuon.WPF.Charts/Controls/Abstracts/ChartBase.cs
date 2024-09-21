@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +24,9 @@ namespace Panuon.WPF.Charts
 
         private ChartContextImpl _chartContext;
         private LayerContextImpl _layerContext;
+
+        private static TypeConverter _doubleTypeConverter = 
+            TypeDescriptor.GetConverter(typeof(double));
         #endregion
 
         #region Ctor
@@ -73,6 +77,39 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty LayersProperty =
             DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartBase), new PropertyMetadata(null));
+        #endregion
+
+        #region HighlightEffect
+        public HighlightEffect HighlightEffect
+        {
+            get { return (HighlightEffect)GetValue(HighlightEffectProperty); }
+            set { SetValue(HighlightEffectProperty, value); }
+        }
+
+        public static readonly DependencyProperty HighlightEffectProperty =
+            DependencyProperty.Register("HighlightEffect", typeof(HighlightEffect), typeof(ChartBase), new PropertyMetadata(HighlightEffect.Scale));
+        #endregion
+
+        #region ToolTipVisibility
+        public ToolTipVisibility ToolTipVisibility
+        {
+            get { return (ToolTipVisibility)GetValue(ToolTipVisibilityProperty); }
+            set { SetValue(ToolTipVisibilityProperty, value); }
+        }
+
+        public static readonly DependencyProperty ToolTipVisibilityProperty =
+            DependencyProperty.Register("ToolTipVisibility", typeof(ToolTipVisibility), typeof(ChartBase), new PropertyMetadata(ToolTipVisibility.VisibleOnHover));
+        #endregion
+
+        #region ToolTipPlacement
+        public ToolTipPlacement ToolTipPlacement
+        {
+            get { return (ToolTipPlacement)GetValue(ToolTipPlacementProperty); }
+            set { SetValue(ToolTipPlacementProperty, value); }
+        }
+
+        public static readonly DependencyProperty ToolTipPlacementProperty =
+            DependencyProperty.Register("ToolTipPlacement", typeof(ToolTipPlacement), typeof(ChartBase), new PropertyMetadata(ToolTipPlacement.Fixed));
         #endregion
 
         #region AnimationEasing
@@ -328,20 +365,30 @@ namespace Panuon.WPF.Charts
             object item
         )
         {
-            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
-            {
-                throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
-            }
-
             var itemType = item.GetType();
 
-            var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
-            if (valueProperty == null)
+            double value;
+            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
             {
-                throw new System.NullReferenceException($"Property named '{valueProvider.ValueMemberPath}' does not exists.");
+                try
+                {
+                    value = Convert.ToDouble(item);
+                }
+                catch
+                {
+                    throw new NullReferenceException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
+                }
             }
-            var valueValue = valueProperty.GetValue(item);
-            var value = Convert.ToDouble(valueValue);
+            else
+            {
+                var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
+                if (valueProperty == null)
+                {
+                    throw new System.NullReferenceException($"Property named '{valueProvider.ValueMemberPath}' does not exists.");
+                }
+                var valueValue = valueProperty.GetValue(item);
+                value = Convert.ToDouble(valueValue);
+            }
 
             return value;
         }
