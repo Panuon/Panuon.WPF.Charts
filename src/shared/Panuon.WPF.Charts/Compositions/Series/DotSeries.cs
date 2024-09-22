@@ -23,7 +23,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeProperty =
-            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(DotSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleStrokeThickness
@@ -34,7 +34,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeThicknessProperty =
-            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(DotSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleFill
@@ -45,7 +45,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(DotSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleRadius
@@ -56,7 +56,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(DotSeries), new PropertyMetadata(3d, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion

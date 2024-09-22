@@ -2,21 +2,21 @@
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 3, DisplayName = "ColumnChart")]
-    public partial class ColumnChartView
+    [ExampleView(Index = 6, DisplayName = "DoughnutChart")]
+    public partial class DoughnutChartView
         : Grid
     {
         #region Ctor
-        public ColumnChartView()
+        public DoughnutChartView()
         {
             InitializeComponent();
 
             var itemsSource = new object[]
             {
-                new { Title = "Data 1", Value = 5 },
+                new { Title = "Data 1", Value = 25},
                 new { Title = "Data 2", Value = 9 },
-                new { Title = "Data 3", Value = 2 },
-                new { Title = "Data 4", Value = 8 },
+                new { Title = "Data 3", Value = 17 },
+                new { Title = "Data 4", Value = 18 },
                 new { Title = "Data 5", Value = 9 },
             };
 

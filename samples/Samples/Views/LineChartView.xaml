@@ -24,8 +24,8 @@
     <pc:CartesianChart x:Name="chart"
                        Height="300"
                        Width="500"
-                       TitleMemberPath="Title"
-                       GridLinesVisibility="Horizontal">
+                       GridLinesBrush="#EAEAEA"
+                       TitleMemberPath="Title">
         <pc:CartesianChart.XAxis>
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
@@ -34,25 +34,52 @@
                       StrokeThickness="2" />
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
-            <pc:CrossLineLayer Visibility="YAxis" />
+            <pc:CrosshairLayer LineVisibility="YAxis" />
             <pc:HighlightLayer AnimationEasing="BackOut"
-                               AnimationDuration="0:0:0.3" 
+                               AnimationDuration="0:0:0.3"
                                HighlightEffect="Scale" />
         </pc:CartesianChart.Layers>
         <pc:LineSeries ValueMemberPath="Value1"
                        Stroke="#91C653"
                        ToggleStroke="#91C653"
-                       Fill="#1A91C653"
-                       Style="{StaticResource LineSeriesStyle}" />
+                       Style="{StaticResource LineSeriesStyle}">
+            <pc:LineSeries.Fill>
+                <LinearGradientBrush StartPoint="0.5,0"
+                                     EndPoint="0.5,1">
+                    <GradientStop Color="#9A91C653"
+                                  Offset="0" />
+                    <GradientStop Color="#1A91C653"
+                                  Offset="1" />
+                </LinearGradientBrush>
+            </pc:LineSeries.Fill>
+        </pc:LineSeries>
         <pc:LineSeries ValueMemberPath="Value2"
                        Stroke="#e5115f"
                        ToggleStroke="#e5115f"
-                       Fill="#1Ae5115f"
-                       Style="{StaticResource LineSeriesStyle}" />
+                       Style="{StaticResource LineSeriesStyle}">
+            <pc:LineSeries.Fill>
+                <LinearGradientBrush StartPoint="0.5,0"
+                                     EndPoint="0.5,1">
+                    <GradientStop Color="#9Ae5115f"
+                                  Offset="0" />
+                    <GradientStop Color="#1Ae5115f"
+                                  Offset="1" />
+                </LinearGradientBrush>
+            </pc:LineSeries.Fill>
+        </pc:LineSeries>
         <pc:LineSeries ValueMemberPath="Value3"
                        Stroke="#08bfd8"
                        ToggleStroke="#08bfd8"
-                       Fill="#1A08bfd8"
-                       Style="{StaticResource LineSeriesStyle}" />
+                       Style="{StaticResource LineSeriesStyle}">
+            <pc:LineSeries.Fill>
+                <LinearGradientBrush StartPoint="0.5,0"
+                                     EndPoint="0.5,1">
+                    <GradientStop Color="#9A08bfd8"
+                                  Offset="0" />
+                    <GradientStop Color="#1A08bfd8"
+                                  Offset="1" />
+                </LinearGradientBrush>
+            </pc:LineSeries.Fill>
+        </pc:LineSeries>
     </pc:CartesianChart>
 </Grid>

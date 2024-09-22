@@ -16,7 +16,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\AxisBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\LayerBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrossLineLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
+    <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\HighlightLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
@@ -25,16 +26,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\PieSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\RadarSeriesSegment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianSegmentsSeriesBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianValueProviderSegmentsSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialValueProviderSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianValueProviderSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialValueProviderSegmentsSeriesBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartSegmentsSeries.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\RadialChart.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\CartesianValueProviderSegmentsSeriesBase`T.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\SeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialSegmentsSeriesBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Series\Abstracts\RadialSegmentsSeriesBase`T.cs" />
@@ -58,7 +56,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayersPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\AnimationEasing.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Enums\CrossLinesVisibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\CrosshairLineVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CartesianChartGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\HighlightEffect.cs" />

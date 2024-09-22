@@ -7,6 +7,13 @@ namespace Panuon.WPF.Charts
         : Collection<TSegment>
         where TSegment : SegmentBase
     {
+        #region Ctor
+        public SegmentCollection()
+        {
+
+        }
+        #endregion
+
         #region Events
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         #endregion

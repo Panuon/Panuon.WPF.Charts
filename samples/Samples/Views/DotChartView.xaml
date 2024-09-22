@@ -1,0 +1,50 @@
+﻿<Grid x:Class="Samples.Views.DotChartView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:pc="https://opensource.panuon.com/wpf-charts"
+      xmlns:local="clr-namespace:Samples.Views"
+      mc:Ignorable="d"
+      d:DesignHeight="450"
+      d:DesignWidth="800">
+    <Grid.Resources>
+        <Style x:Key="DotSeriesStyle"
+               TargetType="pc:DotSeries">
+            <Setter Property="ToggleRadius"
+                    Value="4" />
+            <Setter Property="ToggleStrokeThickness"
+                    Value="2" />
+            <Setter Property="ToggleFill"
+                    Value="White" />
+        </Style>
+    </Grid.Resources>
+    <pc:CartesianChart x:Name="chart"
+                       Height="300"
+                       Width="500"
+                       GridLinesBrush="#EAEAEA"
+                       TitleMemberPath="Title">
+        <pc:CartesianChart.XAxis>
+            <pc:XAxis StrokeThickness="2" />
+        </pc:CartesianChart.XAxis>
+        <pc:CartesianChart.YAxis>
+            <pc:YAxis MaxValue="100"
+                      StrokeThickness="2" />
+        </pc:CartesianChart.YAxis>
+        <pc:CartesianChart.Layers>
+            <pc:CrosshairLayer LineVisibility="YAxis" />
+            <pc:HighlightLayer AnimationEasing="BackOut"
+                               AnimationDuration="0:0:0.3"
+                               HighlightEffect="Scale" />
+        </pc:CartesianChart.Layers>
+        <pc:DotSeries ValueMemberPath="Value1"
+                      ToggleStroke="#91C653"
+                      Style="{StaticResource DotSeriesStyle}" />
+        <pc:DotSeries ValueMemberPath="Value2"
+                      ToggleStroke="#e5115f"
+                      Style="{StaticResource DotSeriesStyle}" />
+        <pc:DotSeries ValueMemberPath="Value3"
+                      ToggleStroke="#08bfd8"
+                      Style="{StaticResource DotSeriesStyle}" />
+    </pc:CartesianChart>
+</Grid>

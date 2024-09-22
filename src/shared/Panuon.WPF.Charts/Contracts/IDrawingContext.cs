@@ -72,13 +72,27 @@ namespace Panuon.WPF.Charts
             double offsetX,
             double offsetY);
 
-        void DrawRectangle(Brush stroke,
+        void DrawRectangle(
+            Brush stroke,
             double strokeThickness,
             Brush fill,
             double startX,
             double startY,
             double width,
-            double height);
+            double height
+        );
+
+        void DrawRectangle(
+            Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double startX,
+            double startY,
+            double width,
+            double height,
+            double radiusX,
+            double radiusY
+        );
 
         void DrawArc(
             Brush stroke,

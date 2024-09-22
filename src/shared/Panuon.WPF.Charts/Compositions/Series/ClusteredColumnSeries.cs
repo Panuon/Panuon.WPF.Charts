@@ -25,18 +25,29 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(ClusteredColumnSeries), new PropertyMetadata(5d));
+            DependencyProperty.Register("Spacing", typeof(double), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region Width
-        public GridLength Width
+        #region ColumnWidth
+        public GridLength ColumnWidth
         {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
+            get { return (GridLength)GetValue(ColumnWidthProperty); }
+            set { SetValue(ColumnWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(ClusteredColumnSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
+        public static readonly DependencyProperty ColumnWidthProperty =
+            DependencyProperty.Register("ColumnWidth", typeof(GridLength), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(new GridLength(1, GridUnitType.Auto), FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region Radius
+        public double Radius
+        {
+            get { return (double)GetValue(RadiusProperty); }
+            set { SetValue(RadiusProperty, value); }
+        }
+
+        public static readonly DependencyProperty RadiusProperty =
+            DependencyProperty.Register("Radius", typeof(double), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion
@@ -52,7 +63,7 @@ namespace Panuon.WPF.Charts
             _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
 
             var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
             var columnWidth = CalculateBarWidth(clusterWidth);
 
             var coordinates = chartContext.Coordinates;
@@ -87,7 +98,7 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
 
             var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
             var columnWidth = CalculateBarWidth(clusterWidth);
 
             foreach (var segmentPoint in _segmentPoints)
@@ -105,7 +116,9 @@ namespace Panuon.WPF.Charts
                             startX: point.X - columnWidth / 2,
                             startY: 0,
                             width: columnWidth,
-                            height: chartContext.AreaHeight
+                            height: chartContext.AreaHeight,
+                            radiusX: Radius,
+                            radiusY: Radius
                         );
                     }
 
@@ -116,7 +129,9 @@ namespace Panuon.WPF.Charts
                         startX: point.X - columnWidth / 2,
                         startY: chartContext.AreaHeight - (chartContext.AreaHeight - point.Y) * animationProgress,
                         width: columnWidth,
-                        height: (chartContext.AreaHeight - point.Y) * animationProgress
+                        height: (chartContext.AreaHeight - point.Y) * animationProgress,
+                        radiusX: Radius,
+                        radiusY: Radius
                     );
                 }
             }
@@ -147,7 +162,7 @@ namespace Panuon.WPF.Charts
                 var offsetX = coordinate.Offset;
 
                 var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-                var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+                var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
                 var columnWidth = CalculateBarWidth(clusterWidth);
 
                 var left = offsetX - clusterWidth / 2;

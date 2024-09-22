@@ -1,4 +1,5 @@
 ﻿using Panuon.WPF.Charts;
+using System;
 using System.Windows;
 
 namespace Panuon.WPF.Chart
@@ -20,5 +21,6 @@ namespace Panuon.WPF.Chart
         #endregion
 
         #endregion
+
     }
 }

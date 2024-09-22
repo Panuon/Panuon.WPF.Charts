@@ -18,9 +18,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\DoughnutChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\PieChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\ColumnChartView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\ClusteredColumnChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\DotChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ClusteredColumnChartView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

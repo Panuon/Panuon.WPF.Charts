@@ -16,6 +16,7 @@
     <pc:CartesianChart x:Name="chart"
                        Height="300"
                        Width="500"
+                       GridLinesBrush="#EAEAEA"
                        TitleMemberPath="Title"
                        GridLinesVisibility="Horizontal">
         <pc:CartesianChart.XAxis>
@@ -25,9 +26,21 @@
             <pc:YAxis StrokeThickness="2" />
         </pc:CartesianChart.YAxis>
         <pc:ColumnSeries ValueMemberPath="Value"
-                         Fill="#08bfd8"
-                         ColumnWidth="0.2*"
-                         BackgroundFill="#1A08bfd8"
-                         Style="{StaticResource ColumnSeriesStyle}" />
+                         ColumnWidth="0.8*"
+                         BackgroundFill="#1A8446e4"
+                         Radius="10"
+                         Style="{StaticResource ColumnSeriesStyle}">
+            <pc:ColumnSeries.Fill>
+                <LinearGradientBrush StartPoint="0.5,0"
+                                     EndPoint="0.5,1">
+                    <GradientStop Color="#8446e4"
+                                  Offset="0" />
+                    <GradientStop Color="#8446e4"
+                                  Offset="0.6" />
+                    <GradientStop Color="#bf99fb"
+                                  Offset="1" />
+                </LinearGradientBrush>
+            </pc:ColumnSeries.Fill>
+        </pc:ColumnSeries>
     </pc:CartesianChart>
 </Grid>

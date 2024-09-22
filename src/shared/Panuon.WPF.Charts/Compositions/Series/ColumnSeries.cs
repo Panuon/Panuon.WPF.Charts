@@ -23,7 +23,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty BackgroundFillProperty =
-            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("BackgroundFill", typeof(Brush), typeof(ColumnSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region Fill
@@ -34,7 +34,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(ColumnSeries), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(ColumnSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(ColumnSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region StrokeThickness
@@ -57,7 +57,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(ColumnSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(ColumnSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ColumnWidth
@@ -68,7 +68,18 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ColumnWidthProperty =
-            DependencyProperty.Register("ColumnWidth", typeof(GridLength), typeof(ColumnSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
+            DependencyProperty.Register("ColumnWidth", typeof(GridLength), typeof(ColumnSeries), new FrameworkPropertyMetadata(new GridLength(1, GridUnitType.Auto), FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region Radius
+        public double Radius
+        {
+            get { return (double)GetValue(RadiusProperty); }
+            set { SetValue(RadiusProperty, value); }
+        }
+
+        public static readonly DependencyProperty RadiusProperty =
+            DependencyProperty.Register("Radius", typeof(double), typeof(ColumnSeries), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion
@@ -124,19 +135,23 @@ namespace Panuon.WPF.Charts
                         startX: offsetX - columnWidth / 2,
                         startY: 0,
                         width: columnWidth,
-                        height: chartContext.AreaHeight
+                        height: chartContext.AreaHeight,
+                        radiusX: Radius,
+                        radiusY: Radius
                     );
                 }
 
                 drawingContext.DrawRectangle(
-                       stroke: Stroke,
-                       strokeThickness: StrokeThickness,
-                       fill: Fill,
-                       startX: offsetX - columnWidth / 2,
-                       startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
-                       width: columnWidth,
-                       height: (chartContext.AreaHeight - offsetY) * animationProgress
-                   );
+                    stroke: Stroke,
+                    strokeThickness: StrokeThickness,
+                    fill: Fill,
+                    startX: offsetX - columnWidth / 2,
+                    startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
+                    width: columnWidth,
+                    height: (chartContext.AreaHeight - offsetY) * animationProgress,
+                    radiusX: Radius,
+                    radiusY: Radius
+                );
             }
         }
         #endregion

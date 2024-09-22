@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
-    public class CrossLineLayer
+    public class CrosshairLayer
         : LayerBase
     {
         #region Properties
@@ -17,7 +17,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(CrossLineLayer), new PropertyMetadata(Brushes.DimGray, OnInvalidRenderPropertyChanged));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(CrosshairLayer), new PropertyMetadata(Brushes.DimGray, OnInvalidRenderPropertyChanged));
         #endregion
 
         #region StrokeThickness
@@ -28,18 +28,18 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(CrossLineLayer), new PropertyMetadata(1d, OnInvalidRenderPropertyChanged));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(CrosshairLayer), new PropertyMetadata(1d, OnInvalidRenderPropertyChanged));
         #endregion
 
-        #region Visibility
-        public new CrossLinesVisibility Visibility
+        #region LineVisibility
+        public CrosshairLineVisibility LineVisibility
         {
-            get { return (CrossLinesVisibility)GetValue(VisibilityProperty); }
-            set { SetValue(VisibilityProperty, value); }
+            get { return (CrosshairLineVisibility)GetValue(LineVisibilityProperty); }
+            set { SetValue(LineVisibilityProperty, value); }
         }
 
-        public new static readonly DependencyProperty VisibilityProperty =
-            DependencyProperty.Register("Visibility", typeof(CrossLinesVisibility), typeof(CrossLineLayer), new PropertyMetadata(CrossLinesVisibility.Both));
+        public static readonly DependencyProperty LineVisibilityProperty =
+            DependencyProperty.Register("LineVisibility", typeof(CrosshairLineVisibility), typeof(CrosshairLayer), new PropertyMetadata(CrosshairLineVisibility.Both));
         #endregion
 
         #endregion
@@ -64,8 +64,8 @@ namespace Panuon.WPF.Charts
                 var coordinate = layerContext.GetCoordinate(mousePosition.X);
                 if (coordinate != null)
                 {
-                    if (Visibility == CrossLinesVisibility.Both
-                        || Visibility == CrossLinesVisibility.YAxis)
+                    if (LineVisibility == CrosshairLineVisibility.Both
+                        || LineVisibility == CrosshairLineVisibility.YAxis)
                     {
                         //vertical line
                         drawingContext.DrawLine(
@@ -77,8 +77,8 @@ namespace Panuon.WPF.Charts
                             endY: chartContext.AreaHeight
                         );
                     }
-                    if (Visibility == CrossLinesVisibility.Both
-                        || Visibility == CrossLinesVisibility.XAxis)
+                    if (LineVisibility == CrosshairLineVisibility.Both
+                        || LineVisibility == CrosshairLineVisibility.XAxis)
                     {
                         drawingContext.DrawLine(
                             stroke: Brushes.Gray,

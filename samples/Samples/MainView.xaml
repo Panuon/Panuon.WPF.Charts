@@ -11,7 +11,7 @@
         Height="750"
         Width="1200">
     <Grid>
-        <Grid Margin="20,10,20,20">
+        <Grid Margin="35,35,35,35">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -26,7 +26,7 @@
                               HorizontalScrollBarVisibility="Auto">
                     <ItemsControl x:Name="LsbExamples"
                                   VerticalContentAlignment="Stretch"
-                                  HorizontalAlignment="Stretch">
+                                  HorizontalAlignment="Left">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid Rows="2" />
@@ -66,6 +66,22 @@
                     </ItemsControl>
                 </ScrollViewer>
             </Grid>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top">
+                <TextBlock Margin="0,0,15,0"
+                           VerticalAlignment="Center"
+                           Text="HighlightEffect:" />
+                <ComboBox VerticalAlignment="Center">
+                    <ComboBoxItem Content="ShowToggle"
+                                  IsSelected="True" />
+                    <ComboBoxItem Content="Scale" />
+                    <ComboBoxItem Content="Stroke" />
+                    <ComboBoxItem Content="Outline" />
+
+                </ComboBox>
+            </StackPanel>
         </Grid>
+
     </Grid>
 </Window>

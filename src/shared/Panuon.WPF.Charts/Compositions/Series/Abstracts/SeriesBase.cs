@@ -1,5 +1,4 @@
-﻿using Panuon.WPF.Charts.Controls.Internals;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -18,7 +17,6 @@ namespace Panuon.WPF.Charts
         private bool _isAnimationCompleted;
 
         private bool _isAnimationBeginCalled = false;
-        private bool _isAnimationCompletedCalled = false;
 
         private AnimationProgressObject _loadAnimationProgressObject;
         #endregion
@@ -90,15 +88,6 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region Protected Methods
-        protected static void OnRenderPropertyChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            var series = (SeriesBase)d;
-            series.InvalidateVisual();
-        }
-        #endregion
-
         #region Overrides
         protected sealed override void OnRender(DrawingContext drawingContext)
         {
@@ -116,7 +105,8 @@ namespace Panuon.WPF.Charts
             var chartContext = _chart.GetCanvasContext();
             var layerContext = _chart.CreateLayerContext();
 
-            if (!_isAnimationBeginCalled)
+            if (!_isAnimationBeginCalled
+                || _loadAnimationProgressObject.Progress == 1)
             {
                 OnRenderBegin(
                     context,
@@ -131,13 +121,12 @@ namespace Panuon.WPF.Charts
                 animationProgress: (double)_loadAnimationProgressObject.Progress
             );
 
-            if (!_isAnimationCompletedCalled)
+            if (_loadAnimationProgressObject.Progress == 1)
             {
                 OnRenderCompleted(
                     drawingContext: context,
                     chartContext: chartContext
                 );
-                _isAnimationCompletedCalled = true;
             }
         }
 
@@ -191,9 +180,6 @@ namespace Panuon.WPF.Charts
             IChartContext chartContext,
             ILayerContext layerContext
         );
-        #endregion
-
-        #region 
         #endregion
 
         #region Event Handlers

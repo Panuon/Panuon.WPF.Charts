@@ -37,7 +37,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(DoughnutSeries), new PropertyMetadata(5d));
+            DependencyProperty.Register("Spacing", typeof(double), typeof(DoughnutSeries), new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region Thickness
@@ -48,7 +48,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ThicknessProperty =
-            DependencyProperty.Register("Thickness", typeof(GridLength), typeof(DoughnutSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto)));
+            DependencyProperty.Register("Thickness", typeof(GridLength), typeof(DoughnutSeries), new FrameworkPropertyMetadata(new GridLength(1, GridUnitType.Auto), FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion

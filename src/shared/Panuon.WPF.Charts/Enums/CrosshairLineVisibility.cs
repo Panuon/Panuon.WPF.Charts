@@ -1,6 +1,6 @@
 ﻿namespace Panuon.WPF.Charts
 {
-    public enum CrossLinesVisibility
+    public enum CrosshairLineVisibility
     {
         Both = 0,
         XAxis = 1,

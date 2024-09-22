@@ -178,17 +178,18 @@ namespace Panuon.WPF.Charts
                 var index = 0;
                 foreach (var item in ItemsSource)
                 {
-                    var itemType = item.GetType();
+                    var loopItem = item;
+                    var itemType = loopItem.GetType();
                     string title = null;
                     if (!string.IsNullOrEmpty(TitleMemberPath))
                     {
                         var titleProperty = itemType.GetProperty(TitleMemberPath);
                         if (titleProperty == null)
                         {
-                            throw new System.NullReferenceException($"Property {TitleMemberPath} does not exists.");
+                            throw new System.InvalidOperationException($"Property {TitleMemberPath} does not exists.");
                         }
 
-                        var titleValue = titleProperty.GetValue(item);
+                        var titleValue = titleProperty.GetValue(loopItem);
                         title = titleValue is string
                             ? (string)titleValue
                             : titleValue.ToString();
@@ -199,22 +200,56 @@ namespace Panuon.WPF.Charts
                     {
                         if (series is IChartValueProvider valueProvider)
                         {
-                            var value = GetValueFromValueProvider(valueProvider, item);
+                            var value = GetValueFromValueProvider(valueProvider, loopItem);
                             values.Add(valueProvider, value);
                         }
                         if (series is CartesianSegmentsSeriesBase cartesianSeries)
                         {
-                            foreach (ValueProviderSegmentBase segment in cartesianSeries.GetSegments())
+                            var valuesMemberPath = cartesianSeries.ValuesMemberPath;
+                            if (!string.IsNullOrEmpty(valuesMemberPath))
                             {
-                                var value = GetValueFromValueProvider(segment, item);
+                                var valuesProperty = itemType.GetProperty(valuesMemberPath);
+                                if (valuesProperty == null)
+                                {
+                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' does not exists in {loopItem}.");
+                                }
+                                if (!typeof(IEnumerable).IsAssignableFrom(valuesProperty.PropertyType))
+                                {
+                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
+                                }
+                                loopItem = valuesProperty.GetValue(loopItem);
+                            }
+                            var cartesianSegments = cartesianSeries.GetSegments()
+                                .ToList();
+                            for (int i = 0; i < cartesianSegments.Count; i++)
+                            {
+                                var segment = cartesianSegments[i] as ValueProviderSegmentBase;
+                                var value = GetValueFromValueProvider(segment, loopItem, i);
                                 values.Add(segment, value);
                             }
                         }
                         if (series is RadialSegmentsSeriesBase radialSeries)
                         {
-                            foreach (ValueProviderSegmentBase segment in radialSeries.GetSegments())
+                            var valuesMemberPath = radialSeries.ValuesMemberPath;
+                            if (!string.IsNullOrEmpty(valuesMemberPath))
                             {
-                                var value = GetValueFromValueProvider(segment, item);
+                                var valuesProperty = itemType.GetProperty(valuesMemberPath);
+                                if (valuesProperty == null)
+                                {
+                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' does not exists in {loopItem}.");
+                                }
+                                if (!typeof(IEnumerable).IsAssignableFrom(valuesProperty.PropertyType))
+                                {
+                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
+                                }
+                                loopItem = valuesProperty.GetValue(loopItem);
+                            }
+                            var radialSegments = radialSeries.GetSegments()
+                                .ToList();
+                            for (int i = 0; i < radialSegments.Count; i++)
+                            {
+                                var segment = radialSegments[i] as ValueProviderSegmentBase;
+                                var value = GetValueFromValueProvider(segment, loopItem, i);
                                 values.Add(segment, value);
                             }
                         }
@@ -362,7 +397,8 @@ namespace Panuon.WPF.Charts
 
         private double GetValueFromValueProvider(
             IChartValueProvider valueProvider,
-            object item
+            object item,
+            int index = -1
         )
         {
             var itemType = item.GetType();
@@ -372,11 +408,24 @@ namespace Panuon.WPF.Charts
             {
                 try
                 {
-                    value = Convert.ToDouble(item);
+                    if (index != -1
+                        && item is IEnumerable enumerableItem)
+                    {
+                        var enumerator = enumerableItem.GetEnumerator();
+                        for (int i = 0; i <= index; i++)
+                        {
+                            enumerator.MoveNext();
+                        }
+                        value = Convert.ToDouble(enumerator.Current);
+                    }
+                    else
+                    {
+                        value = Convert.ToDouble(item);
+                    }
                 }
                 catch
                 {
-                    throw new NullReferenceException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
+                    throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
                 }
             }
             else
@@ -384,7 +433,7 @@ namespace Panuon.WPF.Charts
                 var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
                 if (valueProperty == null)
                 {
-                    throw new System.NullReferenceException($"Property named '{valueProvider.ValueMemberPath}' does not exists.");
+                    throw new System.InvalidOperationException($"Property named '{valueProvider.ValueMemberPath}' does not exists in {item}.");
                 }
                 var valueValue = valueProperty.GetValue(item);
                 value = Convert.ToDouble(valueValue);

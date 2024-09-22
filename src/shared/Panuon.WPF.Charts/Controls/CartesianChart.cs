@@ -173,6 +173,8 @@ namespace Panuon.WPF.Charts
             XAxis?.Arrange(new Rect(Padding.Left + yAxisWidth, Math.Max(0, renderHeight - xAxisHeight), Math.Max(0, renderWidth - yAxisWidth), xAxisHeight));
             YAxis?.Arrange(new Rect(Padding.Left, Padding.Top, yAxisWidth, Math.Max(0, renderHeight - xAxisHeight)));
 
+            _gridLinesPanel.InvalidateVisual();
+
             return finalSize;
         }
         #endregion

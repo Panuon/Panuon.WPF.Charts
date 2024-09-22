@@ -141,9 +141,30 @@ namespace Panuon.WPF.Charts
             double width,
             double height)
         {
-            _drawingContext.DrawRectangle(fill, 
+            _drawingContext.DrawRectangle(
+                fill, 
                 GetPen(stroke, strokeThickness), 
-                new Rect(startX, startY, width, height));
+                new Rect(startX, startY, width, height)
+            );
+        }
+
+        public void DrawRectangle(Brush stroke,
+            double strokeThickness,
+            Brush fill,
+            double startX,
+            double startY,
+            double width,
+            double height,
+            double radiusX,
+            double radiusY)
+        {
+            _drawingContext.DrawRoundedRectangle(
+                fill,
+                GetPen(stroke, strokeThickness),
+                new Rect(startX, startY, width, height),
+                radiusX,
+                radiusY
+            );
         }
 
         public void DrawArc(Brush stroke,

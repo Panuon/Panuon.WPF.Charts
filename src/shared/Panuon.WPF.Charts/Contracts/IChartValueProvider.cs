@@ -4,8 +4,6 @@
     {
         string Title { get; set; }
 
-        string TitleMemberPath { get; set; }
-
         string ValueMemberPath { get; set; }
     }
 }

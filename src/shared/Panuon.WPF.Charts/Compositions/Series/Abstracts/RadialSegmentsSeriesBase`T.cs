@@ -14,6 +14,7 @@ namespace Panuon.WPF.Charts
         public RadialSegmentsSeriesBase()
         {
             Segments = new SegmentCollection<TSegment>();
+            Segments.CollectionChanged += Segments_CollectionChanged;
         }
         #endregion
 
@@ -27,7 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SegmentsProperty =
-            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(RadialSegmentsSeriesBase<TSegment>), new PropertyMetadata(null, OnSegmentsChanged));
+            DependencyProperty.Register("Segments", typeof(SegmentCollection<TSegment>), typeof(RadialSegmentsSeriesBase<TSegment>));
         #endregion
 
         #endregion
@@ -40,10 +41,27 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Event Handlers
-        private static void OnSegmentsChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
+        private void Segments_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (e.OldItems != null)
+            {
+                foreach (TSegment segment in e.OldItems)
+                {
+                    segment.InvalidRender -= Segment_InvalidRender;
+                }
+            }
+            if (e.NewItems != null)
+            {
+                foreach (TSegment segment in e.NewItems)
+                {
+                    segment.InvalidRender += Segment_InvalidRender;
+                }
+            }
+        }
 
+        private void Segment_InvalidRender(object sender, System.EventArgs e)
+        {
+            InvalidateVisual();
         }
         #endregion
     }

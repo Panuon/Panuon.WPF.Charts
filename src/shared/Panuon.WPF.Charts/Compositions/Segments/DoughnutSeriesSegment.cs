@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -16,7 +17,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region LabelStroke
@@ -27,7 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelStrokeProperty =
-            DependencyProperty.Register("LabelStroke", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelStroke", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region LabelStrokeThickness
@@ -38,7 +39,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelStrokeThicknessProperty =
-            DependencyProperty.Register("LabelStrokeThickness", typeof(double), typeof(DoughnutSeriesSegment), new PropertyMetadata(0.3, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelStrokeThickness", typeof(double), typeof(DoughnutSeriesSegment), new PropertyMetadata(0.3, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region Fill
@@ -49,7 +50,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(Brushes.Black, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region Stroke
@@ -60,7 +61,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region StrokeThickness
@@ -71,7 +72,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(DoughnutSeriesSegment), new PropertyMetadata(1d, OnRenderPropertyChanged));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(DoughnutSeriesSegment), new PropertyMetadata(1d, OnAffectsRenderPropertyChanged));
         #endregion
 
         #endregion
