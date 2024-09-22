@@ -302,8 +302,8 @@ namespace Panuon.WPF.Charts
                     case HighlightEffect.ShowToggle:
                         drawingContext.DrawEllipse(
                             stroke: Stroke,
-                            strokeThickness: 2,
-                            fill: ToggleFill,
+                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+                            fill: layerContext.HighlightLayer.HighlightToggleFill,
                             radiusX: ToggleRadius + progress * 2,
                             radiusY: ToggleRadius + progress * 2,
                             startX: coordinate.Offset,
@@ -323,8 +323,8 @@ namespace Panuon.WPF.Charts
                             );
                             drawingContext.DrawEllipse(
                                 stroke: Stroke,
-                                strokeThickness: ToggleStrokeThickness,
-                                fill: ToggleFill,
+                                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+                                fill: layerContext.HighlightLayer.HighlightToggleFill,
                                 radiusX: ToggleRadius,
                                 radiusY: ToggleRadius,
                                 startX: lastPoint.Value.X,
@@ -343,8 +343,8 @@ namespace Panuon.WPF.Charts
                             );
                             drawingContext.DrawEllipse(
                                 stroke: Stroke,
-                                strokeThickness: ToggleStrokeThickness,
-                                fill: ToggleFill,
+                                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+                                fill: layerContext.HighlightLayer.HighlightToggleFill,
                                 radiusX: ToggleRadius,
                                 radiusY: ToggleRadius,
                                 startX: nextPoint.Value.X,
@@ -353,8 +353,8 @@ namespace Panuon.WPF.Charts
                         }
                         drawingContext.DrawEllipse(
                             stroke: Stroke,
-                            strokeThickness: ToggleStrokeThickness + progress * 2,
-                            fill: ToggleFill,
+                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
+                            fill: layerContext.HighlightLayer.HighlightToggleFill,
                             radiusX: ToggleRadius + progress * 2,
                             radiusY: ToggleRadius + progress * 2,
                             startX: coordinate.Offset,

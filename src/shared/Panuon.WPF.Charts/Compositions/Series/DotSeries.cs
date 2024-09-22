@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -185,14 +186,57 @@ namespace Panuon.WPF.Charts
             IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
-                var toggleBrush = ToggleFill ?? ToggleStroke;
+                var coordinate = coordinateProgress.Key;
+                var progress = coordinateProgress.Value;
 
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawEllipse(toggleBrush, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+                if (progress == 0)
+                {
+                    continue;
+                }
+                var point = _valuePoints[coordinate.Index];
+                Point? lastPoint = null;
+                if (coordinate.Index > 0)
+                {
+                    lastPoint = _valuePoints[coordinate.Index - 1];
+                }
+                Point? nextPoint = null;
+                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
+                {
+                    nextPoint = _valuePoints[coordinate.Index + 1];
+                }
+
+                switch (layerContext.HighlightLayer.HighlightEffect)
+                {
+                    case HighlightEffect.None:
+                        break;
+                    case HighlightEffect.ShowToggle:
+                        drawingContext.DrawEllipse(
+                            stroke: ToggleStroke,
+                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+                            fill: ToggleFill,
+                            radiusX: ToggleRadius + progress * 2,
+                            radiusY: ToggleRadius + progress * 2,
+                            startX: coordinate.Offset,
+                            startY: point.Y
+                        );
+                        break;
+                    case HighlightEffect.Scale:
+                        drawingContext.DrawEllipse(
+                            stroke: ToggleStroke,
+                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
+                            fill: ToggleFill,
+                            radiusX: ToggleRadius + progress * 2,
+                            radiusY: ToggleRadius + progress * 2,
+                            startX: coordinate.Offset,
+                            startY: point.Y
+                        );
+                        break;
+                    case HighlightEffect.Outline:
+
+                        break;
+                }
             }
         }
         #endregion

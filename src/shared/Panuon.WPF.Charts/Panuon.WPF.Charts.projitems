@@ -15,10 +15,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\AxisBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\HighlightLayerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\LayerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToggleHighlightLayer.cs" />
     <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Layers\CrosshairLayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\HighlightLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\HighlightLayers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
@@ -79,8 +81,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resources\ResourceKeys.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\AnimationUtil.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils\GridLengthUtil.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\" />
   </ItemGroup>
 </Project>

@@ -164,14 +164,48 @@ namespace Panuon.WPF.Charts
             IDictionary<ICoordinate, double> coordinatesProgress
         )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
+                var coordinate = coordinateProgress.Key;
+                var progress = coordinateProgress.Value;
 
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawEllipse(Fill, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
+                if (progress == 0)
+                {
+                    continue;
+                }
+                var point = _valuePoints[coordinate.Index];
+                Point? lastPoint = null;
+                if (coordinate.Index > 0)
+                {
+                    lastPoint = _valuePoints[coordinate.Index - 1];
+                }
+                Point? nextPoint = null;
+                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
+                {
+                    nextPoint = _valuePoints[coordinate.Index + 1];
+                }
+
+                switch (layerContext.HighlightLayer.HighlightEffect)
+                {
+                    case HighlightEffect.None:
+                        break;
+                    case HighlightEffect.ShowToggle:
+                        drawingContext.DrawEllipse(
+                            stroke: Fill,
+                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+                            fill: layerContext.HighlightLayer.HighlightToggleFill,
+                            radiusX: progress * 2,
+                            radiusY: progress * 2,
+                            startX: coordinate.Offset,
+                            startY: point.Y
+                        );
+                        break;
+                    case HighlightEffect.Outline:
+
+                        break;
+                }
             }
+
         }
 
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (

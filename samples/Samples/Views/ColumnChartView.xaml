@@ -25,6 +25,11 @@
         <pc:CartesianChart.YAxis>
             <pc:YAxis StrokeThickness="2" />
         </pc:CartesianChart.YAxis>
+        <pc:CartesianChart.Layers>
+            <pc:HighlightLayer AnimationEasing="BackOut"
+                               AnimationDuration="0:0:0.3"
+                               HighlightEffect="ShowToggle" />
+        </pc:CartesianChart.Layers>
         <pc:ColumnSeries ValueMemberPath="Value"
                          ColumnWidth="0.8*"
                          BackgroundFill="#1A8446e4"

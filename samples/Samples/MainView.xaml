@@ -66,21 +66,6 @@
                     </ItemsControl>
                 </ScrollViewer>
             </Grid>
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top">
-                <TextBlock Margin="0,0,15,0"
-                           VerticalAlignment="Center"
-                           Text="HighlightEffect:" />
-                <ComboBox VerticalAlignment="Center">
-                    <ComboBoxItem Content="ShowToggle"
-                                  IsSelected="True" />
-                    <ComboBoxItem Content="Scale" />
-                    <ComboBoxItem Content="Stroke" />
-                    <ComboBoxItem Content="Outline" />
-
-                </ComboBox>
-            </StackPanel>
         </Grid>
 
     </Grid>

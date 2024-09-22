@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace Panuon.WPF.Charts
@@ -56,6 +57,40 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty HighlightEffectProperty =
             DependencyProperty.Register("HighlightEffect", typeof(HighlightEffect), typeof(HighlightLayer), new PropertyMetadata(HighlightEffect.Scale));
+        #endregion
+
+        #region 
+        public double HighlightToggleRadius
+        {
+            get { return (double)GetValue(HighlightToggleRadiusProperty); }
+            set { SetValue(HighlightToggleRadiusProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for HighlightToggleRadius.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty HighlightToggleRadiusProperty =
+            DependencyProperty.Register("HighlightToggleRadius", typeof(double), typeof(HighlightLayer), new PropertyMetadata(6d));
+
+
+        #region HighlightToggleStrokeThickness
+        public double HighlightToggleStrokeThickness
+        {
+            get { return (double)GetValue(HighlightToggleStrokeThicknessProperty); }
+            set { SetValue(HighlightToggleStrokeThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty HighlightToggleStrokeThicknessProperty =
+            DependencyProperty.Register("HighlightToggleStrokeThickness", typeof(double), typeof(HighlightLayer), new PropertyMetadata(2d));
+        #endregion
+
+        #region HighlightToggleFill
+        public Brush HighlightToggleFill
+        {
+            get { return (Brush)GetValue(HighlightToggleFillProperty); }
+            set { SetValue(HighlightToggleFillProperty, value); }
+        }
+
+        public static readonly DependencyProperty HighlightToggleFillProperty =
+            DependencyProperty.Register("HighlightToggleFill", typeof(Brush), typeof(HighlightLayer), new PropertyMetadata(Brushes.White));
         #endregion
 
         #endregion
