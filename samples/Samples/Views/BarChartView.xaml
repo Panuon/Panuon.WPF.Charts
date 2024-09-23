@@ -20,7 +20,7 @@
                        SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
                        TitleMemberPath="Title"
-                       GridLinesVisibility="Horizontal"
+                       GridLinesVisibility="Vertical"
                        AnimationEasing="CubicOut"
                        AnimationDuration="0:0:2">
         <pc:CartesianChart.XAxis>

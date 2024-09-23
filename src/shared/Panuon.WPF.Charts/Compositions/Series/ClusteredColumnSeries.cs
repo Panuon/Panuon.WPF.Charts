@@ -75,7 +75,7 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
             foreach (var coordinate in coordinates)
             {
-                var offsetX = coordinate.OffsetX;
+                var offsetX = coordinate.Offset;
 
                 var left = offsetX - clusterWidth / 2 + columnWidth / 2;
                 foreach (var segment in Segments)
@@ -186,7 +186,7 @@ namespace Panuon.WPF.Charts
                     continue;
                 }
 
-                var offsetX = coordinate.OffsetX;
+                var offsetX = coordinate.Offset;
 
                 var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
                 var clusterWidth = GridLengthUtil.GetActualValue(series.ColumnWidth, deltaX);

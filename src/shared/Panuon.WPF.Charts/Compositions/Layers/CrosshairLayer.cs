@@ -70,9 +70,9 @@ namespace Panuon.WPF.Charts
                         drawingContext.DrawLine(
                             stroke: Brushes.Gray,
                             strokeThickness: 1,
-                            startX: coordinate.OffsetX,
+                            startX: coordinate.Offset,
                             startY: 0,
-                            endX: coordinate.OffsetX,
+                            endX: coordinate.Offset,
                             endY: chartContext.AreaHeight
                         );
                     }

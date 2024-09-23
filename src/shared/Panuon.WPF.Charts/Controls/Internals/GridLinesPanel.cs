@@ -60,11 +60,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
             {
                 if (_chart.XAxis != null)
                 {
-                    foreach (var coordinateText in _chart.XAxis._formattedTexts)
+                    foreach (var coordinateText in _chart.XAxis._formattedTextOffsets)
                     {
-                        var coordinate = coordinateText.Key;
-
-                        var offsetX = coordinate.OffsetX;
+                        var offsetX = coordinateText.Value();
 
                         drawingContext.DrawLine(_chart.GridLinesBrush,
                             _chart.GridLinesThickness,
@@ -80,11 +78,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
             {
                 if (_chart.YAxis != null)
                 {
-                    foreach (var valueText in _chart.YAxis._formattedTexts)
+                    foreach (var valueText in _chart.YAxis._formattedTextOffsets)
                     {
-                        var value = valueText.Key;
-
-                        var offsetY = chartContext.GetOffsetY(value);
+                        var offsetY = valueText.Value();
 
                         drawingContext.DrawLine(_chart.GridLinesBrush,
                             _chart.GridLinesThickness,

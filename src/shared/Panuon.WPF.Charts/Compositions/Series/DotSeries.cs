@@ -81,12 +81,12 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.OffsetX;
+                var offsetX = coordinate.Offset;
                 var offsetY = chartContext.GetOffsetY(value);
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.OffsetX,
+                        x: coordinate.Offset,
                         y: chartContext.GetOffsetY(value)
                     )
                 );
@@ -212,7 +212,7 @@ namespace Panuon.WPF.Charts
                         fill: layer.HighlightToggleFill,
                         radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
                         radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
-                        startX: coordinate.OffsetX,
+                        startX: coordinate.Offset,
                         startY: point.Y
                     );
                 }

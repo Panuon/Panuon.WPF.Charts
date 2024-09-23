@@ -105,13 +105,25 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.OffsetX;
-                var offsetY = chartContext.GetOffsetY(value);
+
+                double offsetX = 0d;
+                double offsetY = 0d;
+
+                if (!chartContext.SwapXYAxes)
+                {
+                    offsetX = coordinate.Offset;
+                    offsetY = chartContext.GetOffsetY(value);
+                }
+                else
+                {
+                    offsetX = chartContext.GetOffsetY(value);
+                    offsetY = coordinate.Offset;
+                }
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.OffsetX,
-                        y: chartContext.GetOffsetY(value)
+                        x: offsetX,
+                        y: offsetY
                     )
                 );
             }
@@ -125,40 +137,76 @@ namespace Panuon.WPF.Charts
             double animationProgress
         )
         {
-            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var columnWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
+            var delta = chartContext.SwapXYAxes
+                ? chartContext.AreaHeight / chartContext.Coordinates.Count()
+                : chartContext.AreaWidth / chartContext.Coordinates.Count();
+            var columnSize = chartContext.SwapXYAxes
+                ? GridLengthUtil.GetActualValue(ColumnWidth, delta)
+                : GridLengthUtil.GetActualValue(ColumnWidth, delta);
 
             foreach (var valuePoint in _valuePoints)
             {
                 var offsetX = valuePoint.X;
                 var offsetY = valuePoint.Y;
 
-                if (BackgroundFill != null)
+                if (!chartContext.SwapXYAxes)
                 {
+                    if (BackgroundFill != null)
+                    {
+                        drawingContext.DrawRectangle(
+                            stroke: null,
+                            strokeThickness: 0,
+                            fill: BackgroundFill,
+                            startX: offsetX - columnSize / 2,
+                            startY: 0,
+                            width: columnSize,
+                            height: chartContext.AreaHeight,
+                            radiusX: Radius,
+                            radiusY: Radius
+                        );
+                    }
+
                     drawingContext.DrawRectangle(
-                        stroke: null,
-                        strokeThickness: 0,
-                        fill: BackgroundFill,
-                        startX: offsetX - columnWidth / 2,
-                        startY: 0,
-                        width: columnWidth,
-                        height: chartContext.AreaHeight,
+                        stroke: Stroke,
+                        strokeThickness: StrokeThickness,
+                        fill: Fill,
+                        startX: offsetX - columnSize / 2,
+                        startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
+                        width: columnSize,
+                        height: (chartContext.AreaHeight - offsetY) * animationProgress,
                         radiusX: Radius,
                         radiusY: Radius
                     );
                 }
+                else
+                {
+                    if (BackgroundFill != null)
+                    {
+                        drawingContext.DrawRectangle(
+                            stroke: null,
+                            strokeThickness: 0,
+                            fill: BackgroundFill,
+                            startX: 0,
+                            startY: offsetY - columnSize / 2,
+                            width: offsetX,
+                            height: columnSize,
+                            radiusX: Radius,
+                            radiusY: Radius
+                        );
+                    }
 
-                drawingContext.DrawRectangle(
-                    stroke: Stroke,
-                    strokeThickness: StrokeThickness,
-                    fill: Fill,
-                    startX: offsetX - columnWidth / 2,
-                    startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
-                    width: columnWidth,
-                    height: (chartContext.AreaHeight - offsetY) * animationProgress,
-                    radiusX: Radius,
-                    radiusY: Radius
-                );
+                    drawingContext.DrawRectangle(
+                        stroke: Stroke,
+                        strokeThickness: StrokeThickness,
+                        fill: Fill,
+                        startX: 0,
+                        startY: offsetY - columnSize / 2,
+                        width: offsetX * animationProgress,
+                        height: columnSize,
+                        radiusX: Radius,
+                        radiusY: Radius
+                    );
+                }
             }
         }
         #endregion
@@ -203,15 +251,30 @@ namespace Panuon.WPF.Charts
                 }
                 var point = series._valuePoints[coordinate.Index];
 
-                drawingContext.DrawEllipse(
-                    stroke: series.Fill,
-                    strokeThickness: layer.HighlightToggleStrokeThickness,
-                    fill: layer.HighlightToggleFill,
-                    radiusX: progress * layer.HighlightToggleRadius,
-                    radiusY: progress * layer.HighlightToggleRadius,
-                    startX: coordinate.OffsetX,
-                    startY: point.Y
-                );
+                if (!chartContext.SwapXYAxes)
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.Fill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: coordinate.Offset,
+                        startY: point.Y
+                    );
+                }
+                else
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.Fill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: point.X,
+                        startY: coordinate.Offset
+                    );
+                }
             }
         }
         #endregion

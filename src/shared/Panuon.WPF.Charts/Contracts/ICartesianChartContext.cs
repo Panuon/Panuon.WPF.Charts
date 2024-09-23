@@ -6,7 +6,7 @@ namespace Panuon.WPF.Charts
     public interface ICartesianChartContext
         : IChartContext
     {
-        new CartesianChart Chart { get; }
+        bool SwapXYAxes { get; }
 
         double MinValue { get; }
 

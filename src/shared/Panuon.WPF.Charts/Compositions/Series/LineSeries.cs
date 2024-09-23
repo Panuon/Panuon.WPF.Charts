@@ -116,13 +116,25 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.OffsetX;
-                var offsetY = chartContext.GetOffsetY(value);
+
+                double offsetX = 0d;
+                double offsetY = 0d;
+
+                if (!chartContext.SwapXYAxes)
+                {
+                    offsetX = coordinate.Offset;
+                    offsetY = chartContext.GetOffsetY(value);
+                }
+                else
+                {
+                    offsetX = chartContext.GetOffsetY(value);
+                    offsetY = coordinate.Offset;
+                }
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.OffsetX,
-                        y: chartContext.GetOffsetY(value)
+                        x: offsetX,
+                        y: offsetY
                     )
                 );
             }
@@ -320,7 +332,7 @@ namespace Panuon.WPF.Charts
                         fill: layer.HighlightToggleFill,
                         radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
                         radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
-                        startX: coordinate.OffsetX,
+                        startX: coordinate.Offset,
                         startY: point.Y
                     );
                 }

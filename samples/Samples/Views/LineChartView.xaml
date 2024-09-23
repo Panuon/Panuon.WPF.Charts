@@ -24,6 +24,7 @@
     <pc:CartesianChart x:Name="chart"
                        Height="300"
                        Width="500"
+                       SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
                        TitleMemberPath="Title"
                        AnimationEasing="CubicOut"

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -9,8 +10,8 @@ namespace Panuon.WPF.Charts
         : AxisBase
     {
         #region Fields
-        internal readonly Dictionary<double, FormattedText> _formattedTexts =
-            new Dictionary<double, FormattedText>();
+        internal readonly Dictionary<FormattedText, Func<double>> _formattedTextOffsets =
+            new Dictionary<FormattedText, Func<double>>();
         #endregion
 
         #region Properties
@@ -37,36 +38,70 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("MaxValue", typeof(double?), typeof(YAxis));
         #endregion
 
-#endregion
+        #endregion
 
         #region Overrides
 
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            _formattedTexts.Clear();
+            base.MeasureOverride(availableSize);
 
-            var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
+            _formattedTextOffsets.Clear();
 
-            for (int i = 0; i <= 5; i++)
+            if (!_chart.SwapXYAxes)
             {
-                var value = _chart.ActualMinValue + deltaX * i;
-                var formattedText = new FormattedText(
-                    value.ToString(),
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
-                    FontSize,
-                    Foreground
+                var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
+
+                for (int i = 0; i <= 5; i++)
+                {
+                    var value = _chart.ActualMinValue + deltaX * i;
+                    var formattedText = new FormattedText(
+                        value.ToString(),
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                        FontSize,
+                        Foreground
 #if NET452 || NET462 || NET472 || NET48
 #else
-                    , VisualTreeHelper.GetDpi(this).PixelsPerDip
+                        , VisualTreeHelper.GetDpi(this).PixelsPerDip
 #endif
-                );
-                _formattedTexts.Add(value, formattedText);
+                    );
+                    _formattedTextOffsets.Add(formattedText, () => (_chart.GetCanvasContext() as ICartesianChartContext).GetOffsetY(value));
+                }
             }
+            else
+            {
+                foreach (var coordinate in _chart.Coordinates)
+                {
+                    if (coordinate.Title == null)
+                    {
+                        continue;
+                    }
+                    var formattedText = new FormattedText(coordinate.Title,
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                        FontSize,
+                        Foreground
+#if NET452 || NET462 || NET472 || NET48
+                    );
+#else
+                        , VisualTreeHelper.GetDpi(this).PixelsPerDip);
+#endif
+
+                    _formattedTextOffsets.Add(formattedText, () => coordinate.Offset);
+                }
+            }
+
+            if (!_formattedTextOffsets.Any())
+            {
+                return new Size(0, 0);
+            }
+
             return new Size(
-                _formattedTexts.Values.Max(x => x.Width) + Spacing + TicksSize + StrokeThickness,
+                _formattedTextOffsets.Keys.Max(x => x.Width) + Spacing + TicksSize + StrokeThickness,
                 0
             );
         }
@@ -99,14 +134,11 @@ namespace Panuon.WPF.Charts
                 ActualHeight
             );
 
-            var deltaY = chartContext.AreaHeight / (_formattedTexts.Count - 1);
-
-            foreach (var valueText in _formattedTexts)
+            foreach (var valueText in _formattedTextOffsets)
             {
-                var value = valueText.Key;
-                var text = valueText.Value;
+                var text = valueText.Key;
+                var offsetY = valueText.Value();
 
-                var offsetY = chartContext.GetOffsetY(value);
                 drawingContext.DrawLine(
                     TicksBrush,
                     StrokeThickness,

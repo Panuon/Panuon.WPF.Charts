@@ -1,4 +1,5 @@
 ﻿using Panuon.WPF.Charts.Implements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -10,9 +11,8 @@ namespace Panuon.WPF.Charts
         : AxisBase
     {
         #region Fields
-
-        internal readonly Dictionary<CartesianCoordinateImpl, FormattedText> _formattedTexts =
-            new Dictionary<CartesianCoordinateImpl, FormattedText>();
+        internal readonly Dictionary<FormattedText, Func<double>> _formattedTextOffsets =
+            new Dictionary<FormattedText, Func<double>>();
         #endregion
 
         #region Overrides
@@ -22,34 +22,64 @@ namespace Panuon.WPF.Charts
         {
             base.MeasureOverride(availableSize);
 
-            _formattedTexts.Clear();
+            _formattedTextOffsets.Clear();
 
-            foreach (var coordinate in _chart.Coordinates)
+            if (!_chart.SwapXYAxes)
             {
-                if (coordinate.Title == null)
+                foreach (var coordinate in _chart.Coordinates)
                 {
-                    continue;
-                }
-                var formattedText = new FormattedText(coordinate.Title,
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
-                    FontSize,
-                    Foreground
+                    if (coordinate.Title == null)
+                    {
+                        continue;
+                    }
+                    var formattedText = new FormattedText(coordinate.Title,
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                        FontSize,
+                        Foreground
 #if NET452 || NET462 || NET472 || NET48
                     );
 #else
-                    , VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                        , VisualTreeHelper.GetDpi(this).PixelsPerDip);
 #endif
 
-                _formattedTexts.Add(coordinate, formattedText);
+                    _formattedTextOffsets.Add(formattedText, () => coordinate.Offset);
+                }
+            }
+            else
+            {
+                var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
+
+                for (int i = 0; i <= 5; i++)
+                {
+                    var value = _chart.ActualMinValue + deltaX * i;
+                    var formattedText = new FormattedText(
+                        value.ToString(),
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                        FontSize,
+                        Foreground
+#if NET452 || NET462 || NET472 || NET48
+#else
+                        , VisualTreeHelper.GetDpi(this).PixelsPerDip
+#endif
+                    );
+                    _formattedTextOffsets.Add(formattedText, () => (_chart.GetCanvasContext() as ICartesianChartContext).GetOffsetY(value));
+                }
             }
 
-            if (!_formattedTexts.Any())
+            if (!_formattedTextOffsets.Any())
             {
                 return new Size(0, 0);
             }
-            return new Size(0, _formattedTexts.Values.Max(x => x.Height) + Spacing + TicksSize + StrokeThickness);
+
+
+            return new Size(
+                0,
+                _formattedTextOffsets.Keys.Max(x => x.Height) + Spacing + TicksSize + StrokeThickness
+            );
         }
         #endregion
 
@@ -69,6 +99,7 @@ namespace Panuon.WPF.Charts
             }
 
             var drawingContext = _chart.CreateDrawingContext(context);
+            var chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
 
             drawingContext.DrawLine(
                 Stroke,
@@ -78,25 +109,29 @@ namespace Panuon.WPF.Charts
                 ActualWidth,
                 0
             );
-            foreach (var coordinateText in _formattedTexts)
-            {
-                var coordinate = coordinateText.Key;
-                var text = coordinateText.Value;
 
-                var offsetX = coordinate.OffsetX;
+            foreach (var coordinateText in _formattedTextOffsets)
+            {
+                var text = coordinateText.Key;
+                var offsetX = coordinateText.Value();
+
+                if (_chart.SwapXYAxes)
+                {
+
+                }
 
                 drawingContext.DrawLine(
-                    TicksBrush,
-                    StrokeThickness,
-                    offsetX,
-                    StrokeThickness / 2,
-                    offsetX,
-                    StrokeThickness / 2 + TicksSize
-                );
+                     TicksBrush,
+                     StrokeThickness,
+                     offsetX,
+                     StrokeThickness / 2,
+                     offsetX,
+                     StrokeThickness / 2 + TicksSize
+                 );
                 drawingContext.DrawText(
                     text,
                     offsetX - text.Width / 2,
-                    Spacing + TicksSize + StrokeThickness
+                    StrokeThickness + Spacing + TicksSize
                 );
             }
         }

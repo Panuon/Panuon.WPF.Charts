@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="Panauon.WPF.Charts"
         Height="750"
-        Width="1200"
+        Width="1300"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid Margin="35,35,35,35">
@@ -23,14 +23,13 @@
                            FontSize="30" />
                 <ScrollViewer Grid.Row="1"
                               Margin="0,15,0,0"
-                              VerticalScrollBarVisibility="Disabled"
-                              HorizontalScrollBarVisibility="Auto">
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
                     <ItemsControl x:Name="LsbExamples"
-                                  VerticalContentAlignment="Stretch"
-                                  HorizontalAlignment="Left">
+                                  VerticalAlignment="Top">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Rows="2" />
+                                <UniformGrid Columns="3" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>

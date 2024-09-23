@@ -155,12 +155,12 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-
         public override IEnumerable<SeriesBase> GetSeries() => Series;
 
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
+            #region Measure Coordinates
             var coordinates = new List<CartesianCoordinateImpl>();
             if (ItemsSource != null)
             {
@@ -245,6 +245,7 @@ namespace Panuon.WPF.Charts
                 _measuredMinValue = 0;
                 _measuredMaxValue = 10;
             }
+            #endregion
 
             var size = base.MeasureOverride(availableSize);
 
@@ -265,11 +266,13 @@ namespace Panuon.WPF.Charts
             var xAxisHeight = XAxis?.DesiredSize.Height ?? 0;
             var yAxisWidth = YAxis?.DesiredSize.Width ?? 0;
 
-            var deltaX = (Math.Max(0, renderWidth - yAxisWidth)) / Coordinates.Count;
+            var delta = SwapXYAxes
+                ? (Math.Max(0, renderHeight - xAxisHeight)) / Coordinates.Count
+                : (Math.Max(0, renderWidth - yAxisWidth)) / Coordinates.Count;
             for (int i = 0; i < Coordinates.Count; i++)
             {
                 var coordinate = Coordinates[i];
-                coordinate.OffsetX = (i + 0.5) * deltaX;
+                coordinate.Offset = (i + 0.5) * delta;
             }
 
             _gridLinesPanel.Arrange(new Rect(Padding.Left + yAxisWidth, Padding.Top, Math.Max(0, renderWidth - yAxisWidth), Math.Max(0, renderHeight - xAxisHeight)));

@@ -9,51 +9,82 @@ namespace Panuon.WPF.Charts.Implements
         : ChartContextImplBase, ICartesianChartContext
     {
         #region Fields
+        private CartesianChart _chart;
         #endregion
 
         #region Ctor
         internal CartesianChartContextImpl(CartesianChart chart)
             : base(chart)
         {
+            _chart = chart;
         }
         #endregion
 
         #region Properties
-        public new CartesianChart Chart => (CartesianChart)base.Chart;
+        public bool SwapXYAxes => _chart.SwapXYAxes;
 
-        public double MinValue => Chart.ActualMinValue;
+        public double MinValue => _chart.ActualMinValue;
 
-        public double MaxValue => Chart.ActualMaxValue;
+        public double MaxValue => _chart.ActualMaxValue;
 
-        public IEnumerable<ICartesianCoordinate> Coordinates => Chart.Coordinates;
+        public IEnumerable<ICartesianCoordinate> Coordinates => _chart.Coordinates;
         #endregion
 
         #region Methods
         public override ICoordinate RetrieveCoordinate(Point position)
         {
-            if (position.X < 0 ||
-                position.X > AreaWidth)
+            if (!SwapXYAxes)
             {
-                return null;
+                if (position.X < 0 ||
+                    position.X > AreaWidth)
+                {
+                    return null;
+                }
+                var leftCoordinate = Coordinates.LastOrDefault(x => x.Offset <= position.X);
+                var rightCoordinate = Coordinates.FirstOrDefault(y => y.Offset >= position.X);
+                if (leftCoordinate == null &&
+                    rightCoordinate == null)
+                {
+                    return null;
+                }
+                if (leftCoordinate == null)
+                {
+                    return rightCoordinate;
+                }
+                if (rightCoordinate == null)
+                {
+                    return leftCoordinate;
+                }
+                return Math.Abs(leftCoordinate.Offset - position.X) <= Math.Abs(rightCoordinate.Offset - position.X)
+                    ? leftCoordinate
+                    : rightCoordinate;
             }
-            var leftCoordinate = Coordinates.LastOrDefault(x => x.OffsetX <= position.X);
-            var rightCoordinate = Coordinates.FirstOrDefault(y => y.OffsetX >= position.X);
-            if (leftCoordinate == null &&
-                rightCoordinate == null)
+            else
             {
-                return null;
+                if (position.Y < 0 ||
+                    position.Y > AreaHeight)
+                {
+                    return null;
+                }
+                var topCoordinate = Coordinates.LastOrDefault(x => x.Offset <= position.Y);
+                var bottomCoordinate = Coordinates.FirstOrDefault(y => y.Offset >= position.Y);
+                if (topCoordinate == null &&
+                    bottomCoordinate == null)
+                {
+                    return null;
+                }
+                if (topCoordinate == null)
+                {
+                    return bottomCoordinate;
+                }
+                if (bottomCoordinate == null)
+                {
+                    return topCoordinate;
+                }
+                return Math.Abs(topCoordinate.Offset - position.Y) <= Math.Abs(bottomCoordinate.Offset - position.Y)
+                    ? topCoordinate
+                    : bottomCoordinate;
             }
-            if (leftCoordinate == null)
-            {
-                return rightCoordinate;
-            }
-            if (rightCoordinate == null)
-            {
-                return leftCoordinate;
-            }
-            return Math.Abs(leftCoordinate.OffsetX - position.X) <= Math.Abs(rightCoordinate.OffsetX - position.X)
-                ? leftCoordinate
-                : rightCoordinate;
         }
 
         ICartesianCoordinate ICartesianChartContext.RetrieveCoordinate(Point position)
@@ -64,7 +95,14 @@ namespace Panuon.WPF.Charts.Implements
         public double GetOffsetY(double value)
         {
             var minMaxDelta = MaxValue - MinValue;
-            return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
+            if (!_chart.SwapXYAxes)
+            {
+                return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
+            }
+            else
+            {
+                return AreaWidth * ((value - MinValue) / minMaxDelta);
+            }
         }
 
 
