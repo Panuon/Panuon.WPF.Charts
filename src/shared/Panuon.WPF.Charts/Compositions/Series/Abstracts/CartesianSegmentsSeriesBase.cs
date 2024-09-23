@@ -28,5 +28,15 @@ namespace Panuon.WPF.Charts
         #region Abstract Methods
         public abstract IEnumerable<SegmentBase> GetSegments();
         #endregion
+
+        #region Overrides
+        protected override ICoordinate OnRetrieveCoordinate(
+           IChartContext chartContext,
+           ILayerContext layerContext,
+           Point position)
+        {
+            return layerContext.GetCoordinate(position.X);
+        }
+        #endregion
     }
 }

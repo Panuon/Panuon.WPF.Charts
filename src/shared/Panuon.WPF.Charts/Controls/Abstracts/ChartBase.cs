@@ -79,39 +79,6 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartBase), new PropertyMetadata(null));
         #endregion
 
-        #region HighlightEffect
-        public HighlightEffect HighlightEffect
-        {
-            get { return (HighlightEffect)GetValue(HighlightEffectProperty); }
-            set { SetValue(HighlightEffectProperty, value); }
-        }
-
-        public static readonly DependencyProperty HighlightEffectProperty =
-            DependencyProperty.Register("HighlightEffect", typeof(HighlightEffect), typeof(ChartBase), new PropertyMetadata(HighlightEffect.Scale));
-        #endregion
-
-        #region ToolTipVisibility
-        public ToolTipVisibility ToolTipVisibility
-        {
-            get { return (ToolTipVisibility)GetValue(ToolTipVisibilityProperty); }
-            set { SetValue(ToolTipVisibilityProperty, value); }
-        }
-
-        public static readonly DependencyProperty ToolTipVisibilityProperty =
-            DependencyProperty.Register("ToolTipVisibility", typeof(ToolTipVisibility), typeof(ChartBase), new PropertyMetadata(ToolTipVisibility.VisibleOnHover));
-        #endregion
-
-        #region ToolTipPlacement
-        public ToolTipPlacement ToolTipPlacement
-        {
-            get { return (ToolTipPlacement)GetValue(ToolTipPlacementProperty); }
-            set { SetValue(ToolTipPlacementProperty, value); }
-        }
-
-        public static readonly DependencyProperty ToolTipPlacementProperty =
-            DependencyProperty.Register("ToolTipPlacement", typeof(ToolTipPlacement), typeof(ChartBase), new PropertyMetadata(ToolTipPlacement.Fixed));
-        #endregion
-
         #region AnimationEasing
         public AnimationEasing AnimationEasing
         {

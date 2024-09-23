@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -25,6 +24,13 @@ namespace Panuon.WPF.Charts
 
         #region Fields
         private Dictionary<DoughnutSeriesSegment, DoughnutSeriesSegmentInfo> _segmentInfos;
+        #endregion
+
+        #region Ctor
+        static DoughnutSeries()
+        {
+            ToggleHighlightLayer.Regist<DoughnutSeries>(OnToggleHighlighting);
+        }
         #endregion
 
         #region Properties
@@ -206,68 +212,38 @@ namespace Panuon.WPF.Charts
             Point position
         )
         {
-            return null;
-        }
+            var coordinates = chartContext.Coordinates;
 
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            if (layerContext.GetMousePosition() is Point position)
+            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
+
+            var radius = Math.Min(areaWidth, areaHeight) / 2;
+            var centerX = chartContext.AreaWidth / 2;
+            var centerY = chartContext.AreaHeight / 2;
+
+            var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
+            var angleDelta = 360d / totalValue;
+
+            var index = 0;
+            var totalAngle = 0d;
+            foreach (var coordinate in coordinates)
             {
-                var coordinates = chartContext.Coordinates;
+                var value = coordinate.GetValue(this);
+                var angle = Math.Round(angleDelta * value, 2);
+                var segment = Segments[index];
 
-                var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
-                var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
-
-                var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
-                var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
-
-                var centerX = chartContext.AreaWidth / 2;
-                var centerY = chartContext.AreaHeight / 2;
-
-                var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-                var angleDelta = 360d / totalValue;
-
-                var index = 0;
-                var totalAngle = 0d;
-                foreach (var coordinate in coordinates)
+                if (IsPointInsideSector(
+                    position,
+                    centerX, centerY,
+                    radius,
+                    totalAngle, totalAngle + angle))
                 {
-                    var value = coordinate.GetValue(this);
-                    var angle = Math.Round(angleDelta * value, 2);
-                    if (index >= Segments.Count)
-                    {
-                        return;
-                    }
-                    var segment = Segments[index];
-
-                    if (IsPointInsideSector(position,
-                        centerX, centerY,
-                        outterRadius,
-                        totalAngle, totalAngle + angle))
-                    {
-                        drawingContext.DrawArc(
-                            Brushes.Gold,
-                            2,
-                            null,
-                            centerX,
-                            centerY,
-                            outterRadius - thickness,
-                            outterRadius,
-                            totalAngle,
-                            totalAngle + angle
-                        );
-                        return;
-                    }
-
-                    totalAngle += angle;
-                    index++;
+                    return coordinate;
                 }
-            }
 
+                totalAngle += angle;
+            }
+            return null;
         }
 
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
@@ -276,6 +252,58 @@ namespace Panuon.WPF.Charts
         )
         {
             yield break;
+        }
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            DoughnutSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            var areaWidth = chartContext.AreaWidth - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
+
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+
+                var radius = Math.Min(areaWidth, areaHeight) / 2;
+                var centerX = chartContext.AreaWidth / 2;
+                var centerY = chartContext.AreaHeight / 2;
+
+                var segmentInfo = series._segmentInfos.ElementAt(index);
+                var segment = segmentInfo.Key;
+                var startAngle = segmentInfo.Value.StartAngle;
+                var angle = Math.Round(segmentInfo.Value.Angle, 2);
+
+                var radians = (startAngle + angle / 2 - 90) * Math.PI / 180.0;
+                var point = new Point(
+                    centerX + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Cos(radians),
+                    centerY + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Sin(radians)
+                );
+
+                drawingContext.DrawEllipse(
+                    stroke: segment.Fill,
+                    strokeThickness: layer.HighlightToggleStrokeThickness,
+                    fill: layer.HighlightToggleFill,
+                    radiusX: progress * layer.HighlightToggleRadius,
+                    radiusY: progress * layer.HighlightToggleRadius,
+                    startX: point.X,
+                    startY: point.Y
+                );
+            }
         }
         #endregion
 

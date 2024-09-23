@@ -14,6 +14,13 @@ namespace Panuon.WPF.Charts
         private List<Point> _valuePoints;
         #endregion
 
+        #region Ctor
+        static DotSeries()
+        {
+            ToggleHighlightLayer.Regist<DotSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
 
         #region ToggleStroke
@@ -179,63 +186,38 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
+        public static void OnToggleHighlighting(
+           ToggleHighlightLayer layer,
+           DotSeries series,
+           IDrawingContext drawingContext,
+           IChartContext chartContext,
+           ILayerContext layerContext,
+           IDictionary<int, double> coordinatesProgress
+       )
         {
             foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = coordinateProgress.Key;
-                var progress = coordinateProgress.Value;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == coordinateProgress.Key);
+                if (coordinate != null)
+                {
 
-                if (progress == 0)
-                {
-                    continue;
-                }
-                var point = _valuePoints[coordinate.Index];
-                Point? lastPoint = null;
-                if (coordinate.Index > 0)
-                {
-                    lastPoint = _valuePoints[coordinate.Index - 1];
-                }
-                Point? nextPoint = null;
-                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
-                {
-                    nextPoint = _valuePoints[coordinate.Index + 1];
-                }
+                    var progress = coordinateProgress.Value;
 
-                switch (layerContext.HighlightLayer.HighlightEffect)
-                {
-                    case HighlightEffect.None:
-                        break;
-                    case HighlightEffect.ShowToggle:
-                        drawingContext.DrawEllipse(
-                            stroke: ToggleStroke,
-                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-                            fill: ToggleFill,
-                            radiusX: ToggleRadius + progress * 2,
-                            radiusY: ToggleRadius + progress * 2,
-                            startX: coordinate.Offset,
-                            startY: point.Y
-                        );
-                        break;
-                    case HighlightEffect.Scale:
-                        drawingContext.DrawEllipse(
-                            stroke: ToggleStroke,
-                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
-                            fill: ToggleFill,
-                            radiusX: ToggleRadius + progress * 2,
-                            radiusY: ToggleRadius + progress * 2,
-                            startX: coordinate.Offset,
-                            startY: point.Y
-                        );
-                        break;
-                    case HighlightEffect.Outline:
+                    if (progress == 0)
+                    {
+                        continue;
+                    }
+                    var point = series._valuePoints[coordinate.Index];
 
-                        break;
+                    drawingContext.DrawEllipse(
+                        stroke: series.ToggleStroke,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        startX: coordinate.Offset,
+                        startY: point.Y
+                    );
                 }
             }
         }

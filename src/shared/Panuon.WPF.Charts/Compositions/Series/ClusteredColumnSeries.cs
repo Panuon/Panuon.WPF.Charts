@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -13,6 +12,13 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
         private Dictionary<ClusteredColumnSeriesSegment, List<Point>> _segmentPoints;
+        #endregion
+
+        #region Ctor
+        static ClusteredColumnSeries()
+        {
+            ToggleHighlightLayer.Regist<ClusteredColumnSeries>(OnToggleHighlighting);
+        }
         #endregion
 
         #region Properties
@@ -139,50 +145,6 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override ICoordinate OnRetrieveCoordinate(
-            IChartContext chartContext,
-            ILayerContext layerContext, 
-            Point position
-        )
-        {
-            return null;
-        }
-
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            if (layerContext.GetMousePosition() is Point position)
-            {
-                var coordinate = layerContext.GetCoordinate(position.X);
-
-                var offsetX = coordinate.Offset;
-
-                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-                var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
-                var columnWidth = CalculateBarWidth(clusterWidth);
-
-                var left = offsetX - clusterWidth / 2;
-
-                foreach (var segment in Segments)
-                {
-                    var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffsetY(value);
-                    drawingContext.DrawEllipse(segment.Fill,
-                        2,
-                        Brushes.White,
-                        5,
-                        5,
-                        left + columnWidth / 2, offsetY);
-                    left += (columnWidth + Spacing);
-                }
-            }
-
-        }
-
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
             IChartContext chartContext,
             ILayerContext layerContext
@@ -203,6 +165,53 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            ClusteredColumnSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+
+                var offsetX = coordinate.Offset;
+
+                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+                var clusterWidth = GridLengthUtil.GetActualValue(series.ColumnWidth, deltaX);
+                var columnWidth = series.CalculateBarWidth(clusterWidth);
+
+                var left = offsetX - clusterWidth / 2;
+                foreach (var segment in series.Segments)
+                {
+                    var value = coordinate.GetValue(segment);
+                    var offsetY = chartContext.GetOffsetY(value);
+                    drawingContext.DrawEllipse(
+                        stroke: segment.Fill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        left + columnWidth / 2,
+                        offsetY
+                    );
+                    left += (columnWidth + series.Spacing);
+                }
+            }
+        }
         #endregion
 
         #region Functions

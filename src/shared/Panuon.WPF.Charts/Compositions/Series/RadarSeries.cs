@@ -26,6 +26,13 @@ namespace Panuon.WPF.Charts
         private Dictionary<RadarSeriesSegment, RadarSeriesSegmentInfo> _segmentInfos;
         #endregion
 
+        #region Ctor
+        static RadarSeries()
+        {
+            ToggleHighlightLayer.Regist<RadarSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
 
         #region Spacing
@@ -69,7 +76,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(RadarSeriesSegment), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender ));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(RadarSeriesSegment), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region GridLinesVisibility
@@ -211,15 +218,6 @@ namespace Panuon.WPF.Charts
             return null;
         }
 
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-        }
-
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
             IChartContext chartContext,
             ILayerContext layerContext
@@ -251,7 +249,7 @@ namespace Panuon.WPF.Charts
                 var segment = Segments[index];
                 var value = coordinate.GetValue(this);
                 var angle = index * angleOffset;
-               
+
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
                     title: segment.Title ?? coordinate.Title
@@ -460,6 +458,20 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            RadarSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+
+        }
         #endregion
 
         #region Functions

@@ -12,7 +12,5 @@ namespace Panuon.WPF.Charts
             int index,
             IChartValueProvider seriesOrSegment
         );
-
-        HighlightLayer HighlightLayer { get; }
     }
 }

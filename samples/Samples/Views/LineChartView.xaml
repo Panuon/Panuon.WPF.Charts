@@ -35,9 +35,8 @@
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
             <pc:CrosshairLayer LineVisibility="YAxis" />
-            <pc:HighlightLayer AnimationEasing="BackOut"
-                               AnimationDuration="0:0:0.3"
-                               HighlightEffect="Scale" />
+            <pc:ToggleHighlightLayer AnimationEasing="BackOut"
+                                     AnimationDuration="0:0:0.3" />
         </pc:CartesianChart.Layers>
         <pc:LineSeries ValueMemberPath="Value1"
                        Stroke="#91C653"

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Media;
 
@@ -23,6 +24,13 @@ namespace Panuon.WPF.Charts
 
         #region Fields
         private Dictionary<PieSeriesSegment, PieSeriesSegmentInfo> _segmentInfos;
+        #endregion
+
+        #region Ctor
+        static PieSeries()
+        {
+            ToggleHighlightLayer.Regist<PieSeries>(OnToggleHighlighting);
+        }
         #endregion
 
         #region Properties
@@ -91,14 +99,14 @@ namespace Panuon.WPF.Charts
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
                             chartPanel.FontSize,
                             chartPanel.Foreground
-    #if NET452 || NET462 || NET472 || NET48
-    #else
+#if NET452 || NET462 || NET472 || NET48
+#else
                             , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
-    #endif
+#endif
                         )
-                            {
-                                TextAlignment = TextAlignment.Center
-                            }
+                        {
+                            TextAlignment = TextAlignment.Center
+                        }
                 };
 
                 totalAngle += angle;
@@ -151,7 +159,7 @@ namespace Panuon.WPF.Charts
 
                 var formattedText = segmentInfo.Value.Title;
 
-                if(formattedText == null)
+                if (formattedText == null)
                 {
                     continue;
                 }
@@ -190,66 +198,45 @@ namespace Panuon.WPF.Charts
 
         protected override ICoordinate OnRetrieveCoordinate(
             IChartContext chartContext,
-            ILayerContext layerContext, 
+            ILayerContext layerContext,
             Point position
         )
         {
+            var coordinates = chartContext.Coordinates;
+
+            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
+
+            var radius = Math.Min(areaWidth, areaHeight) / 2;
+            var centerX = chartContext.AreaWidth / 2;
+            var centerY = chartContext.AreaHeight / 2;
+
+            var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
+            var angleDelta = 360d / totalValue;
+
+            var index = 0;
+            var totalAngle = 0d;
+            foreach (var coordinate in coordinates)
+            {
+                var value = coordinate.GetValue(this);
+                var angle = Math.Round(angleDelta * value, 2);
+                var segment = Segments[index];
+
+                if (IsPointInsideSector(
+                    position,
+                    centerX, centerY,
+                    radius,
+                    totalAngle, totalAngle + angle))
+                {
+                    return coordinate;
+                }
+
+                totalAngle += angle;
+            }
             return null;
         }
 
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            if (layerContext.GetMousePosition() is Point position)
-            {
-                var coordinates = chartContext.Coordinates;
-
-                var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
-                var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
-
-                var radius = Math.Min(areaWidth, areaHeight) / 2;
-                var centerX = chartContext.AreaWidth / 2;
-                var centerY = chartContext.AreaHeight / 2;
-
-                var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-                var angleDelta = 360d / totalValue;
-
-                var index = 0;
-                var totalAngle = 0d;
-                foreach (var coordinate in coordinates)
-                {
-                    var value = coordinate.GetValue(this);
-                    var angle = Math.Round(angleDelta * value, 2);
-                    if (index >= Segments.Count)
-                    {
-                        return;
-                    }
-                    var segment = Segments[index];
-
-                    if (IsPointInsideSector(position,
-                        centerX, centerY,
-                        radius,
-                        totalAngle, totalAngle + angle))
-                    {
-                        drawingContext.DrawArc(Brushes.Gold, 2,
-                                null,
-                                centerX, centerY,
-                                radius,
-                                totalAngle, totalAngle + angle);
-                        return;
-                    }
-
-                    totalAngle += angle;
-                    index++;
-                }
-            }
-        }
-
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
             IChartContext chartContext,
             ILayerContext layerContext
         )
@@ -295,13 +282,65 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            PieSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            var areaWidth = chartContext.AreaWidth - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
+
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+
+                var radius = Math.Min(areaWidth, areaHeight) / 2;
+                var centerX = chartContext.AreaWidth / 2;
+                var centerY = chartContext.AreaHeight / 2;
+
+                var segmentInfo = series._segmentInfos.ElementAt(index);
+                var segment = segmentInfo.Key;
+                var startAngle = segmentInfo.Value.StartAngle;
+                var angle = Math.Round(segmentInfo.Value.Angle, 2);
+
+                var radians = (startAngle + angle / 2 - 90) * Math.PI / 180.0;
+                var point = new Point(
+                    centerX + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Cos(radians),
+                    centerY + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Sin(radians)
+                );
+
+                drawingContext.DrawEllipse(
+                    stroke: segment.Fill,
+                    strokeThickness: layer.HighlightToggleStrokeThickness,
+                    fill: layer.HighlightToggleFill,
+                    radiusX: progress * layer.HighlightToggleRadius,
+                    radiusY: progress * layer.HighlightToggleRadius,
+                    startX: point.X,
+                    startY: point.Y
+                );
+            }
+        }
+        #endregion
+
         #region Functions
         private bool IsPointInsideSector(Point point,
-            double centerX,
-            double centerY,
-            double radius,
-            double startAngle,
-            double endAngle)
+        double centerX,
+        double centerY,
+        double radius,
+        double startAngle,
+        double endAngle)
         {
             var distance = Math.Sqrt(Math.Pow(point.X - centerX, 2) + Math.Pow(point.Y - centerY, 2));
             var angle = Math.Atan2(point.Y - centerY, point.X - centerX) * (180 / Math.PI);

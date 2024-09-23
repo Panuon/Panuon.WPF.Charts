@@ -13,6 +13,13 @@ namespace Panuon.WPF.Charts
         private List<Point> _valuePoints;
         #endregion
 
+        #region Ctor
+        static ColumnSeries()
+        {
+            ToggleHighlightLayer.Regist<ColumnSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
 
         #region BackgroundFill
@@ -157,59 +164,8 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
             IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            foreach (var coordinateProgress in coordinatesProgress)
-            {
-                var coordinate = coordinateProgress.Key;
-                var progress = coordinateProgress.Value;
-
-                if (progress == 0)
-                {
-                    continue;
-                }
-                var point = _valuePoints[coordinate.Index];
-                Point? lastPoint = null;
-                if (coordinate.Index > 0)
-                {
-                    lastPoint = _valuePoints[coordinate.Index - 1];
-                }
-                Point? nextPoint = null;
-                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
-                {
-                    nextPoint = _valuePoints[coordinate.Index + 1];
-                }
-
-                switch (layerContext.HighlightLayer.HighlightEffect)
-                {
-                    case HighlightEffect.None:
-                        break;
-                    case HighlightEffect.ShowToggle:
-                        drawingContext.DrawEllipse(
-                            stroke: Fill,
-                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-                            fill: layerContext.HighlightLayer.HighlightToggleFill,
-                            radiusX: progress * 2,
-                            radiusY: progress * 2,
-                            startX: coordinate.Offset,
-                            startY: point.Y
-                        );
-                        break;
-                    case HighlightEffect.Outline:
-
-                        break;
-                }
-            }
-
-        }
-
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            IChartContext chartContext, 
             ILayerContext layerContext
         )
         {
@@ -224,6 +180,41 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            ColumnSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+                var point = series._valuePoints[coordinate.Index];
+
+                drawingContext.DrawEllipse(
+                    stroke: series.Fill,
+                    strokeThickness: layer.HighlightToggleStrokeThickness,
+                    fill: layer.HighlightToggleFill,
+                    radiusX: progress * layer.HighlightToggleRadius,
+                    radiusY: progress * layer.HighlightToggleRadius,
+                    startX: coordinate.Offset,
+                    startY: point.Y
+                );
+            }
+        }
         #endregion
     }
 }

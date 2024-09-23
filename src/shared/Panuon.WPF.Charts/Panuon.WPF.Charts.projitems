@@ -19,8 +19,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\LayerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToggleHighlightLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Events\SeriesHighlightHandler.cs" />
+    <Compile Include="..\shared\Panuon.WPF.Charts\Events\SeriesHighlightHandler.cs" />
     <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Layers\CrosshairLayer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\HighlightLayers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
@@ -61,7 +62,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CrosshairLineVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CartesianChartGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Enums\HighlightEffect.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\RadialChartGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPlacement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipPosition.cs" />

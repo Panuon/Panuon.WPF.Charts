@@ -7,8 +7,7 @@
       xmlns:local="clr-namespace:Samples.Views"
       mc:Ignorable="d"
       d:DesignHeight="450"
-      d:DesignWidth="800"
-      >
+      d:DesignWidth="800">
     <Grid.Resources>
         <Style x:Key="PieSeriesStyle"
                TargetType="pc:PieSeries">
@@ -20,9 +19,8 @@
                     Width="500"
                     TitleMemberPath="Title">
         <pc:RadialChart.Layers>
-            <pc:HighlightLayer AnimationEasing="BackOut"
-                               AnimationDuration="0:0:0.3"
-                               HighlightEffect="Scale" />
+            <pc:ToggleHighlightLayer AnimationEasing="BackOut"
+                                     AnimationDuration="0:0:0.3" />
         </pc:RadialChart.Layers>
         <pc:PieSeries ValueMemberPath="Value"
                       Style="{StaticResource PieSeriesStyle}">

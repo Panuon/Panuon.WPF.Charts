@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace Panuon.WPF.Charts
@@ -11,6 +10,9 @@ namespace Panuon.WPF.Charts
         : LayerBase
     {
         #region Fields
+        private static readonly Dictionary<Type, Dictionary<Type, SeriesHighlightHandler>> _highlightHandlers
+            = new Dictionary<Type, Dictionary<Type, SeriesHighlightHandler>>();
+
         private readonly Dictionary<SeriesBase, Dictionary<int, AnimationProgressObject>> _highlightProgressObjects =
             new Dictionary<SeriesBase, Dictionary<int, AnimationProgressObject>>();
 
@@ -46,17 +48,6 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty AnimationEasingProperty =
             DependencyProperty.Register("AnimationEasing", typeof(AnimationEasing), typeof(HighlightLayerBase));
-        #endregion
-
-        #region HighlightEffect
-        public HighlightEffect HighlightEffect
-        {
-            get { return (HighlightEffect)GetValue(HighlightEffectProperty); }
-            set { SetValue(HighlightEffectProperty, value); }
-        }
-
-        public static readonly DependencyProperty HighlightEffectProperty =
-            DependencyProperty.Register("HighlightEffect", typeof(HighlightEffect), typeof(HighlightLayerBase), new PropertyMetadata(HighlightEffect.Scale));
         #endregion
 
         #endregion
@@ -193,24 +184,34 @@ namespace Panuon.WPF.Charts
             _lastCoordinates.Clear();
         }
 
+
         protected override void OnRender(
             IDrawingContext drawingContext,
             IChartContext chartContext,
             ILayerContext layerContext
         )
         {
-            foreach (var seriesAnimationObjects in _highlightProgressObjects)
+            foreach (var seriesAnimationObjects in GetHighlightProgress())
             {
                 var series = seriesAnimationObjects.Key;
-                series.Highlight(
-                    drawingContext,
-                    chartContext,
-                    layerContext,
-                    seriesAnimationObjects.Value.ToDictionary(
-                        kv => chartContext.Coordinates.First(c => c.Index == kv.Key),
-                        kv => (double)kv.Value.Progress
-                    )
-                );
+
+                var layerType = GetType();
+                if (_highlightHandlers.ContainsKey(layerType))
+                {
+                    if (_highlightHandlers[GetType()].ContainsKey(series.GetType()))
+                    {
+                        var handler = _highlightHandlers[GetType()][series.GetType()];
+
+                        handler.Invoke(
+                            layer: this,
+                            series: series,
+                            drawingContext,
+                            chartContext,
+                            layerContext,
+                            seriesAnimationObjects.Value
+                        );
+                    }
+                }
             }
         }
         #endregion
@@ -225,7 +226,23 @@ namespace Panuon.WPF.Charts
                         ip => ip.Value.Progress
                     )
             );
+        }
 
+        protected static void RegistHighlightHandler<TLayer, TSeries>(SeriesHighlightHandler<TLayer, TSeries> handler)
+            where TLayer : HighlightLayerBase
+            where TSeries : SeriesBase
+        {
+            if (!_highlightHandlers.ContainsKey(typeof(TLayer)))
+            {
+                _highlightHandlers.Add(typeof(TLayer), new Dictionary<Type, SeriesHighlightHandler>());
+            }
+            var highlightHandlers = _highlightHandlers[typeof(TLayer)];
+
+            var newHandler = new SeriesHighlightHandler((layer, series, drawingContext, chartContext, layerContext, coordinatesProgress) =>
+            {
+                handler.Invoke((TLayer)layer, (TSeries)series, drawingContext, chartContext, layerContext, coordinatesProgress);
+            });
+            highlightHandlers.Add(typeof(TSeries), newHandler);
         }
         #endregion
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -12,6 +11,14 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
         private List<Point> _valuePoints;
+        #endregion
+
+        #region Ctor
+        static LineSeries()
+        {
+            ToggleHighlightLayer.Regist<LineSeries>(OnToggleHighlighting);
+            //ScaleHighlightLayer.Regist<LineSeries>(OnScaleHighlighting);
+        }
         #endregion
 
         #region Properties
@@ -266,109 +273,6 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region OnHighlighting
-        protected override void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            foreach (var coordinateProgress in coordinatesProgress)
-            {
-                var coordinate = coordinateProgress.Key;
-                var progress = coordinateProgress.Value;
-
-                if(progress == 0)
-                {
-                    continue;
-                }
-                var point = _valuePoints[coordinate.Index];
-                Point? lastPoint = null;
-                if (coordinate.Index > 0)
-                {
-                    lastPoint = _valuePoints[coordinate.Index - 1];
-                }
-                Point? nextPoint = null;
-                if (coordinate.Index < chartContext.Coordinates.Count() - 1)
-                {
-                    nextPoint = _valuePoints[coordinate.Index + 1];
-                }
-
-                switch (layerContext.HighlightLayer.HighlightEffect)
-                {
-                    case HighlightEffect.None:
-                        break;
-                    case HighlightEffect.ShowToggle:
-                        drawingContext.DrawEllipse(
-                            stroke: Stroke,
-                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-                            fill: layerContext.HighlightLayer.HighlightToggleFill,
-                            radiusX: ToggleRadius + progress * 2,
-                            radiusY: ToggleRadius + progress * 2,
-                            startX: coordinate.Offset,
-                            startY: point.Y
-                        );
-                        break;
-                    case HighlightEffect.Scale:
-                        if (lastPoint != null)
-                        {
-                            drawingContext.DrawLine(
-                                stroke: Stroke,
-                                strokeThickness: StrokeThickness + progress * 2,
-                                startX: lastPoint.Value.X,
-                                startY: lastPoint.Value.Y,
-                                endX: point.X,
-                                endY: point.Y
-                            );
-                            drawingContext.DrawEllipse(
-                                stroke: Stroke,
-                                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-                                fill: layerContext.HighlightLayer.HighlightToggleFill,
-                                radiusX: ToggleRadius,
-                                radiusY: ToggleRadius,
-                                startX: lastPoint.Value.X,
-                                startY: lastPoint.Value.Y
-                            );
-                        }
-                        if (nextPoint != null)
-                        {
-                            drawingContext.DrawLine(
-                                stroke: Stroke,
-                                strokeThickness: StrokeThickness + progress * 2,
-                                startX: point.X,
-                                startY: point.Y,
-                                endX: nextPoint.Value.X,
-                                endY: nextPoint.Value.Y
-                            );
-                            drawingContext.DrawEllipse(
-                                stroke: Stroke,
-                                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-                                fill: layerContext.HighlightLayer.HighlightToggleFill,
-                                radiusX: ToggleRadius,
-                                radiusY: ToggleRadius,
-                                startX: nextPoint.Value.X,
-                                startY: nextPoint.Value.Y
-                            );
-                        }
-                        drawingContext.DrawEllipse(
-                            stroke: Stroke,
-                            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
-                            fill: layerContext.HighlightLayer.HighlightToggleFill,
-                            radiusX: ToggleRadius + progress * 2,
-                            radiusY: ToggleRadius + progress * 2,
-                            startX: coordinate.Offset,
-                            startY: point.Y
-                        );
-                        break;
-                    case HighlightEffect.Outline:
-
-                        break;
-                }
-            }
-        }
-        #endregion
-
         #region OnRetrieveLegendEntries
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
             IChartContext chartContext,
@@ -386,6 +290,131 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            LineSeries series,
+            IDrawingContext drawingContext,
+            IChartContext chartContext,
+            ILayerContext layerContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == coordinateProgress.Key);
+                if (coordinate != null)
+                {
+
+                    var progress = coordinateProgress.Value;
+
+                    if (progress == 0)
+                    {
+                        continue;
+                    }
+                    var point = series._valuePoints[coordinate.Index];
+
+                    drawingContext.DrawEllipse(
+                        stroke: series.Stroke,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        startX: coordinate.Offset,
+                        startY: point.Y
+                    );
+                }
+            }
+        }
+
+        //public static void OnScaleHighlighting(
+        //    LayerBase layer,
+        //    SeriesBase series,
+        //    SeriesHighlightEventArgs args
+        //)
+        //{
+        //    var scaleLayer = layer as ScaleHighlightLayer;
+
+        //    var lineSeries = series as LineSeries;
+        //    var drawingContext = args.DrawingContext;
+        //    var chartContext = args.ChartContext;
+        //    var layerContext = args.LayerContext;
+        //    var coordinatesProgress = args.CoordinatesProgress;
+
+        //    foreach (var coordinateProgress in coordinatesProgress)
+        //    {
+        //        var coordinate = coordinateProgress.Key;
+        //        var progress = coordinateProgress.Value;
+
+        //        if (progress == 0)
+        //        {
+        //            continue;
+        //        }
+        //        var point = lineSeries._valuePoints[coordinate.Index];
+        //        Point? lastPoint = null;
+        //        if (coordinate.Index > 0)
+        //        {
+        //            lastPoint = lineSeries._valuePoints[coordinate.Index - 1];
+        //        }
+        //        Point? nextPoint = null;
+        //        if (coordinate.Index < chartContext.Coordinates.Count() - 1)
+        //        {
+        //            nextPoint = lineSeries._valuePoints[coordinate.Index + 1];
+        //        }
+
+        //        if (lastPoint != null)
+        //        {
+        //            drawingContext.DrawLine(
+        //                stroke: lineSeries.Stroke,
+        //                strokeThickness: lineSeries.StrokeThickness + progress * 2,
+        //                startX: lastPoint.Value.X,
+        //                startY: lastPoint.Value.Y,
+        //                endX: point.X,
+        //                endY: point.Y
+        //            );
+        //            drawingContext.DrawEllipse(
+        //                stroke: lineSeries.Stroke,
+        //                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+        //                fill: layerContext.HighlightLayer.HighlightToggleFill,
+        //                radiusX: lineSeries.ToggleRadius,
+        //                radiusY: lineSeries.ToggleRadius,
+        //                startX: lastPoint.Value.X,
+        //                startY: lastPoint.Value.Y
+        //            );
+        //        }
+        //        if (nextPoint != null)
+        //        {
+        //            drawingContext.DrawLine(
+        //                stroke: Stroke,
+        //                strokeThickness: StrokeThickness + progress * 2,
+        //                startX: point.X,
+        //                startY: point.Y,
+        //                endX: nextPoint.Value.X,
+        //                endY: nextPoint.Value.Y
+        //            );
+        //            drawingContext.DrawEllipse(
+        //                stroke: Stroke,
+        //                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
+        //                fill: layerContext.HighlightLayer.HighlightToggleFill,
+        //                radiusX: lineSeries.ToggleRadius,
+        //                radiusY: lineSeries.ToggleRadius,
+        //                startX: nextPoint.Value.X,
+        //                startY: nextPoint.Value.Y
+        //            );
+        //        }
+        //        drawingContext.DrawEllipse(
+        //            stroke: Stroke,
+        //            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
+        //            fill: layerContext.HighlightLayer.HighlightToggleFill,
+        //            radiusX: lineSeries.ToggleRadius + progress * 2,
+        //            radiusY: lineSeries.ToggleRadius + progress * 2,
+        //            startX: coordinate.Offset,
+        //            startY: point.Y
+        //        );
+        //    }
+        //}
         #endregion
 
         #region Functions

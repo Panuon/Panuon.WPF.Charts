@@ -64,21 +64,6 @@ namespace Panuon.WPF.Charts
                 position
             );
         }
-
-        public void Highlight(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
-        )
-        {
-            OnHighlighting(
-                drawingContext,
-                chartContext,
-                layerContext,
-                coordinatesProgress: coordinatesProgress
-            );
-        }
         #endregion
 
         #region Internal Methods
@@ -167,13 +152,6 @@ namespace Panuon.WPF.Charts
             IChartContext chartContext,
             ILayerContext layerContext,
             Point position
-        );
-
-        protected abstract void OnHighlighting(
-            IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            IDictionary<ICoordinate, double> coordinatesProgress
         );
 
         protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
