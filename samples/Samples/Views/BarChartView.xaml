@@ -15,8 +15,6 @@
     </Grid.Resources>
     <!--Use the SwapXYAxes property to achieve a bar chart effect-->
     <pc:CartesianChart x:Name="chart"
-                       Height="300"
-                       Width="500"
                        SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"

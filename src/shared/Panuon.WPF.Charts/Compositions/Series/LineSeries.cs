@@ -245,57 +245,63 @@ namespace Panuon.WPF.Charts
                 strokeGeometry
             );
 
+            #region Draw Toggle
             accumulatedLength = 0d;
             lastPoint = _valuePoints[0];
-            for (int i = 0; i < segmentLengths.Count; i++)
+            if (ToggleRadius > 0
+                && (ToggleFill != null || ToggleStroke != null))
             {
-                var point = _valuePoints[i + 1];
-                var segmentLength = segmentLengths[i];
-
-                if (animationProgress >= 0)
+                for (int i = 0; i < segmentLengths.Count; i++)
                 {
+                    var point = _valuePoints[i + 1];
+                    var segmentLength = segmentLengths[i];
+
+                    if (animationProgress >= 0)
+                    {
+                        drawingContext.DrawEllipse(
+                            ToggleStroke,
+                            ToggleStrokeThickness,
+                            toggleFill,
+                            ToggleRadius,
+                            ToggleRadius,
+                            _valuePoints[i].X,
+                            _valuePoints[i].Y
+                        );
+                    }
+                    if (animationProgress == 1)
+                    {
+                        drawingContext.DrawEllipse(
+                            ToggleStroke,
+                            ToggleStrokeThickness,
+                            toggleFill,
+                            ToggleRadius,
+                            ToggleRadius,
+                            _valuePoints.Last().X,
+                            _valuePoints.Last().Y
+                        );
+                    }
+
+                    if (accumulatedLength + segmentLength >= targetLength)
+                    {
+                        break;
+                    }
+
+                    //last Ellipse
                     drawingContext.DrawEllipse(
                         ToggleStroke,
                         ToggleStrokeThickness,
                         toggleFill,
                         ToggleRadius,
                         ToggleRadius,
-                        _valuePoints[i].X,
-                        _valuePoints[i].Y
+                        point.X,
+                        point.Y
                     );
-                }
-                if (animationProgress == 1)
-                {
-                    drawingContext.DrawEllipse(
-                        ToggleStroke,
-                        ToggleStrokeThickness,
-                        toggleFill,
-                        ToggleRadius,
-                        ToggleRadius,
-                        _valuePoints.Last().X,
-                        _valuePoints.Last().Y
-                    );
-                }
 
-                if (accumulatedLength + segmentLength >= targetLength)
-                {
-                    break;
+                    lastPoint = point;
+                    accumulatedLength += segmentLength;
                 }
-
-                //last Ellipse
-                drawingContext.DrawEllipse(
-                    ToggleStroke,
-                    ToggleStrokeThickness,
-                    toggleFill,
-                    ToggleRadius,
-                    ToggleRadius,
-                    point.X,
-                    point.Y
-                );
-
-                lastPoint = point;
-                accumulatedLength += segmentLength;
             }
+            #endregion
         }
         #endregion
 
@@ -341,7 +347,7 @@ namespace Panuon.WPF.Charts
                 if (!chartContext.SwapXYAxes)
                 {
                     drawingContext.DrawEllipse(
-                        stroke: series.ToggleStroke ?? series.Fill,
+                        stroke: series.Stroke ?? series.ToggleStroke,
                         strokeThickness: layer.HighlightToggleStrokeThickness,
                         fill: layer.HighlightToggleFill,
                         radiusX: progress * layer.HighlightToggleRadius,
@@ -353,7 +359,7 @@ namespace Panuon.WPF.Charts
                 else
                 {
                     drawingContext.DrawEllipse(
-                        stroke: series.ToggleStroke ?? series.Fill,
+                        stroke: series.Stroke ?? series.ToggleStroke,
                         strokeThickness: layer.HighlightToggleStrokeThickness,
                         fill: layer.HighlightToggleFill,
                         radiusX: progress * layer.HighlightToggleRadius,

@@ -15,8 +15,6 @@
         </Style>
     </Grid.Resources>
     <pc:RadialChart x:Name="chart"
-                    Height="300"
-                    Width="500"
                     LabelMemberPath="Label"
                     AnimationEasing="CubicOut"
                     AnimationDuration="0:0:2">

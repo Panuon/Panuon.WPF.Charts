@@ -6,14 +6,17 @@
         xmlns:local="clr-namespace:Samples"
         xmlns:pw="https://opensource.panuon.com/wpf"
         xmlns:pc="https://opensource.panuon.com/wpf-charts"
+        xmlns:v="clr-namespace:Samples.Views"
         mc:Ignorable="d"
         Title="Panauon.WPF.Charts"
         Height="750"
         Width="1300"
+        MinHeight="400"
+        MinWidth="600"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded">
     <Grid>
-        <Grid Margin="35,35,35,35">
+        <Grid Margin="35,0,35,35">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -24,49 +27,52 @@
                            FontSize="30" />
                 <ScrollViewer Grid.Row="1"
                               Margin="0,15,0,0"
-                              VerticalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Visible"
                               HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl x:Name="LsbExamples"
-                                  VerticalAlignment="Top">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Columns="3" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Margin="0,0,10,10"
-                                        BorderThickness="0"
-                                        Background="Transparent"
-                                        Width="{Binding ActualHeight, Converter={x:Static pw:Converters.DoublePlusConverter}, ConverterParameter=100, RelativeSource={RelativeSource Self}, Mode=OneWay}"
-                                        Padding="5">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-                                        <Viewbox HorizontalAlignment="Center">
-                                            <ContentControl Content="{Binding PreviewView}" />
-                                        </Viewbox>
-                                        <TextBlock Grid.Row="1"
-                                                   Margin="0,5,0,0"
-                                                   FontWeight="Bold"
-                                                   Text="{Binding DisplayName}"
-                                                   VerticalAlignment="Center" />
-                                        <TextBlock Grid.Row="2"
-                                                   Margin="0,5,0,0"
-                                                   Foreground="DimGray"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Text="{Binding ViewPath}"
-                                                   VerticalAlignment="Center" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <StackPanel>
+                        <v:LineChartView Height="200" 
+                                         Margin="0, 15, 0, 0"/>
+                        <ItemsControl x:Name="LsbExamples"
+                                      VerticalAlignment="Top"
+                                      Margin="0, 15, 0, 0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="3" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,10,10"
+                                            BorderThickness="0"
+                                            Height="{Binding ActualWidth, Converter={x:Static pw:Converters.DoubleMultiplyByConverter}, ConverterParameter=0.7, RelativeSource={RelativeSource Self}, Mode=OneWay}"
+                                            Padding="5">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <ContentPresenter Content="{Binding PreviewView}" />
+                                            <TextBlock Grid.Row="1"
+                                                       Margin="0,5,0,0"
+                                                       FontWeight="Bold"
+                                                       Text="{Binding DisplayName}"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="2"
+                                                       Margin="0,5,0,0"
+                                                       Foreground="DimGray"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Text="{Binding ViewPath}"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
             </Grid>
+
         </Grid>
     </Grid>
 </Window>

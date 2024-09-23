@@ -126,22 +126,22 @@ namespace Panuon.WPF.Charts
                     if (!currentCoordinates.Contains(coordinateObject.Key))
                     {
                         var oldObject = coordinateObject.Value;
-                        if (AnimationDuration is TimeSpan duration
-                            && duration.TotalMilliseconds > 0)
-                        {
-                            var animation = new DoubleAnimation()
-                            {
-                                To = 0,
-                                Duration = duration,
-                                EasingFunction = AnimationUtil.CreateEasingFunction(AnimationEasing)
-                            };
-                            oldObject.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
-                        }
-                        else
-                        {
-                            oldObject.BeginAnimation(AnimationProgressObject.ProgressProperty, null);
-                            oldObject.Progress = 0;
-                        }
+                        //if (AnimationDuration is TimeSpan duration
+                        //    && duration.TotalMilliseconds > 0)
+                        //{
+                        //    var animation = new DoubleAnimation()
+                        //    {
+                        //        To = 0,
+                        //        Duration = duration,
+                        //        EasingFunction = AnimationUtil.CreateEasingFunction(AnimationEasing)
+                        //    };
+                        //    oldObject.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
+                        //}
+                        //else
+                        //{
+                        oldObject.BeginAnimation(AnimationProgressObject.ProgressProperty, null);
+                        oldObject.Progress = 0;
+                        //}
                     }
                     else
                     {

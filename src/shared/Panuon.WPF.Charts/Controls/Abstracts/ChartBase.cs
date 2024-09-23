@@ -209,6 +209,12 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Event Handlers
+        protected static void OnAffectsSchemaPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chart = (ChartBase)d;
+            chart.Rerender();
+        }
+
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var chart = (ChartBase)d;

@@ -78,7 +78,11 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SwapXYAxesProperty =
-            DependencyProperty.Register("SwapXYAxes", typeof(bool), typeof(CartesianChart), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("SwapXYAxes", typeof(bool), typeof(CartesianChart), new FrameworkPropertyMetadata(
+                false,
+                FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsRender,
+                OnAffectsSchemaPropertyChanged
+            ));
         #endregion
 
         #region Series
@@ -181,7 +185,7 @@ namespace Panuon.WPF.Charts
                         var labelValue = labelProperty.GetValue(loopItem);
                         label = labelValue is string
                             ? (string)labelValue
-                            : labelValue.ToString();
+                            : labelValue?.ToString();
                     }
 
                     var values = new Dictionary<IChartArgument, double>();

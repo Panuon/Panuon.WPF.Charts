@@ -78,6 +78,11 @@ namespace Samples
                 new { Title = "正在分检", Value = 20 }
             };
         }
+
+        private void DataCountComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 
     class MainViewModel

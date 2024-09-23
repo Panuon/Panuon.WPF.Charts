@@ -9,7 +9,7 @@ using System.Windows.Media.Animation;
 namespace Panuon.WPF.Charts
 {
     public abstract class SeriesBase
-        : FrameworkElement, IChartArgument
+        : ChartElementBase, IChartArgument
     {
         #region Fields
         private ChartBase _chart;
@@ -24,6 +24,7 @@ namespace Panuon.WPF.Charts
         public SeriesBase()
         {
             Loaded += SeriesBase_Loaded;
+            CacheMode = new BitmapCache();
         }
         #endregion
 

@@ -26,8 +26,8 @@ namespace Panuon.WPF.Charts.Implements
         {
             var coordinates = Coordinates;
 
-            var areaWidth = AreaWidth - (Chart.LabelSpacing + Chart.FontSize) * 2;
-            var areaHeight = AreaHeight - (Chart.LabelSpacing + Chart.FontSize) * 2;
+            var areaWidth = Math.Max(0, AreaWidth - (Chart.LabelSpacing + Chart.FontSize) * 2);
+            var areaHeight = Math.Max(0, AreaHeight - (Chart.LabelSpacing + Chart.FontSize) * 2);
 
             var radius = Math.Min(areaWidth, areaHeight) / 2;
             var centerX = AreaWidth / 2;

@@ -13,75 +13,69 @@
                TargetType="pc:LineSeries">
             <Setter Property="StrokeThickness"
                     Value="2" />
-            <Setter Property="ToggleRadius"
-                    Value="4" />
-            <Setter Property="ToggleStrokeThickness"
-                    Value="2" />
-            <Setter Property="ToggleFill"
-                    Value="White" />
         </Style>
     </Grid.Resources>
     <pc:CartesianChart x:Name="chart"
-                       Height="300"
-                       Width="500"
-                       SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
                        AnimationEasing="CubicOut"
                        AnimationDuration="0:0:2">
+        <pc:CartesianChart.Layers>
+            <pc:CrosshairLayer LineVisibility="Vertical" />
+            <pc:ToggleHighlightLayer AnimationEasing="BackOut"
+                                     AnimationDuration="0:0:0.3" />
+        </pc:CartesianChart.Layers>
         <pc:CartesianChart.XAxis>
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
         <pc:CartesianChart.YAxis>
             <pc:YAxis MaxValue="100"
-                      StrokeThickness="2" />
+                      StrokeThickness="2"
+                      MinValue="0" />
         </pc:CartesianChart.YAxis>
-        <pc:CartesianChart.Layers>
-            <pc:CrosshairLayer LineVisibility="Horizontal" />
-            <pc:ToggleHighlightLayer AnimationEasing="BackOut"
-                                     AnimationDuration="0:0:0.3" />
-        </pc:CartesianChart.Layers>
-        <pc:LineSeries ValueMemberPath="Value1"
+        <pc:LineSeries x:Name="lineSeries1"
+                       ValueMemberPath="Value1"
                        Stroke="#91C653"
-                       ToggleStroke="#91C653"
-                       Style="{StaticResource LineSeriesStyle}">
-            <pc:LineSeries.Fill>
-                <LinearGradientBrush StartPoint="0.5,0"
-                                     EndPoint="0.5,1">
-                    <GradientStop Color="#9A91C653"
-                                  Offset="0" />
-                    <GradientStop Color="#1A91C653"
-                                  Offset="1" />
-                </LinearGradientBrush>
-            </pc:LineSeries.Fill>
-        </pc:LineSeries>
-        <pc:LineSeries ValueMemberPath="Value2"
+                       Style="{StaticResource LineSeriesStyle}" />
+        <pc:LineSeries x:Name="lineSeries2"
+                       ValueMemberPath="Value2"
                        Stroke="#e5115f"
-                       ToggleStroke="#e5115f"
-                       Style="{StaticResource LineSeriesStyle}">
-            <pc:LineSeries.Fill>
-                <LinearGradientBrush StartPoint="0.5,0"
-                                     EndPoint="0.5,1">
-                    <GradientStop Color="#9Ae5115f"
-                                  Offset="0" />
-                    <GradientStop Color="#1Ae5115f"
-                                  Offset="1" />
-                </LinearGradientBrush>
-            </pc:LineSeries.Fill>
-        </pc:LineSeries>
-        <pc:LineSeries ValueMemberPath="Value3"
+                       Style="{StaticResource LineSeriesStyle}" />
+        <pc:LineSeries x:Name="lineSeries3"
+                       ValueMemberPath="Value3"
                        Stroke="#08bfd8"
-                       ToggleStroke="#08bfd8"
-                       Style="{StaticResource LineSeriesStyle}">
-            <pc:LineSeries.Fill>
-                <LinearGradientBrush StartPoint="0.5,0"
-                                     EndPoint="0.5,1">
-                    <GradientStop Color="#9A08bfd8"
-                                  Offset="0" />
-                    <GradientStop Color="#1A08bfd8"
-                                  Offset="1" />
-                </LinearGradientBrush>
-            </pc:LineSeries.Fill>
-        </pc:LineSeries>
+                       Style="{StaticResource LineSeriesStyle}" />
     </pc:CartesianChart>
+
+    <TextBlock HorizontalAlignment="Right"
+               VerticalAlignment="Top"
+               TextWrapping="Wrap"
+               MaxWidth="400"
+               Opacity="0.5"
+               FontWeight="Bold">
+        <Run Foreground="Red">*</Run>
+        <Run>Panuon.WPF.Charts has not yet provided a data simplification algorithm; all the data points are rendered as-is.</Run>
+        <LineBreak />
+        <Run x:Name="RunQuality"
+             Foreground="OrangeRed"></Run>
+    </TextBlock>
+    
+    <StackPanel Orientation="Horizontal"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Margin="50,0">
+        <ComboBox x:Name="DataCountComboBox"
+                  Height="25"
+                  SelectionChanged="DataCountComboBox_SelectionChanged">
+            <ComboBoxItem Content="25" />
+            <ComboBoxItem Content="50" />
+            <ComboBoxItem Content="100"
+                          IsSelected="True" />
+            <ComboBoxItem Content="1000" />
+            <ComboBoxItem Content="5000" />
+            <ComboBoxItem Content="10000" />
+            <ComboBoxItem Content="50000" />
+            <ComboBoxItem Content="100000" />
+        </ComboBox>
+    </StackPanel>
 </Grid>
