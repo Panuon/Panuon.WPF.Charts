@@ -19,7 +19,7 @@
                        Width="500"
                        SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
-                       TitleMemberPath="Title"
+                       LabelMemberPath="Label"
                        GridLinesVisibility="Vertical"
                        AnimationEasing="CubicOut"
                        AnimationDuration="0:0:2">

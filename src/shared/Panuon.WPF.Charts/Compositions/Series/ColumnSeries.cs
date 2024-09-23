@@ -222,7 +222,7 @@ namespace Panuon.WPF.Charts
 
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
-                yield return new SeriesLegendEntry(Fill, Title ?? coordinate.Title, value.ToString());
+                yield return new SeriesLegendEntry(Fill, Label ?? coordinate.Label, value.ToString());
             }
         }
         #endregion

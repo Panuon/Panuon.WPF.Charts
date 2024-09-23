@@ -73,19 +73,19 @@ namespace Panuon.WPF.Charts
                 {
                     var loopItem = item;
                     var itemType = loopItem.GetType();
-                    string title = null;
-                    if (!string.IsNullOrEmpty(TitleMemberPath))
+                    string label = null;
+                    if (!string.IsNullOrEmpty(LabelMemberPath))
                     {
-                        var titleProperty = itemType.GetProperty(TitleMemberPath);
-                        if (titleProperty == null)
+                        var labelProperty = itemType.GetProperty(LabelMemberPath);
+                        if (labelProperty == null)
                         {
-                            throw new InvalidOperationException($"Property {TitleMemberPath} does not exists.");
+                            throw new InvalidOperationException($"Property {LabelMemberPath} does not exists.");
                         }
 
-                        var titleValue = titleProperty.GetValue(loopItem);
-                        title = titleValue is string
-                            ? (string)titleValue
-                            : titleValue.ToString();
+                        var labelValue = labelProperty.GetValue(loopItem);
+                        label = labelValue is string
+                            ? (string)labelValue
+                            : labelValue.ToString();
                     }
 
                     var values = new Dictionary<IChartArgument, double>();
@@ -126,7 +126,7 @@ namespace Panuon.WPF.Charts
 
                     coordinates.Add(new RadialCoordinateImpl()
                     {
-                        Title = title,
+                        Label = label,
                         Values = values,
                         Index = index,
                         Angles = new Dictionary<IChartArgument, (double, double)>(),

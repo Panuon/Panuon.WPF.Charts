@@ -17,7 +17,7 @@ namespace Panuon.WPF.Charts
 
             public double Angle { get; set; }
 
-            public FormattedText Title { get; set; }
+            public FormattedText Label { get; set; }
         }
         #endregion
 
@@ -66,19 +66,19 @@ namespace Panuon.WPF.Charts
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
-                    title: segment.Title ?? coordinate.Title
+                    label: segment.Label ?? coordinate.Label
                 );
                 GeneratingTitle?.Invoke(this, generatingTitleArgs);
 
-                var title = generatingTitleArgs.Title;
+                var label = generatingTitleArgs.Label;
                 _segmentInfos[segment] = new PieSeriesSegmentInfo()
                 {
                     StartAngle = startAngle,
                     Angle = angle,
-                    Title = title == null
+                    Label = label == null
                         ? null
                         : new FormattedText(
-                            generatingTitleArgs.Title,
+                            generatingTitleArgs.Label,
                             CultureInfo.CurrentCulture,
                             FlowDirection.LeftToRight,
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
@@ -140,7 +140,7 @@ namespace Panuon.WPF.Charts
                 var startAngle = segmentInfo.Value.StartAngle * animationProgress;
                 var angle = Math.Round(segmentInfo.Value.Angle, 2) * animationProgress;
 
-                var formattedText = segmentInfo.Value.Title;
+                var formattedText = segmentInfo.Value.Label;
 
                 if (formattedText == null)
                 {
@@ -215,7 +215,7 @@ namespace Panuon.WPF.Charts
                         radius,
                         totalAngle, totalAngle + angle))
                     {
-                        yield return new SeriesLegendEntry(segment.Fill, segment.Title ?? coordinate.Title, value.ToString());
+                        yield return new SeriesLegendEntry(segment.Fill, segment.Label ?? coordinate.Label, value.ToString());
                     }
 
                     totalAngle += angle;

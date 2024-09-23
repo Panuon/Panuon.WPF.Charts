@@ -26,7 +26,7 @@
                        Width="500"
                        SwapXYAxes="True"
                        GridLinesBrush="#EAEAEA"
-                       TitleMemberPath="Title"
+                       LabelMemberPath="Label"
                        AnimationEasing="CubicOut"
                        AnimationDuration="0:0:2">
         <pc:CartesianChart.XAxis>

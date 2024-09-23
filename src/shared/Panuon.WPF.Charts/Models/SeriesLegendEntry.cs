@@ -6,24 +6,24 @@ namespace Panuon.WPF.Charts
     {
         public SeriesLegendEntry(
             Brush brush,
-            string title
+            string label
         )
         {
             Brush = brush;
-            Title = title;
+            Label = label;
         }
 
         public SeriesLegendEntry(
             Brush highlightBrush,
-            string title,
+            string label,
             string value
         )
-            : this(highlightBrush, title)
+            : this(highlightBrush, label)
         {
             Value = value;
         }
 
-        public string Title { get; set; }
+        public string Label { get; set; }
 
         public string Value { get; set; }
 

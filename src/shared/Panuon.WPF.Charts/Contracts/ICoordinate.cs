@@ -2,7 +2,7 @@
 {
     public interface ICoordinate
     {
-        string Title { get; }
+        string Label { get; }
 
         int Index { get; }
 

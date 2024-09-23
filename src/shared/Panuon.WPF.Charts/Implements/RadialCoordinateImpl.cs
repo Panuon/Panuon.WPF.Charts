@@ -6,7 +6,7 @@ namespace Panuon.WPF.Charts.Implements
         : IRadialCoordinate
     {
         #region Properties
-        public string Title { get; set; }
+        public string Label { get; set; }
 
         public int Index { get; set; }
 

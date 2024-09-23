@@ -28,11 +28,11 @@ namespace Panuon.WPF.Charts
             {
                 foreach (var coordinate in _chart.Coordinates)
                 {
-                    if (coordinate.Title == null)
+                    if (coordinate.Label == null)
                     {
                         continue;
                     }
-                    var formattedText = new FormattedText(coordinate.Title,
+                    var formattedText = new FormattedText(coordinate.Label,
                         System.Globalization.CultureInfo.CurrentCulture,
                         FlowDirection.LeftToRight,
                         new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),

@@ -53,15 +53,15 @@ namespace Panuon.WPF.Charts
                 null));
         #endregion
 
-        #region TitleMemberPath
-        public string TitleMemberPath
+        #region LabelMemberPath
+        public string LabelMemberPath
         {
             get { return (string)GetValue(TitleMemberPathProperty); }
             set { SetValue(TitleMemberPathProperty, value); }
         }
 
         public static readonly DependencyProperty TitleMemberPathProperty =
-            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(ChartBase));
+            DependencyProperty.Register("LabelMemberPath", typeof(string), typeof(ChartBase));
         #endregion
 
         #region Layers

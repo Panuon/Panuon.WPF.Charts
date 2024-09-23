@@ -8,18 +8,18 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public GeneratingTitleEventArgs(
             double value,
-            string title
+            string label
         )
         {
             Value = value;
-            Title = title;
+            Label = label;
         }
         #endregion
 
         #region Properties
         public double Value { get; }
 
-        public string Title { get; set; }
+        public string Label { get; set; }
         #endregion
     }
 }

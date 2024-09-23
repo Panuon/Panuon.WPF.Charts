@@ -3,7 +3,7 @@
     public interface IChartValueProvider
         : IChartArgument
     {
-        string Title { get; set; }
+        string Label { get; set; }
 
         string ValueMemberPath { get; set; }
     }

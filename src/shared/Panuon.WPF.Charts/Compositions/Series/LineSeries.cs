@@ -310,7 +310,7 @@ namespace Panuon.WPF.Charts
 
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
-                yield return new SeriesLegendEntry(Stroke, Title ?? coordinate.Title, value.ToString());
+                yield return new SeriesLegendEntry(Stroke, Label ?? coordinate.Label, value.ToString());
             }
         }
         #endregion

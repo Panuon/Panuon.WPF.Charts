@@ -17,7 +17,7 @@
     <pc:RadialChart x:Name="chart"
                     Height="300"
                     Width="500"
-                    TitleMemberPath="Title"
+                    LabelMemberPath="Label"
                     AnimationEasing="CubicOut"
                     AnimationDuration="0:0:2">
         <pc:RadialChart.Layers>

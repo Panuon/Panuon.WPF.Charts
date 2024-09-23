@@ -158,7 +158,7 @@ namespace Panuon.WPF.Charts
                     var value = coordinate.GetValue(segment);
                     var offsetY = chartContext.GetOffsetY(value);
 
-                    yield return new SeriesLegendEntry(segment.Fill, segment.Title ?? coordinate.Title, value.ToString());
+                    yield return new SeriesLegendEntry(segment.Fill, segment.Label ?? coordinate.Label, value.ToString());
                 }
             }
         }

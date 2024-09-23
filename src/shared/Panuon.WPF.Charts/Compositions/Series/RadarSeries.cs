@@ -18,7 +18,7 @@ namespace Panuon.WPF.Charts
 
             public double Percent { get; set; }
 
-            public FormattedText Title { get; set; }
+            public FormattedText Label { get; set; }
         }
         #endregion
 
@@ -231,7 +231,7 @@ namespace Panuon.WPF.Charts
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
-                    title: segment.Title ?? coordinate.Title
+                    label: segment.Label ?? coordinate.Label
                 );
                 GeneratingTitle?.Invoke(this, generatingTitleArgs);
 
@@ -249,10 +249,10 @@ namespace Panuon.WPF.Charts
                 {
                     Percent = (actualMaxValue - value) / (actualMaxValue - actualMinValue),
                     Angle = startAngle,
-                    Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
+                    Label = string.IsNullOrEmpty(generatingTitleArgs.Label)
                         ? null
                         : new FormattedText(
-                            generatingTitleArgs.Title,
+                            generatingTitleArgs.Label,
                             CultureInfo.CurrentCulture,
                             FlowDirection.LeftToRight,
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
@@ -410,7 +410,7 @@ namespace Panuon.WPF.Charts
                 foreach (var segmentInfo in _segmentInfos)
                 {
                     var segment = segmentInfo.Key;
-                    var formattedText = segmentInfo.Value.Title;
+                    var formattedText = segmentInfo.Value.Label;
                     var angle = segmentInfo.Value.Angle;
                     var radian = (angle - 90) * Math.PI / 180.0;
                     var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, angle + 90);

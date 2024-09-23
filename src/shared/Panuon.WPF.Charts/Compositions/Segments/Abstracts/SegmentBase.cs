@@ -12,15 +12,15 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region Title
-        public string Title
+        #region Label
+        public string Label
         {
             get { return (string)GetValue(TitleProperty); }
             set { SetValue(TitleProperty, value); }
         }
 
         public static readonly DependencyProperty TitleProperty =
-            DependencyProperty.Register("Title", typeof(string), typeof(SegmentBase), new PropertyMetadata(null));
+            DependencyProperty.Register("Label", typeof(string), typeof(SegmentBase), new PropertyMetadata(null));
         #endregion
 
         #endregion

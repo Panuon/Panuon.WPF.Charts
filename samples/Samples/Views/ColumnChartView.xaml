@@ -17,7 +17,7 @@
                        Height="300"
                        Width="500"
                        GridLinesBrush="#EAEAEA"
-                       TitleMemberPath="Title"
+                       LabelMemberPath="Label"
                        GridLinesVisibility="Horizontal"
                        AnimationEasing="CubicOut"
                        AnimationDuration="0:0:2">

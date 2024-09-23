@@ -13,11 +13,11 @@ namespace Samples.Views
 
             var itemsSource = new object[]
             {
-                new { Title = "Data 1", Value = 5 },
-                new { Title = "Data 2", Value = 9 },
-                new { Title = "Data 3", Value = 2 },
-                new { Title = "Data 4", Value = 8 },
-                new { Title = "Data 5", Value = 9 },
+                new { Label = "Data 1", Value = 5 },
+                new { Label = "Data 2", Value = 9 },
+                new { Label = "Data 3", Value = 2 },
+                new { Label = "Data 4", Value = 8 },
+                new { Label = "Data 5", Value = 9 },
             };
 
             chart.ItemsSource = itemsSource;
