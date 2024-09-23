@@ -60,6 +60,11 @@ namespace Panuon.WPF.Charts
             var currentCoordinates = new List<int>();
             foreach (var series in chartContext.Series)
             {
+                if (!series._isAnimationCompleted)
+                {
+                    continue;
+                }
+
                 if (!_highlightProgressObjects.ContainsKey(series))
                 {
                     _highlightProgressObjects.Add(series, new Dictionary<int, AnimationProgressObject>());

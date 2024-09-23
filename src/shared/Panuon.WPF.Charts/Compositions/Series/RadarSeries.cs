@@ -217,8 +217,6 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
 
             var index = 0;
-            var totalAngle = 0d;
-            var angleOffset = 360d / Segments.Count;
             foreach (var coordinate in coordinates)
             {
                 if (index >= Segments.Count)
@@ -227,7 +225,8 @@ namespace Panuon.WPF.Charts
                 }
                 var segment = Segments[index];
                 var value = coordinate.GetValue(this);
-                var angle = index * angleOffset;
+                var startAngle = coordinate.StartAngle;
+                var angle = coordinate.Angle;
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
@@ -238,7 +237,7 @@ namespace Panuon.WPF.Charts
                 _segmentInfos[segment] = new RadarSeriesSegmentInfo()
                 {
                     Percent = value / Maximum,
-                    Angle = angle,
+                    Angle = startAngle + angle / 2,
                     Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
                         ? null
                         : new FormattedText(
@@ -257,8 +256,6 @@ namespace Panuon.WPF.Charts
                             TextAlignment = TextAlignment.Center
                         }
                 };
-
-                totalAngle += angle;
                 index++;
             }
         }

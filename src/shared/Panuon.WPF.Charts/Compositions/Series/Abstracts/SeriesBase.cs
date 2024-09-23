@@ -9,12 +9,12 @@ using System.Windows.Media.Animation;
 namespace Panuon.WPF.Charts
 {
     public abstract class SeriesBase
-        : FrameworkElement
+        : FrameworkElement, IChartArgument
     {
         #region Fields
         private ChartBase _chart;
 
-        private bool _isAnimationCompleted;
+        internal bool _isAnimationCompleted;
 
         private bool _isAnimationBeginCalled = false;
 

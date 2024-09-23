@@ -184,7 +184,7 @@ namespace Panuon.WPF.Charts
                             : titleValue.ToString();
                     }
 
-                    var values = new Dictionary<IChartValueProvider, double>();
+                    var values = new Dictionary<IChartArgument, double>();
                     foreach (CartesianSeriesBase series in GetSeries())
                     {
                         if (series is IChartValueProvider valueProvider)

@@ -6,7 +6,7 @@
 
         int Index { get; }
 
-        double GetValue(IChartValueProvider seriesOrSegment);
+        double GetValue(IChartArgument seriesOrSegment);
 
         double OffsetX { get; }
     }

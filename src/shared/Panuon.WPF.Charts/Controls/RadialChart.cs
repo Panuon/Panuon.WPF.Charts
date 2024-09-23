@@ -55,9 +55,7 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Internal Properties
-
         internal List<RadialCoordinateImpl> Coordinates { get; private set; }
-
         #endregion
 
         #region Overrides
@@ -71,7 +69,6 @@ namespace Panuon.WPF.Charts
             if (ItemsSource != null)
             {
                 var index = 0;
-                var startAngle = 0d;
                 foreach (var item in ItemsSource)
                 {
                     var loopItem = item;
@@ -91,7 +88,8 @@ namespace Panuon.WPF.Charts
                             : titleValue.ToString();
                     }
 
-                    var values = new Dictionary<IChartValueProvider, double>();
+                    var values = new Dictionary<IChartArgument, double>();
+
                     foreach (RadialSeriesBase series in GetSeries())
                     {
                         if (series is IChartValueProvider valueProvider)
@@ -131,8 +129,29 @@ namespace Panuon.WPF.Charts
                         Title = title,
                         Values = values,
                         Index = index,
+                        Angles = new Dictionary<IChartArgument, (double, double)>(),
                     });
                     index++;
+                }
+
+                var totalValue = coordinates.SelectMany(c => c.Values.Select(v => v.Value)).Sum();
+                if (totalValue > 0)
+                {
+                    var angleDelta = 360d / totalValue;
+                    var startAngle = 0d;
+                    foreach (var coordinate in coordinates)
+                    {
+                        var argumentAngle = 0d;
+                        foreach (var value in coordinate.Values)
+                        {
+                            var angle = value.Value * angleDelta;
+                            coordinate.Angles.Add(value.Key, (startAngle + argumentAngle, angle));
+                            argumentAngle += angle;
+                        }
+                        coordinate.StartAngle = startAngle;
+                        coordinate.Angle = argumentAngle;
+                        startAngle += argumentAngle;
+                    }
                 }
             }
 

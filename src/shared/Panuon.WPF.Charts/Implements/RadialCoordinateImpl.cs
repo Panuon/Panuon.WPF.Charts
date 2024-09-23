@@ -15,11 +15,19 @@ namespace Panuon.WPF.Charts.Implements
         public double StartAngle { get; set; }
 
         public double Angle { get; set; }
-
-        internal Dictionary<IChartValueProvider, double> Values { get; set; }
         #endregion
 
-        public double GetValue(IChartValueProvider seriesOrSegment)
+        #region Internal Properties
+        internal Dictionary<IChartArgument, (double, double)> Angles { get; set; }
+
+        internal Dictionary<IChartArgument, double> Values { get; set; }
+        #endregion
+        public (double, double) GetAngle(IChartArgument seriesOrSegment)
+        {
+            return Angles[seriesOrSegment];
+        }
+
+        public double GetValue(IChartArgument seriesOrSegment)
         {
             return Values[seriesOrSegment];
         }

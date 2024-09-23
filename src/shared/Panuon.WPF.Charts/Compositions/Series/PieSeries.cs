@@ -52,20 +52,17 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-            var angleDelta = 360d / totalValue;
-
             var index = 0;
-            var totalAngle = 0d;
             foreach (var coordinate in coordinates)
             {
-                var value = coordinate.GetValue(this);
-                var angle = Math.Round(angleDelta * value, 2);
                 if (index >= Segments.Count)
                 {
                     break;
                 }
                 var segment = Segments[index];
+                var value = coordinate.GetValue(this);
+                var startAngle = coordinate.StartAngle;
+                var angle = coordinate.Angle;
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
@@ -76,7 +73,7 @@ namespace Panuon.WPF.Charts
                 var title = generatingTitleArgs.Title;
                 _segmentInfos[segment] = new PieSeriesSegmentInfo()
                 {
-                    StartAngle = totalAngle,
+                    StartAngle = startAngle,
                     Angle = angle,
                     Title = title == null
                         ? null
@@ -96,8 +93,6 @@ namespace Panuon.WPF.Charts
                             TextAlignment = TextAlignment.Center
                         }
                 };
-
-                totalAngle += angle;
                 index++;
             }
         }

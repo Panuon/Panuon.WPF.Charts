@@ -20,6 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToggleHighlightLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartArgument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialChartContext.cs" />

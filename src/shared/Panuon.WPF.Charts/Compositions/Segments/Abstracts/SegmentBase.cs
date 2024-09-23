@@ -4,7 +4,7 @@ using System.Windows;
 namespace Panuon.WPF.Charts
 {
     public abstract class SegmentBase
-        : DependencyObject
+        : DependencyObject, IChartArgument
     {
         #region Events
         internal event EventHandler InvalidRender;

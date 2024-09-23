@@ -9,7 +9,8 @@
         mc:Ignorable="d"
         Title="Panauon.WPF.Charts"
         Height="750"
-        Width="1200">
+        Width="1200"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid Margin="35,35,35,35">
             <Grid>

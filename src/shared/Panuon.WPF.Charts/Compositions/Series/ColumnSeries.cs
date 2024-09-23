@@ -190,6 +190,7 @@ namespace Panuon.WPF.Charts
             IDictionary<int, double> coordinatesProgress
         )
         {
+           
             foreach (var coordinateProgress in coordinatesProgress)
             {
                 var index = coordinateProgress.Key;

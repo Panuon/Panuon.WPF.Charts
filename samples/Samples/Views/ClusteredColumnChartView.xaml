@@ -19,7 +19,9 @@
                        Width="500"
                        TitleMemberPath="Title"
                        GridLinesBrush="#EAEAEA"
-                       GridLinesVisibility="Horizontal">
+                       GridLinesVisibility="Horizontal"
+                       AnimationEasing="CubicOut"
+                       AnimationDuration="0:0:2">
         <pc:CartesianChart.XAxis>
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
