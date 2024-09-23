@@ -75,7 +75,7 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
             foreach (var coordinate in coordinates)
             {
-                var offsetX = coordinate.Offset;
+                var offsetX = coordinate.OffsetX;
 
                 var left = offsetX - clusterWidth / 2 + columnWidth / 2;
                 foreach (var segment in Segments)
@@ -146,13 +146,12 @@ namespace Panuon.WPF.Charts
 
         #region OnHighlighting
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            ICartesianChartContext chartContext,
-            ILayerContext layerContext
+            ICartesianChartContext chartContext
         )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
+                var coordinate = chartContext.RetrieveCoordinate(position);
 
                 foreach (var segment in Segments)
                 {
@@ -173,7 +172,6 @@ namespace Panuon.WPF.Charts
             ClusteredColumnSeries series,
             IDrawingContext drawingContext,
             ICartesianChartContext chartContext,
-            ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )
         {
@@ -188,7 +186,7 @@ namespace Panuon.WPF.Charts
                     continue;
                 }
 
-                var offsetX = coordinate.Offset;
+                var offsetX = coordinate.OffsetX;
 
                 var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
                 var clusterWidth = GridLengthUtil.GetActualValue(series.ColumnWidth, deltaX);

@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -45,23 +44,23 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        protected override void OnMouseIn(IChartContext chartContext, ILayerContext layerContext)
+        protected override void OnMouseIn(IChartContext chartContext)
         {
             InvalidateVisual();
         }
 
-        protected override void OnMouseOut(IChartContext chartContext, ILayerContext layerContext)
+        protected override void OnMouseOut(IChartContext chartContext)
         {
             InvalidateVisual();
         }
 
-        protected override void OnRender(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext)
+        protected override void OnRender(
+            IDrawingContext drawingContext,
+            IChartContext chartContext)
         {
-            if (layerContext.GetMousePosition() is Point mousePosition)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
             {
-                var coordinate = layerContext.GetCoordinate(mousePosition.X);
+                var coordinate = chartContext.RetrieveCoordinate(position);
                 if (coordinate != null)
                 {
                     if (LineVisibility == CrosshairLineVisibility.Both
@@ -71,9 +70,9 @@ namespace Panuon.WPF.Charts
                         drawingContext.DrawLine(
                             stroke: Brushes.Gray,
                             strokeThickness: 1,
-                            startX: coordinate.Offset,
+                            startX: coordinate.OffsetX,
                             startY: 0,
-                            endX: coordinate.Offset,
+                            endX: coordinate.OffsetX,
                             endY: chartContext.AreaHeight
                         );
                     }
@@ -84,9 +83,9 @@ namespace Panuon.WPF.Charts
                             stroke: Brushes.Gray,
                             strokeThickness: 1, 
                             startX: 0, 
-                            startY: mousePosition.Y, 
+                            startY: position.Y, 
                             endX: chartContext.AreaWidth,
-                            endY: mousePosition.Y
+                            endY: position.Y
                         );
                     }
                 }

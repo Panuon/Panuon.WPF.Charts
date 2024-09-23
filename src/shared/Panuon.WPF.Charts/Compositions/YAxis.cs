@@ -88,7 +88,7 @@ namespace Panuon.WPF.Charts
             }
 
             var drawingContext = _chart.CreateDrawingContext(context);
-            var chartContext = _chart.GetCanvasContext();
+            var chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
 
             drawingContext.DrawLine(
                 Stroke,

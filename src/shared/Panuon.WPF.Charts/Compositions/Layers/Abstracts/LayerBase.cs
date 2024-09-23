@@ -28,19 +28,17 @@ namespace Panuon.WPF.Charts
         }
 
         internal void MouseIn(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         )
         {
-            OnMouseIn(chartContext, layerContext);
+            OnMouseIn(chartContext);
         }
 
         internal void MouseOut(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         )
         {
-            OnMouseOut(chartContext, layerContext);
+            OnMouseOut(chartContext);
         }
         #endregion
 
@@ -77,12 +75,10 @@ namespace Panuon.WPF.Charts
 
             var context = _chart.CreateDrawingContext(drawingContext);
             var chartContext = _chart.GetCanvasContext();
-            var layerContext = _chart.CreateLayerContext();
 
             OnRender(
                 context,
-                chartContext,
-                layerContext
+                chartContext
             );
         }
 
@@ -104,19 +100,16 @@ namespace Panuon.WPF.Charts
 
         #region Protected Methods
         protected abstract void OnMouseIn(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         );
 
         protected abstract void OnMouseOut(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         );
 
         protected abstract void OnRender(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         );
 
         protected void AddChild(UIElement child)

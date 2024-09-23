@@ -43,24 +43,9 @@ namespace Panuon.WPF.Charts
             }
 
             var chartContext = _chart.GetCanvasContext();
-            var layerContext = _chart.CreateLayerContext();
 
             return OnInternalRetrieveLegendEntries(
-                chartContext: chartContext,
-                layerContext: layerContext
-            );
-        }
-
-        public ICoordinate RetrieveCoordinate(
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            Point position
-        )
-        {
-            return OnInternalRetrieveCoordinate(
-                chartContext,
-                layerContext,
-                position
+                chartContext: chartContext
             );
         }
         #endregion
@@ -86,7 +71,6 @@ namespace Panuon.WPF.Charts
 
             var context = _chart.CreateDrawingContext(drawingContext);
             var chartContext = _chart.GetCanvasContext();
-            var layerContext = _chart.CreateLayerContext();
 
             if (!_isAnimationBeginCalled
                 || _loadAnimationProgressObject.Progress == 1)
@@ -146,15 +130,8 @@ namespace Panuon.WPF.Charts
         {
         }
 
-        internal protected abstract ICoordinate OnInternalRetrieveCoordinate(
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            Point position
-        );
-
         internal protected abstract IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         );
         #endregion
 

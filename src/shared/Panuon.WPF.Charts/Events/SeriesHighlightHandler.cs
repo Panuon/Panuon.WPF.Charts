@@ -7,7 +7,6 @@ namespace Panuon.WPF.Charts
         TSeries series,
         IDrawingContext drawingContext,
         TChartContext chartContext,
-        ILayerContext layerContext,
         IDictionary<int, double> coordinatesProgress
     )
         where TLayer : LayerBase
@@ -19,7 +18,6 @@ namespace Panuon.WPF.Charts
         SeriesBase series,
         IDrawingContext drawingContext,
         IChartContext chartContext,
-        ILayerContext layerContext,
         IDictionary<int, double> coordinatesProgress
     );
 

@@ -54,8 +54,7 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         protected override void OnMouseIn(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         )
         {
             var currentCoordinates = new List<int>();
@@ -68,13 +67,9 @@ namespace Panuon.WPF.Charts
                 var highlightProgressObjects = _highlightProgressObjects[series];
 
                 ICoordinate coordinate = null;
-                if (layerContext.GetMousePosition() is Point position)
+                if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
                 {
-                    coordinate = series.RetrieveCoordinate(
-                        chartContext,
-                        layerContext,
-                        position
-                    );
+                    coordinate = chartContext.RetrieveCoordinate(position);
                     if (coordinate != null)
                     {
                         currentCoordinates.Add(coordinate.Index);
@@ -151,8 +146,7 @@ namespace Panuon.WPF.Charts
             }
         }
 
-        protected override void OnMouseOut(IChartContext chartContext,
-            ILayerContext layerContext)
+        protected override void OnMouseOut(IChartContext chartContext)
         {
             foreach (var seriesAnimationObjects in _highlightProgressObjects)
             {
@@ -187,8 +181,7 @@ namespace Panuon.WPF.Charts
 
         protected override void OnRender(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         )
         {
             foreach (var seriesAnimationObjects in GetHighlightProgress())
@@ -207,7 +200,6 @@ namespace Panuon.WPF.Charts
                             series: series,
                             drawingContext,
                             chartContext,
-                            layerContext,
                             seriesAnimationObjects.Value
                         );
                     }
@@ -239,9 +231,9 @@ namespace Panuon.WPF.Charts
             }
             var highlightHandlers = _highlightHandlers[typeof(TLayer)];
 
-            var newHandler = new SeriesHighlightHandler((layer, series, drawingContext, chartContext, layerContext, coordinatesProgress) =>
+            var newHandler = new SeriesHighlightHandler((layer, series, drawingContext, chartContext, coordinatesProgress) =>
             {
-                handler.Invoke((TLayer)layer, (TSeries)series, drawingContext, (TChartContext)chartContext, layerContext, coordinatesProgress);
+                handler.Invoke((TLayer)layer, (TSeries)series, drawingContext, (TChartContext)chartContext, coordinatesProgress);
             });
             highlightHandlers.Add(typeof(TSeries), newHandler);
         }

@@ -35,17 +35,6 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region Spacing
-        public double Spacing
-        {
-            get { return (double)GetValue(SpacingProperty); }
-            set { SetValue(SpacingProperty, value); }
-        }
-
-        public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(RadarSeries), new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender));
-        #endregion
-
         #region Fill
         public Brush Fill
         {
@@ -209,18 +198,8 @@ namespace Panuon.WPF.Charts
         #region Methods
 
         #region OnHighlighting
-        protected override ICoordinate OnRetrieveCoordinate(
-            IRadialChartContext chartContext,
-            ILayerContext layerContext,
-            Point position
-        )
-        {
-            return null;
-        }
-
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            IRadialChartContext chartContext,
-            ILayerContext layerContext
+            IRadialChartContext chartContext
         )
         {
             yield break;
@@ -301,8 +280,8 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
 
             var centerX = chartContext.AreaWidth / 2;
             var centerY = chartContext.AreaHeight / 2;
@@ -429,8 +408,8 @@ namespace Panuon.WPF.Charts
                     var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, angle + 90);
 
                     var halfPoint = new Point(
-                        centerX + (radius + Spacing + rayLength) * Math.Cos(radian),
-                        centerY + (radius + Spacing + rayLength) * Math.Sin(radian)
+                        centerX + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),
+                        centerY + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian)
                     );
 
                     if (segment.LabelStroke == null && segment.LabelForeground == null)
@@ -466,7 +445,6 @@ namespace Panuon.WPF.Charts
             RadarSeries series,
             IDrawingContext drawingContext,
             IRadialChartContext chartContext,
-            ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )
         {

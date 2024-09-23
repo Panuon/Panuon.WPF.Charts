@@ -1,45 +1,73 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
 
-namespace Panuon.WPF.Charts
+namespace Panuon.WPF.Charts.Implements
 {
     internal class CartesianChartContextImpl
-        : ICartesianChartContext
+        : ChartContextImplBase, ICartesianChartContext
     {
         #region Fields
         #endregion
 
         #region Ctor
         internal CartesianChartContextImpl(CartesianChart chart)
+            : base(chart)
         {
-            Chart = chart;
         }
         #endregion
 
         #region Properties
-        public CartesianChart Chart { get; }
-
-        ChartBase IChartContext.Chart => Chart;
-
-        public double AreaWidth => Chart._seriesPanel.RenderSize.Width;
-
-        public double AreaHeight => Chart._seriesPanel.RenderSize.Height;
+        public new CartesianChart Chart => (CartesianChart)base.Chart;
 
         public double MinValue => Chart.ActualMinValue;
 
         public double MaxValue => Chart.ActualMaxValue;
 
-        public IEnumerable<ICoordinate> Coordinates => Chart.Coordinates;
-
-        public IEnumerable<SeriesBase> Series => Chart.GetSeries();
-
+        public IEnumerable<ICartesianCoordinate> Coordinates => Chart.Coordinates;
         #endregion
 
         #region Methods
+        public override ICoordinate RetrieveCoordinate(Point position)
+        {
+            if (position.X < 0 ||
+                position.X > AreaWidth)
+            {
+                return null;
+            }
+            var leftCoordinate = Coordinates.LastOrDefault(x => x.OffsetX <= position.X);
+            var rightCoordinate = Coordinates.FirstOrDefault(y => y.OffsetX >= position.X);
+            if (leftCoordinate == null &&
+                rightCoordinate == null)
+            {
+                return null;
+            }
+            if (leftCoordinate == null)
+            {
+                return rightCoordinate;
+            }
+            if (rightCoordinate == null)
+            {
+                return leftCoordinate;
+            }
+            return Math.Abs(leftCoordinate.OffsetX - position.X) <= Math.Abs(rightCoordinate.OffsetX - position.X)
+                ? leftCoordinate
+                : rightCoordinate;
+        }
+
+        ICartesianCoordinate ICartesianChartContext.RetrieveCoordinate(Point position)
+        {
+            return (ICartesianCoordinate)RetrieveCoordinate(position);
+        }
+
         public double GetOffsetY(double value)
         {
             var minMaxDelta = MaxValue - MinValue;
             return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
         }
+
+
         #endregion
     }
 }

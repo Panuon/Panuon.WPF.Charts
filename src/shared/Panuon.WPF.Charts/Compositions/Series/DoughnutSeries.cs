@@ -35,17 +35,6 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region Spacing
-        public double Spacing
-        {
-            get { return (double)GetValue(SpacingProperty); }
-            set { SetValue(SpacingProperty, value); }
-        }
-
-        public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(DoughnutSeries), new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender));
-        #endregion
-
         #region Thickness
         public GridLength Thickness
         {
@@ -83,14 +72,15 @@ namespace Panuon.WPF.Charts
 
             var index = 0;
             var totalAngle = 0d;
-            foreach (var segment in Segments)
+            foreach (var coordinate in coordinates)
             {
-                var value = chartContext.GetValue(this);
+                var value = coordinate.GetValue(this);
                 var angle = Math.Round(angleDelta * value, 2);
                 if (index >= Segments.Count)
                 {
                     break;
                 }
+                var segment = Segments[index];
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
@@ -137,8 +127,8 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
 
             var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
             var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
@@ -178,8 +168,8 @@ namespace Panuon.WPF.Charts
                 var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
 
                 var halfPoint = new Point(
-                    centerX + (outterRadius + Spacing + rayLength) * Math.Cos(radian),
-                    centerY + (outterRadius + Spacing + rayLength) * Math.Sin(radian)
+                    centerX + (outterRadius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),
+                    centerY + (outterRadius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian)
                 );
 
                 if (formattedText != null)
@@ -208,49 +198,8 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        protected override ICoordinate OnRetrieveCoordinate(
-            IRadialChartContext chartContext,
-            ILayerContext layerContext, 
-            Point position
-        )
-        {
-            var coordinates = chartContext.Coordinates;
-
-            var areaWidth = chartContext.AreaWidth - Spacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - Spacing * 2 - chartContext.Chart.FontSize * 2;
-
-            var radius = Math.Min(areaWidth, areaHeight) / 2;
-            var centerX = chartContext.AreaWidth / 2;
-            var centerY = chartContext.AreaHeight / 2;
-
-            var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-            var angleDelta = 360d / totalValue;
-
-            var index = 0;
-            var totalAngle = 0d;
-            foreach (var coordinate in coordinates)
-            {
-                var value = coordinate.GetValue(this);
-                var angle = Math.Round(angleDelta * value, 2);
-                var segment = Segments[index];
-
-                if (IsPointInsideSector(
-                    position,
-                    centerX, centerY,
-                    radius,
-                    totalAngle, totalAngle + angle))
-                {
-                    return coordinate;
-                }
-
-                totalAngle += angle;
-            }
-            return null;
-        }
-
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            IRadialChartContext chartContext,
-            ILayerContext layerContext
+            IRadialChartContext chartContext
         )
         {
             yield break;
@@ -263,12 +212,11 @@ namespace Panuon.WPF.Charts
             DoughnutSeries series,
             IDrawingContext drawingContext,
             IRadialChartContext chartContext,
-            ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )
         {
-            var areaWidth = chartContext.AreaWidth - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - series.Spacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
 
             foreach (var coordinateProgress in coordinatesProgress)
             {

@@ -20,7 +20,6 @@ namespace Panuon.WPF.Charts
         internal SeriesPanel _seriesPanel;
         internal LayersPanel _layersPanel;
 
-        private LayerContextImpl _layerContext;
 
         private static TypeConverter _doubleTypeConverter = 
             TypeDescriptor.GetConverter(typeof(double));
@@ -142,6 +141,55 @@ namespace Panuon.WPF.Charts
 
         public abstract IEnumerable<SeriesBase> GetSeries();
 
+        #region Protected Methods
+        protected double GetValueFromValueProvider(
+            IChartValueProvider valueProvider,
+            object item,
+            int index = -1
+        )
+        {
+            var itemType = item.GetType();
+
+            double value;
+            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
+            {
+                try
+                {
+                    if (index != -1
+                        && item is IEnumerable enumerableItem)
+                    {
+                        var enumerator = enumerableItem.GetEnumerator();
+                        for (int i = 0; i <= index; i++)
+                        {
+                            enumerator.MoveNext();
+                        }
+                        value = Convert.ToDouble(enumerator.Current);
+                    }
+                    else
+                    {
+                        value = Convert.ToDouble(item);
+                    }
+                }
+                catch
+                {
+                    throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
+                }
+            }
+            else
+            {
+                var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
+                if (valueProperty == null)
+                {
+                    throw new System.InvalidOperationException($"Property named '{valueProvider.ValueMemberPath}' does not exists in {item}.");
+                }
+                var valueValue = valueProperty.GetValue(item);
+                value = Convert.ToDouble(valueValue);
+            }
+
+            return value;
+        }
+        #endregion
+
         #region Internal Methods
         internal bool IsCanvasReady()
         {
@@ -156,15 +204,6 @@ namespace Panuon.WPF.Charts
         }
 
         internal abstract IChartContext GetCanvasContext();
-
-        internal ILayerContext CreateLayerContext()
-        {
-            if (_layerContext == null)
-            {
-                _layerContext = new LayerContextImpl(this);
-            }
-            return _layerContext;
-        }
         #endregion
 
         #endregion

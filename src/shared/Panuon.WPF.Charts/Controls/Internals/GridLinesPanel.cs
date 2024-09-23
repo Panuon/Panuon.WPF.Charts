@@ -50,7 +50,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chart.CreateDrawingContext(context);
-            var chartContext = _chart.GetCanvasContext();
+            var chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
 
             var pen = new Pen(_chart.GridLinesBrush, _chart.GridLinesThickness);
             pen.Freeze();
@@ -64,7 +64,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
                     {
                         var coordinate = coordinateText.Key;
 
-                        var offsetX = coordinate.Offset;
+                        var offsetX = coordinate.OffsetX;
 
                         drawingContext.DrawLine(_chart.GridLinesBrush,
                             _chart.GridLinesThickness,

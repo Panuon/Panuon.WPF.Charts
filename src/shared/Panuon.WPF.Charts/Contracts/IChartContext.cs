@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
@@ -11,5 +12,11 @@ namespace Panuon.WPF.Charts
         double AreaHeight { get; }
 
         IEnumerable<SeriesBase> Series { get; }
+
+        IEnumerable<LayerBase> Layers { get; }
+
+        Point? GetMousePosition(MouseRelativeTarget relativeTo);
+
+        ICoordinate RetrieveCoordinate(Point offset);
     }
 }

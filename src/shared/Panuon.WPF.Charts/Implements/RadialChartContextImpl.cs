@@ -1,31 +1,81 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
 
-namespace Panuon.WPF.Charts
+namespace Panuon.WPF.Charts.Implements
 {
     internal class RadialChartContextImpl
-        : IRadialChartContext
+        : ChartContextImplBase, IRadialChartContext
     {
         #region Fields
         #endregion
 
         #region Ctor
         internal RadialChartContextImpl(RadialChart chart)
+            : base (chart)
         {
-            Chart = chart;
         }
         #endregion
 
         #region Properties
-        public RadialChart Chart { get; }
+        public new RadialChart Chart => (RadialChart)base.Chart;
 
-        ChartBase IChartContext.Chart => Chart;
+        public IEnumerable<IRadialCoordinate> Coordinates => Chart.Coordinates;
 
-        public double AreaWidth => Chart._seriesPanel.RenderSize.Width;
+        public override ICoordinate RetrieveCoordinate(Point position)
+        {
+            var coordinates = Coordinates;
 
-        public double AreaHeight => Chart._seriesPanel.RenderSize.Height;
+            var areaWidth = AreaWidth - (Chart.LabelSpacing + Chart.FontSize) * 2;
+            var areaHeight = AreaHeight - (Chart.LabelSpacing + Chart.FontSize) * 2;
 
-        public IEnumerable<SeriesBase> Series => Chart.GetSeries();
+            var radius = Math.Min(areaWidth, areaHeight) / 2;
+            var centerX = AreaWidth / 2;
+            var centerY = AreaHeight / 2;
 
+            foreach (var coordinate in coordinates)
+            {
+                var startAngle = coordinate.StartAngle;
+                var angle = coordinate.Angle;
+
+                if (IsPointInsideSector(
+                    position,
+                    centerX, centerY,
+                    radius,
+                    startAngle, startAngle + angle))
+                {
+                    return coordinate;
+                }
+            }
+            return null;
+        }
+
+        IRadialCoordinate IRadialChartContext.RetrieveCoordinate(Point offset)
+        {
+            return (IRadialCoordinate)RetrieveCoordinate(offset);
+        }
+        #endregion
+
+        #region Functions
+        private bool IsPointInsideSector(Point point,
+            double centerX,
+            double centerY,
+            double radius,
+            double startAngle,
+            double endAngle
+        )
+        {
+            var distance = Math.Sqrt(Math.Pow(point.X - centerX, 2) + Math.Pow(point.Y - centerY, 2));
+            var angle = Math.Atan2(point.Y - centerY, point.X - centerX) * (180 / Math.PI);
+
+            angle += 90;
+            if (angle < 0)
+            {
+                angle += 360;
+            }
+
+            return distance <= radius && angle >= startAngle && angle <= endAngle;
+        }
         #endregion
     }
 }

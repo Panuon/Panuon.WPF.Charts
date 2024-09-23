@@ -20,11 +20,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToggleHighlightLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialCoordinate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\MouseRelativeTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\SeriesHighlightHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\ChartContextImplBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\CartesianChartContextImpl.cs" />
-    <Compile Include="..\shared\Panuon.WPF.Charts\Events\SeriesHighlightHandler.cs" />
-    <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Layers\CrosshairLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\CartesianCoordinateImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\ValueProviderSegmentBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\ClusteredColumnSeriesSegment.cs" />
@@ -55,7 +58,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IChartValueProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IDrawingContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ILayerContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Abstracts\ChartBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\CartesianChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\GridLinesPanel.cs" />
@@ -72,8 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleEventHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\RadialChartContextImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implements\CoordinateImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implements\LayerContextImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\RadialCoordinateImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\WPFDrawingContextImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AnimationProgressObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LayerCollection.cs" />

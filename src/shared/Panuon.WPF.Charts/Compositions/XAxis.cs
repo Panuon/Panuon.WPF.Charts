@@ -11,8 +11,8 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
 
-        internal readonly Dictionary<CoordinateImpl, FormattedText> _formattedTexts =
-            new Dictionary<CoordinateImpl, FormattedText>();
+        internal readonly Dictionary<CartesianCoordinateImpl, FormattedText> _formattedTexts =
+            new Dictionary<CartesianCoordinateImpl, FormattedText>();
         #endregion
 
         #region Overrides
@@ -83,7 +83,7 @@ namespace Panuon.WPF.Charts
                 var coordinate = coordinateText.Key;
                 var text = coordinateText.Value;
 
-                var offsetX = coordinate.Offset;
+                var offsetX = coordinate.OffsetX;
 
                 drawingContext.DrawLine(
                     TicksBrush,

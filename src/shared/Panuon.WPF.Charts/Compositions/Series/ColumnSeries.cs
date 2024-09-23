@@ -105,12 +105,12 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.Offset;
+                var offsetX = coordinate.OffsetX;
                 var offsetY = chartContext.GetOffsetY(value);
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.Offset,
+                        x: coordinate.OffsetX,
                         y: chartContext.GetOffsetY(value)
                     )
                 );
@@ -165,13 +165,12 @@ namespace Panuon.WPF.Charts
 
         #region OnHighlighting
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            ICartesianChartContext chartContext,
-            ILayerContext layerContext
+            ICartesianChartContext chartContext
         )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point offset)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
+                var coordinate = chartContext.RetrieveCoordinate(offset);
 
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
@@ -188,7 +187,6 @@ namespace Panuon.WPF.Charts
             ColumnSeries series,
             IDrawingContext drawingContext,
             ICartesianChartContext chartContext,
-            ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )
         {
@@ -210,7 +208,7 @@ namespace Panuon.WPF.Charts
                     fill: layer.HighlightToggleFill,
                     radiusX: progress * layer.HighlightToggleRadius,
                     radiusY: progress * layer.HighlightToggleRadius,
-                    startX: coordinate.Offset,
+                    startX: coordinate.OffsetX,
                     startY: point.Y
                 );
             }

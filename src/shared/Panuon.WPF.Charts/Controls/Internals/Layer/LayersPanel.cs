@@ -61,13 +61,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
             base.OnMouseMove(e);
 
             var chartContext = _chart.GetCanvasContext();
-            var layerContext = _chart.CreateLayerContext();
 
             foreach (LayerBase child in _children)
             {
                 child.MouseIn(
-                    chartContext,
-                    layerContext
+                    chartContext
                 );
             }
         }
@@ -77,13 +75,11 @@ namespace Panuon.WPF.Charts.Controls.Internals
             base.OnMouseLeave(e);
 
             var chartContext = _chart.GetCanvasContext();
-            var layerContext = _chart.CreateLayerContext();
 
             foreach (LayerBase child in _children)
             {
                 child.MouseOut(
-                    chartContext,
-                    layerContext
+                    chartContext
                 );
             }
         }

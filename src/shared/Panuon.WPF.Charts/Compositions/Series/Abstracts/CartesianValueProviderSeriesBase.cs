@@ -43,13 +43,6 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        protected override ICoordinate OnRetrieveCoordinate(
-            ICartesianChartContext chartContext,
-            ILayerContext layerContext,
-            Point position)
-        {
-            return layerContext.GetCoordinate(position.X);
-        }
         #endregion
     }
 }

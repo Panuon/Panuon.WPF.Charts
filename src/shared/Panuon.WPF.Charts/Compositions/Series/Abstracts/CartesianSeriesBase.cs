@@ -69,42 +69,18 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region OnRetrieveCoordinate
-        protected internal sealed override ICoordinate OnInternalRetrieveCoordinate(
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            Point position
-        )
-        {
-            return OnRetrieveCoordinate(
-                (ICartesianChartContext)chartContext,
-                layerContext,
-                position
-            );
-        }
-
-        protected abstract ICoordinate OnRetrieveCoordinate(
-            ICartesianChartContext chartContext,
-            ILayerContext layerContext,
-            Point position
-        );
-        #endregion
-
         #region OnRetrieveLegendEntries
         protected internal sealed override IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries(
-            IChartContext chartContext,
-            ILayerContext layerContext
+            IChartContext chartContext
         )
         {
             return OnRetrieveLegendEntries(
-                (ICartesianChartContext)chartContext,
-                layerContext
+                (ICartesianChartContext)chartContext
             );
         }
 
         protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            ICartesianChartContext chartContext,
-            ILayerContext layerContext
+            ICartesianChartContext chartContext
         );
         #endregion
 

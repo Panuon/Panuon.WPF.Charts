@@ -2,15 +2,15 @@
 
 namespace Panuon.WPF.Charts.Implements
 {
-    internal class CoordinateImpl
-        : ICoordinate
+    internal class CartesianCoordinateImpl
+        : ICartesianCoordinate
     {
         #region Properties
         public string Title { get; set; }
 
         public int Index { get; set; }
 
-        public double Offset { get; set; }
+        public double OffsetX { get; set; }
 
         internal Dictionary<IChartValueProvider, double> Values { get; set; }
         #endregion
