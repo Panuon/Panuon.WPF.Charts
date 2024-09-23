@@ -44,7 +44,7 @@ namespace Panuon.WPF.Charts
 
         #region Methods
         protected override ICoordinate OnRetrieveCoordinate(
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             ILayerContext layerContext,
             Point position)
         {

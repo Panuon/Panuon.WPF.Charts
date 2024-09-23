@@ -10,6 +10,7 @@ namespace Panuon.WPF.Charts
         : ChartBase
     {
         #region Fields
+        private RadialChartContextImpl _chartContext;
         #endregion
 
         #region Ctor
@@ -39,6 +40,19 @@ namespace Panuon.WPF.Charts
 
         #region Overrides
         public override IEnumerable<SeriesBase> GetSeries() => Series;
+
+        #region GetCanvasContext
+        internal override IChartContext GetCanvasContext()
+        {
+            if (_chartContext == null)
+            {
+                _chartContext = new RadialChartContextImpl(this);
+            }
+
+            return _chartContext;
+        }
+        #endregion
+
         #endregion
     }
 }

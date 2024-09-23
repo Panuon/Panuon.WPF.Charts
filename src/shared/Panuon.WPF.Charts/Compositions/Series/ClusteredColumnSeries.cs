@@ -63,7 +63,7 @@ namespace Panuon.WPF.Charts
         #region OnRenderBegin
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
-            IChartContext chartContext
+            ICartesianChartContext chartContext
         )
         {
             _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
@@ -97,7 +97,7 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             double animationProgress
         )
         {
@@ -146,7 +146,7 @@ namespace Panuon.WPF.Charts
 
         #region OnHighlighting
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             ILayerContext layerContext
         )
         {
@@ -172,7 +172,7 @@ namespace Panuon.WPF.Charts
             ToggleHighlightLayer layer,
             ClusteredColumnSeries series,
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )

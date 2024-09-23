@@ -2,16 +2,17 @@
 
 namespace Panuon.WPF.Charts
 {
-    public delegate void SeriesHighlightHandler<TLayer, TSeries>(
+    public delegate void SeriesHighlightHandler<TLayer, TSeries, TChartContext>(
         TLayer layer,
         TSeries series,
         IDrawingContext drawingContext,
-        IChartContext chartContext,
+        TChartContext chartContext,
         ILayerContext layerContext,
         IDictionary<int, double> coordinatesProgress
     )
         where TLayer : LayerBase
-        where TSeries : SeriesBase;
+        where TSeries : SeriesBase
+        where TChartContext: IChartContext;
 
     public delegate void SeriesHighlightHandler(
         LayerBase layer,

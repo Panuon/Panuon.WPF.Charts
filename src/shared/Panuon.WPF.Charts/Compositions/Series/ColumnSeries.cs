@@ -96,7 +96,7 @@ namespace Panuon.WPF.Charts
         #region OnRenderBegin
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
-            IChartContext chartContext
+            ICartesianChartContext chartContext
         )
         {
             var coordinates = chartContext.Coordinates;
@@ -121,7 +121,7 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             double animationProgress
         )
         {
@@ -165,7 +165,7 @@ namespace Panuon.WPF.Charts
 
         #region OnHighlighting
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             ILayerContext layerContext
         )
         {
@@ -187,7 +187,7 @@ namespace Panuon.WPF.Charts
             ToggleHighlightLayer layer,
             ColumnSeries series,
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             ILayerContext layerContext,
             IDictionary<int, double> coordinatesProgress
         )

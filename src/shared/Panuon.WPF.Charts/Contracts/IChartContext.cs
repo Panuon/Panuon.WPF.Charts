@@ -10,14 +10,6 @@ namespace Panuon.WPF.Charts
 
         double AreaHeight { get; }
 
-        double MinValue { get; }
-
-        double MaxValue { get; }
-
-        IEnumerable<ICoordinate> Coordinates { get; }
-
         IEnumerable<SeriesBase> Series { get; }
-
-        double GetOffsetY(double value);
     }
 }

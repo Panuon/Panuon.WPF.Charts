@@ -19,7 +19,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\Abstracts\LayerBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Layers\ToggleHighlightLayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialChartContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\SeriesHighlightHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\CartesianChartContextImpl.cs" />
     <Compile Include="..\shared\Panuon.WPF.Charts\Events\SeriesHighlightHandler.cs" />
     <Compile Include="..\shared\Panuon.WPF.Charts\Compositions\Layers\CrosshairLayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Compositions\Segments\Abstracts\SegmentBase.cs" />
@@ -68,7 +71,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Enums\ToolTipVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleEventHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Implements\ChartContextImpl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Implements\RadialChartContextImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\CoordinateImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\LayerContextImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Implements\WPFDrawingContextImpl.cs" />

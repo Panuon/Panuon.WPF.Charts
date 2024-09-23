@@ -18,6 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\BarChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\DoughnutChartView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -37,6 +40,9 @@
 
   <ItemGroup>
     <Page Update="Views\ClusteredColumnChartView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\BarChartView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

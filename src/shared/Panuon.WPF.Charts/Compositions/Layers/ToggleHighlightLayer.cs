@@ -51,8 +51,21 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Methods
-        public static void Regist<TSeries>(SeriesHighlightHandler<ToggleHighlightLayer, TSeries> seriesHighlightHandler)
+        public static void Regist<TSeries, TChartContext>(SeriesHighlightHandler<ToggleHighlightLayer, TSeries, TChartContext> seriesHighlightHandler)
             where TSeries : SeriesBase
+            where TChartContext : IChartContext
+        {
+            RegistHighlightHandler(seriesHighlightHandler);
+        }
+
+        public static void Regist<TSeries>(SeriesHighlightHandler<ToggleHighlightLayer, TSeries, ICartesianChartContext> seriesHighlightHandler)
+            where TSeries : CartesianSeriesBase
+        {
+            RegistHighlightHandler(seriesHighlightHandler);
+        }
+
+        public static void Regist<TSeries>(SeriesHighlightHandler<ToggleHighlightLayer, TSeries, IRadialChartContext> seriesHighlightHandler)
+            where TSeries : RadialSeriesBase
         {
             RegistHighlightHandler(seriesHighlightHandler);
         }

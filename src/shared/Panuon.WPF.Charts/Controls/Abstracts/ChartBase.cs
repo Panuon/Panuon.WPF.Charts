@@ -1,12 +1,10 @@
-﻿using Panuon.WPF.Chart;
-using Panuon.WPF.Charts.Controls.Internals;
+﻿using Panuon.WPF.Charts.Controls.Internals;
 using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -22,7 +20,6 @@ namespace Panuon.WPF.Charts
         internal SeriesPanel _seriesPanel;
         internal LayersPanel _layersPanel;
 
-        private ChartContextImpl _chartContext;
         private LayerContextImpl _layerContext;
 
         private static TypeConverter _doubleTypeConverter = 
@@ -103,29 +100,6 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
-        #region Internal Properties
-
-        internal List<CoordinateImpl> Coordinates { get; private set; }
-
-        internal virtual double ActualMinValue
-        {
-            get
-            {
-                return _measuredMinValue;
-            }
-        }
-        private double _measuredMinValue;
-
-        internal virtual double ActualMaxValue
-        {
-            get
-            {
-                return _measuredMaxValue;
-            }
-        }
-        private double _measuredMaxValue;
-        #endregion
-
         #region Overrides
 
         #region VisualChildrenCount
@@ -139,116 +113,6 @@ namespace Panuon.WPF.Charts
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            var coordinates = new List<CoordinateImpl>();
-            if (ItemsSource != null)
-            {
-                var index = 0;
-                foreach (var item in ItemsSource)
-                {
-                    var loopItem = item;
-                    var itemType = loopItem.GetType();
-                    string title = null;
-                    if (!string.IsNullOrEmpty(TitleMemberPath))
-                    {
-                        var titleProperty = itemType.GetProperty(TitleMemberPath);
-                        if (titleProperty == null)
-                        {
-                            throw new System.InvalidOperationException($"Property {TitleMemberPath} does not exists.");
-                        }
-
-                        var titleValue = titleProperty.GetValue(loopItem);
-                        title = titleValue is string
-                            ? (string)titleValue
-                            : titleValue.ToString();
-                    }
-
-                    var values = new Dictionary<IChartValueProvider, double>();
-                    foreach (var series in GetSeries())
-                    {
-                        if (series is IChartValueProvider valueProvider)
-                        {
-                            var value = GetValueFromValueProvider(valueProvider, loopItem);
-                            values.Add(valueProvider, value);
-                        }
-                        if (series is CartesianSegmentsSeriesBase cartesianSeries)
-                        {
-                            var valuesMemberPath = cartesianSeries.ValuesMemberPath;
-                            if (!string.IsNullOrEmpty(valuesMemberPath))
-                            {
-                                var valuesProperty = itemType.GetProperty(valuesMemberPath);
-                                if (valuesProperty == null)
-                                {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' does not exists in {loopItem}.");
-                                }
-                                if (!typeof(IEnumerable).IsAssignableFrom(valuesProperty.PropertyType))
-                                {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
-                                }
-                                loopItem = valuesProperty.GetValue(loopItem);
-                            }
-                            var cartesianSegments = cartesianSeries.GetSegments()
-                                .ToList();
-                            for (int i = 0; i < cartesianSegments.Count; i++)
-                            {
-                                var segment = cartesianSegments[i] as ValueProviderSegmentBase;
-                                var value = GetValueFromValueProvider(segment, loopItem, i);
-                                values.Add(segment, value);
-                            }
-                        }
-                        if (series is RadialSegmentsSeriesBase radialSeries)
-                        {
-                            var valuesMemberPath = radialSeries.ValuesMemberPath;
-                            if (!string.IsNullOrEmpty(valuesMemberPath))
-                            {
-                                var valuesProperty = itemType.GetProperty(valuesMemberPath);
-                                if (valuesProperty == null)
-                                {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' does not exists in {loopItem}.");
-                                }
-                                if (!typeof(IEnumerable).IsAssignableFrom(valuesProperty.PropertyType))
-                                {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
-                                }
-                                loopItem = valuesProperty.GetValue(loopItem);
-                            }
-                            var radialSegments = radialSeries.GetSegments()
-                                .ToList();
-                            for (int i = 0; i < radialSegments.Count; i++)
-                            {
-                                var segment = radialSegments[i] as ValueProviderSegmentBase;
-                                var value = GetValueFromValueProvider(segment, loopItem, i);
-                                values.Add(segment, value);
-                            }
-                        }
-                    }
-
-                    coordinates.Add(new CoordinateImpl()
-                    {
-                        Title = title,
-                        Values = values,
-                        Index = index
-                    });
-                    index++;
-                }
-            }
-
-            Coordinates = coordinates;
-            if (coordinates.Any())
-            {
-                CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
-                    coordinates.SelectMany(x => x.Values.Values).Max(),
-                    out int minValue,
-                    out int maxValue);
-
-                _measuredMinValue = minValue;
-                _measuredMaxValue = maxValue;
-            }
-            else
-            {
-                _measuredMinValue = 0;
-                _measuredMaxValue = 10;
-            }
-
             _seriesPanel.Measure(availableSize);
             _layersPanel.Measure(availableSize);
 
@@ -261,14 +125,6 @@ namespace Panuon.WPF.Charts
         {
             var renderWidth = finalSize.Width - Padding.Left - Padding.Right;
             var renderHeight = finalSize.Height - Padding.Top - Padding.Bottom;
-
-            var deltaX = renderWidth / Coordinates.Count;
-
-            for (int i = 0; i < Coordinates.Count; i++)
-            {
-                var coordinate = Coordinates[i];
-                coordinate.Offset = (i + 0.5) * deltaX;
-            }
 
             _seriesPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
             _layersPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
@@ -299,15 +155,7 @@ namespace Panuon.WPF.Charts
             return drawingContext;
         }
 
-        internal IChartContext GetCanvasContext()
-        {
-            if(_chartContext == null)
-            {
-                _chartContext = new ChartContextImpl(this);
-            }
-
-            return _chartContext;
-        }
+        internal abstract IChartContext GetCanvasContext();
 
         internal ILayerContext CreateLayerContext()
         {
@@ -345,69 +193,5 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region Functions
-        private void CheckMinMaxValue(double minValue,
-            double maxValue,
-            out int resultMin,
-            out int resultMax)
-        {
-            var min = (int)Math.Floor(minValue);
-            var max = (int)Math.Ceiling(maxValue);
-
-            var digit = Math.Max(1, max.ToString().Length - 1);
-            var baseValue = Math.Pow(10d, digit);
-
-            resultMin = (int)Math.Floor(min / baseValue) * (int)baseValue;
-            resultMax = (int)Math.Ceiling(max / baseValue) * (int)baseValue;
-
-        }
-
-        private double GetValueFromValueProvider(
-            IChartValueProvider valueProvider,
-            object item,
-            int index = -1
-        )
-        {
-            var itemType = item.GetType();
-
-            double value;
-            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
-            {
-                try
-                {
-                    if (index != -1
-                        && item is IEnumerable enumerableItem)
-                    {
-                        var enumerator = enumerableItem.GetEnumerator();
-                        for (int i = 0; i <= index; i++)
-                        {
-                            enumerator.MoveNext();
-                        }
-                        value = Convert.ToDouble(enumerator.Current);
-                    }
-                    else
-                    {
-                        value = Convert.ToDouble(item);
-                    }
-                }
-                catch
-                {
-                    throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
-                }
-            }
-            else
-            {
-                var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
-                if (valueProperty == null)
-                {
-                    throw new System.InvalidOperationException($"Property named '{valueProvider.ValueMemberPath}' does not exists in {item}.");
-                }
-                var valueValue = valueProperty.GetValue(item);
-                value = Convert.ToDouble(valueValue);
-            }
-
-            return value;
-        }
-        #endregion
     }
 }

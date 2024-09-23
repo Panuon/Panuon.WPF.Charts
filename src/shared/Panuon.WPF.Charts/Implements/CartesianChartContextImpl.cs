@@ -2,21 +2,23 @@
 
 namespace Panuon.WPF.Charts
 {
-    internal class ChartContextImpl
-        : IChartContext
+    internal class CartesianChartContextImpl
+        : ICartesianChartContext
     {
         #region Fields
         #endregion
 
         #region Ctor
-        internal ChartContextImpl(ChartBase chartPanel)
+        internal CartesianChartContextImpl(CartesianChart chart)
         {
-            Chart = chartPanel;
+            Chart = chart;
         }
         #endregion
 
         #region Properties
-        public ChartBase Chart { get; }
+        public CartesianChart Chart { get; }
+
+        ChartBase IChartContext.Chart => Chart;
 
         public double AreaWidth => Chart._seriesPanel.RenderSize.Width;
 
@@ -29,6 +31,7 @@ namespace Panuon.WPF.Charts
         public IEnumerable<ICoordinate> Coordinates => Chart.Coordinates;
 
         public IEnumerable<SeriesBase> Series => Chart.GetSeries();
+
         #endregion
 
         #region Methods

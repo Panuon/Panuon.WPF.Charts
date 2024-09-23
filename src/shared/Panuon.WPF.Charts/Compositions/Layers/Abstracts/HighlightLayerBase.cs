@@ -228,9 +228,10 @@ namespace Panuon.WPF.Charts
             );
         }
 
-        protected static void RegistHighlightHandler<TLayer, TSeries>(SeriesHighlightHandler<TLayer, TSeries> handler)
+        protected static void RegistHighlightHandler<TLayer, TSeries, TChartContext>(SeriesHighlightHandler<TLayer, TSeries, TChartContext> handler)
             where TLayer : HighlightLayerBase
             where TSeries : SeriesBase
+            where TChartContext : IChartContext
         {
             if (!_highlightHandlers.ContainsKey(typeof(TLayer)))
             {
@@ -240,7 +241,7 @@ namespace Panuon.WPF.Charts
 
             var newHandler = new SeriesHighlightHandler((layer, series, drawingContext, chartContext, layerContext, coordinatesProgress) =>
             {
-                handler.Invoke((TLayer)layer, (TSeries)series, drawingContext, chartContext, layerContext, coordinatesProgress);
+                handler.Invoke((TLayer)layer, (TSeries)series, drawingContext, (TChartContext)chartContext, layerContext, coordinatesProgress);
             });
             highlightHandlers.Add(typeof(TSeries), newHandler);
         }

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -74,7 +72,7 @@ namespace Panuon.WPF.Charts
         #region OnRenderBegin
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
-            IChartContext chartContext
+            ICartesianChartContext chartContext
         )
         {
             var coordinates = chartContext.Coordinates;
@@ -99,7 +97,7 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             double animationProgress
         )
         {
@@ -190,10 +188,10 @@ namespace Panuon.WPF.Charts
            ToggleHighlightLayer layer,
            DotSeries series,
            IDrawingContext drawingContext,
-           IChartContext chartContext,
+           ICartesianChartContext chartContext,
            ILayerContext layerContext,
            IDictionary<int, double> coordinatesProgress
-       )
+        )
         {
             foreach (var coordinateProgress in coordinatesProgress)
             {
@@ -225,7 +223,7 @@ namespace Panuon.WPF.Charts
 
         #region OnLegend
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            IChartContext chartContext, 
+            ICartesianChartContext chartContext, 
             ILayerContext layerContext
         )
         {

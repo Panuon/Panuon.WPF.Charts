@@ -36,7 +36,6 @@ namespace Panuon.WPF.Charts
         public IEnumerable<SeriesLegendEntry> RetrieveLegendEntries()
         {
             if (_chart == null
-                || _chart.Coordinates == null
                 || !_chart.IsCanvasReady()
                 || _loadAnimationProgressObject?.Progress == null)
             {
@@ -46,7 +45,7 @@ namespace Panuon.WPF.Charts
             var chartContext = _chart.GetCanvasContext();
             var layerContext = _chart.CreateLayerContext();
 
-            return OnRetrieveLegendEntries(
+            return OnInternalRetrieveLegendEntries(
                 chartContext: chartContext,
                 layerContext: layerContext
             );
@@ -58,7 +57,7 @@ namespace Panuon.WPF.Charts
             Point position
         )
         {
-            return OnRetrieveCoordinate(
+            return OnInternalRetrieveCoordinate(
                 chartContext,
                 layerContext,
                 position
@@ -79,7 +78,6 @@ namespace Panuon.WPF.Charts
             base.OnRender(drawingContext);
 
             if (_chart == null
-                || _chart.Coordinates == null
                 || !_chart.IsCanvasReady()
                 || _loadAnimationProgressObject?.Progress == null)
             {
@@ -93,14 +91,14 @@ namespace Panuon.WPF.Charts
             if (!_isAnimationBeginCalled
                 || _loadAnimationProgressObject.Progress == 1)
             {
-                OnRenderBegin(
+                OnInternalRenderBegin(
                     context,
                     chartContext
                 );
                 _isAnimationBeginCalled = true;
             }
 
-            OnRendering(
+            OnInternalRendering(
                 drawingContext: context,
                 chartContext: chartContext,
                 animationProgress: (double)_loadAnimationProgressObject.Progress
@@ -108,7 +106,7 @@ namespace Panuon.WPF.Charts
 
             if (_loadAnimationProgressObject.Progress == 1)
             {
-                OnRenderCompleted(
+                OnInternalRenderCompleted(
                     drawingContext: context,
                     chartContext: chartContext
                 );
@@ -122,7 +120,7 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Abstract Methods
-        protected virtual void OnRenderBegin(
+        internal protected virtual void OnInternalRenderBegin(
             IDrawingContext drawingContext,
             IChartContext chartContext
         )
@@ -135,26 +133,26 @@ namespace Panuon.WPF.Charts
         /// <param name="drawingContext">DrawingContext.</param>
         /// <param name="chartContext">ChartContext</param>
         /// <param name="animationProgress">Animation progress. From 0 to 1.</param>
-        protected abstract void OnRendering(
+        internal protected abstract void OnInternalRendering(
             IDrawingContext drawingContext,
             IChartContext chartContext,
             double animationProgress
         );
 
-        protected virtual void OnRenderCompleted(
+        internal protected virtual void OnInternalRenderCompleted(
             IDrawingContext drawingContext,
             IChartContext chartContext
         )
         {
         }
 
-        protected abstract ICoordinate OnRetrieveCoordinate(
+        internal protected abstract ICoordinate OnInternalRetrieveCoordinate(
             IChartContext chartContext,
             ILayerContext layerContext,
             Point position
         );
 
-        protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+        internal protected abstract IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries(
             IChartContext chartContext,
             ILayerContext layerContext
         );
