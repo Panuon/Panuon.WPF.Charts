@@ -43,7 +43,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(RadarSeriesSegment), new FrameworkPropertyMetadata(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3A000000")), FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(RadarSeries), new FrameworkPropertyMetadata(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3A000000")), FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region Stroke
@@ -54,7 +54,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register("Stroke", typeof(Brush), typeof(RadarSeriesSegment), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(RadarSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region StrokeThickness
@@ -65,7 +65,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(RadarSeriesSegment), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(RadarSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region GridLinesVisibility
@@ -153,7 +153,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeProperty =
-            RadarSeriesSegment.AxisStrokeProperty.AddOwner(typeof(RadarSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+            RadarSeriesSegment.AxisStrokeProperty.AddOwner(typeof(RadarSeries), new FrameworkPropertyMetadata(Brushes.Gray, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region AxisStrokeThickness
@@ -164,29 +164,29 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeThicknessProperty =
-            RadarSeriesSegment.AxisStrokeThicknessProperty.AddOwner(typeof(RadarSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+            RadarSeriesSegment.AxisStrokeThicknessProperty.AddOwner(typeof(RadarSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region Minimum
-        public double Minimum
+        #region MinValue
+        public double? MinValue
         {
-            get { return (double)GetValue(MinimumProperty); }
-            set { SetValue(MinimumProperty, value); }
+            get { return (double?)GetValue(MinValueProperty); }
+            set { SetValue(MinValueProperty, value); }
         }
 
-        public static readonly DependencyProperty MinimumProperty =
-            DependencyProperty.Register("Minimum", typeof(double), typeof(RadarSeries), new PropertyMetadata(0d));
+        public static readonly DependencyProperty MinValueProperty =
+            DependencyProperty.Register("MinValue", typeof(double?), typeof(RadarSeries), new PropertyMetadata(null));
         #endregion
 
-        #region Maximum
-        public double Maximum
+        #region MaxValue
+        public double? MaxValue
         {
-            get { return (double)GetValue(MaximumProperty); }
-            set { SetValue(MaximumProperty, value); }
+            get { return (double?)GetValue(MaxValueProperty); }
+            set { SetValue(MaxValueProperty, value); }
         }
 
-        public static readonly DependencyProperty MaximumProperty =
-            DependencyProperty.Register("Maximum", typeof(double), typeof(RadarSeries), new PropertyMetadata(10d));
+        public static readonly DependencyProperty MaxValueProperty =
+            DependencyProperty.Register("MaxValue", typeof(double?), typeof(RadarSeries), new PropertyMetadata(null));
         #endregion
 
         #endregion
@@ -217,6 +217,8 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
 
             var index = 0;
+            var angleDelta = 360.0 / Segments.Count;
+
             foreach (var coordinate in coordinates)
             {
                 if (index >= Segments.Count)
@@ -225,8 +227,7 @@ namespace Panuon.WPF.Charts
                 }
                 var segment = Segments[index];
                 var value = coordinate.GetValue(this);
-                var startAngle = coordinate.StartAngle;
-                var angle = coordinate.Angle;
+                var startAngle = angleDelta * index;
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
@@ -234,10 +235,20 @@ namespace Panuon.WPF.Charts
                 );
                 GeneratingTitle?.Invoke(this, generatingTitleArgs);
 
+                CheckMinMaxValue(
+                    coordinates.Select(c => c.GetValue(this)).Min(),
+                    coordinates.Select(c => c.GetValue(this)).Max(),
+                    out int minValue,
+                    out int maxValue
+                );
+                var actualMaxValue = MaxValue ?? maxValue;
+                var actualMinValue = MinValue ?? minValue;
+
+                value = Math.Max(actualMinValue, Math.Min(actualMaxValue, value));
                 _segmentInfos[segment] = new RadarSeriesSegmentInfo()
                 {
-                    Percent = value / Maximum,
-                    Angle = startAngle + angle / 2,
+                    Percent = (actualMaxValue - value) / (actualMaxValue - actualMinValue),
+                    Angle = startAngle,
                     Title = string.IsNullOrEmpty(generatingTitleArgs.Title)
                         ? null
                         : new FormattedText(
@@ -333,7 +344,7 @@ namespace Panuon.WPF.Charts
 
             #region Axis
             if (AxisStroke != null
-                && AxisStrokeThickness > 1)
+                && AxisStrokeThickness > 0)
             {
                 foreach (var segmentInfo in _segmentInfos)
                 {
@@ -489,6 +500,23 @@ namespace Panuon.WPF.Charts
             }
 
             drawingContext.DrawGeometry(stroke, strokThickness, dashArray, fill, geometry);
+        }
+
+        private void CheckMinMaxValue(
+            double minValue,
+            double maxValue,
+            out int resultMin,
+            out int resultMax
+        )
+        {
+            var min = (int)Math.Floor(minValue);
+            var max = (int)Math.Ceiling(maxValue);
+
+            var digit = Math.Max(1, max.ToString().Length - 1);
+            var baseValue = Math.Pow(10d, digit);
+
+            resultMin = (int)Math.Floor(min / baseValue) * (int)baseValue;
+            resultMax = (int)Math.Ceiling(max / baseValue) * (int)baseValue;
         }
 
         private static double CalculateRayLength(

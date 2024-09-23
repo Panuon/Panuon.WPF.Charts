@@ -64,7 +64,7 @@ namespace Panuon.WPF.Charts
                 if (coordinate != null)
                 {
                     if (LineVisibility == CrosshairLineVisibility.Both
-                        || LineVisibility == CrosshairLineVisibility.YAxis)
+                        || LineVisibility == CrosshairLineVisibility.XAxis)
                     {
                         //vertical line
                         drawingContext.DrawLine(
@@ -77,7 +77,7 @@ namespace Panuon.WPF.Charts
                         );
                     }
                     if (LineVisibility == CrosshairLineVisibility.Both
-                        || LineVisibility == CrosshairLineVisibility.XAxis)
+                        || LineVisibility == CrosshairLineVisibility.YAxis)
                     {
                         drawingContext.DrawLine(
                             stroke: Brushes.Gray,

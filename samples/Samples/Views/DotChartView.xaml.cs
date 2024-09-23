@@ -2,7 +2,7 @@
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 2, DisplayName = "DotChartView")]
+    [ExampleView(Index = 2, DisplayName = "DotChart")]
     public partial class DotChartView
         : Grid
     {

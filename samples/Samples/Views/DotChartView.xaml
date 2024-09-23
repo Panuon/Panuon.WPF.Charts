@@ -25,7 +25,7 @@
                        GridLinesBrush="#EAEAEA"
                        TitleMemberPath="Title"
                        AnimationEasing="CubicOut"
-                       AnimationDuration="0:0:2">
+                       AnimationDuration="0:0:1">
         <pc:CartesianChart.XAxis>
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
@@ -34,7 +34,7 @@
                       StrokeThickness="2" />
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
-            <pc:CrosshairLayer LineVisibility="YAxis" />
+            <pc:CrosshairLayer LineVisibility="XAxis" />
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"
                                      AnimationDuration="0:0:0.3" />
         </pc:CartesianChart.Layers>

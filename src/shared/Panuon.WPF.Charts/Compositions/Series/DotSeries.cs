@@ -81,13 +81,25 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.Offset;
-                var offsetY = chartContext.GetOffsetY(value);
+
+                double offsetX = 0d;
+                double offsetY = 0d;
+
+                if (!chartContext.SwapXYAxes)
+                {
+                    offsetX = coordinate.Offset;
+                    offsetY = chartContext.GetOffsetY(value);
+                }
+                else
+                {
+                    offsetX = chartContext.GetOffsetY(value);
+                    offsetY = coordinate.Offset;
+                }
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.Offset,
-                        y: chartContext.GetOffsetY(value)
+                        x: offsetX,
+                        y: offsetY
                     )
                 );
             }
@@ -194,30 +206,43 @@ namespace Panuon.WPF.Charts
         {
             foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == coordinateProgress.Key);
-                if (coordinate != null)
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
                 {
+                    continue;
+                }
+                var point = series._valuePoints[coordinate.Index];
 
-                    var progress = coordinateProgress.Value;
-
-                    if (progress == 0)
-                    {
-                        continue;
-                    }
-                    var point = series._valuePoints[coordinate.Index];
-
+                if (!chartContext.SwapXYAxes)
+                {
                     drawingContext.DrawEllipse(
-                        stroke: series.ToggleStroke,
+                        stroke: series.ToggleStroke ?? series.ToggleFill,
                         strokeThickness: layer.HighlightToggleStrokeThickness,
                         fill: layer.HighlightToggleFill,
-                        radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
-                        radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
                         startX: coordinate.Offset,
                         startY: point.Y
                     );
                 }
+                else
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.ToggleStroke ?? series.ToggleFill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: point.X,
+                        startY: coordinate.Offset
+                    );
+                }
             }
         }
+
         #endregion
 
         #region OnLegend

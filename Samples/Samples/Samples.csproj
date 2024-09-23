@@ -21,6 +21,9 @@
     <Compile Update="Views\BarChartView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\RadarChartView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\DoughnutChartView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -43,6 +46,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\BarChartView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\RadarChartView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

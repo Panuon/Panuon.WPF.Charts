@@ -178,7 +178,15 @@ namespace Panuon.WPF.Charts
                 {
                     strokeCtx.BeginFigure(_valuePoints[0], false, false);
 
-                    fillCtx.BeginFigure(new Point(_valuePoints[0].X, chartContext.AreaHeight), true, true);
+                    if (!chartContext.SwapXYAxes)
+                    {
+                        fillCtx.BeginFigure(new Point(_valuePoints[0].X, chartContext.AreaHeight), true, true);
+                    }
+                    else
+                    {
+                        fillCtx.BeginFigure(new Point(0, _valuePoints[0].Y), true, true);
+                    }
+
                     fillCtx.LineTo(_valuePoints[0], true, false);
 
                     for (int i = 0; i < segmentLengths.Count; i++)
@@ -200,8 +208,14 @@ namespace Panuon.WPF.Charts
                             strokeCtx.LineTo(new Point(x, y), true, false);
                             fillCtx.LineTo(new Point(x, y), true, false);
 
-                            fillCtx.LineTo(new Point(x, chartContext.AreaHeight), true, false);
-
+                            if (!chartContext.SwapXYAxes)
+                            {
+                                fillCtx.LineTo(new Point(x, chartContext.AreaHeight), true, false);
+                            }
+                            else
+                            {
+                                fillCtx.LineTo(new Point(0, y), true, false);
+                            }
 
                             break;
                         }
@@ -314,26 +328,38 @@ namespace Panuon.WPF.Charts
         {
             foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == coordinateProgress.Key);
-                if (coordinate != null)
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
                 {
+                    continue;
+                }
+                var point = series._valuePoints[coordinate.Index];
 
-                    var progress = coordinateProgress.Value;
-
-                    if (progress == 0)
-                    {
-                        continue;
-                    }
-                    var point = series._valuePoints[coordinate.Index];
-
+                if (!chartContext.SwapXYAxes)
+                {
                     drawingContext.DrawEllipse(
-                        stroke: series.Stroke,
+                        stroke: series.ToggleStroke ?? series.Fill,
                         strokeThickness: layer.HighlightToggleStrokeThickness,
                         fill: layer.HighlightToggleFill,
-                        radiusX: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
-                        radiusY: series.ToggleRadius + progress * (layer.HighlightToggleRadius - series.ToggleRadius),
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
                         startX: coordinate.Offset,
                         startY: point.Y
+                    );
+                }
+                else
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.ToggleStroke ?? series.Fill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: point.X,
+                        startY: coordinate.Offset
                     );
                 }
             }

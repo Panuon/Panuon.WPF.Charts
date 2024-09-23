@@ -211,7 +211,7 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region OnHighlighting
+        #region OnRetrieveLegendEntries
         protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
             ICartesianChartContext chartContext
         )
@@ -238,7 +238,6 @@ namespace Panuon.WPF.Charts
             IDictionary<int, double> coordinatesProgress
         )
         {
-           
             foreach (var coordinateProgress in coordinatesProgress)
             {
                 var index = coordinateProgress.Key;

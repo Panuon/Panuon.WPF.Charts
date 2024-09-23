@@ -2,7 +2,7 @@
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 4, DisplayName = "Clustered")]
+    [ExampleView(Index = 4, DisplayName = "ClusteredColumnChart")]
     public partial class ClusteredColumnChartView
         : Grid
     {
