@@ -1,23 +1,20 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
     public interface IChartContext
     {
-        ChartBase ChartPanel { get; }
-
         double AreaWidth { get; }
 
         double AreaHeight { get; }
 
-        double MinValue { get; }
-
-        double MaxValue { get; }
-
-        IEnumerable<ICoordinate> Coordinates { get; }
-
         IEnumerable<SeriesBase> Series { get; }
 
-        double GetOffsetY(double value);
+        IEnumerable<LayerBase> Layers { get; }
+
+        Point? GetMousePosition(MouseRelativeTarget relativeTo);
+
+        ICoordinate RetrieveCoordinate(Point offset);
     }
 }

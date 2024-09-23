@@ -12,6 +12,13 @@ namespace Panuon.WPF.Charts
         private List<Point> _valuePoints;
         #endregion
 
+        #region Ctor
+        static DotSeries()
+        {
+            ToggleHighlightLayer.Regist<DotSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
 
         #region ToggleStroke
@@ -22,7 +29,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeProperty =
-            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(DotSeries), new PropertyMetadata(Brushes.Black, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleStrokeThickness
@@ -33,7 +40,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleStrokeThicknessProperty =
-            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(DotSeries), new PropertyMetadata(1d, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleFill
@@ -44,7 +51,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(DotSeries), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #region ToggleRadius
@@ -55,7 +62,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(DotSeries), new PropertyMetadata(3d, OnRenderPropertyChanged));
+            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion
@@ -65,7 +72,7 @@ namespace Panuon.WPF.Charts
         #region OnRenderBegin
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
-            IChartContext chartContext
+            ICartesianChartContext chartContext
         )
         {
             var coordinates = chartContext.Coordinates;
@@ -74,13 +81,25 @@ namespace Panuon.WPF.Charts
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
-                var offsetX = coordinate.Offset;
-                var offsetY = chartContext.GetOffsetY(value);
+
+                double offsetX = 0d;
+                double offsetY = 0d;
+
+                if (!chartContext.SwapXYAxes)
+                {
+                    offsetX = coordinate.Offset;
+                    offsetY = chartContext.GetOffsetY(value);
+                }
+                else
+                {
+                    offsetX = chartContext.GetOffsetY(value);
+                    offsetY = coordinate.Offset;
+                }
 
                 _valuePoints.Add(
                     new Point(
-                        x: coordinate.Offset,
-                        y: chartContext.GetOffsetY(value)
+                        x: offsetX,
+                        y: offsetY
                     )
                 );
             }
@@ -90,7 +109,7 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             double animationProgress
         )
         {
@@ -173,26 +192,73 @@ namespace Panuon.WPF.Charts
                 lastPoint = point;
                 accumulatedLength += segmentLength;
             }
-
         }
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+        public static void OnToggleHighlighting(
+           ToggleHighlightLayer layer,
+           DotSeries series,
+           IDrawingContext drawingContext,
+           ICartesianChartContext chartContext,
+           IDictionary<int, double> coordinatesProgress
+        )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            foreach (var coordinateProgress in coordinatesProgress)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+                var point = series._valuePoints[coordinate.Index];
+
+                if (!chartContext.SwapXYAxes)
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.ToggleStroke ?? series.ToggleFill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: coordinate.Offset,
+                        startY: point.Y
+                    );
+                }
+                else
+                {
+                    drawingContext.DrawEllipse(
+                        stroke: series.ToggleStroke ?? series.ToggleFill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        startX: point.X,
+                        startY: coordinate.Offset
+                    );
+                }
+            }
+        }
+
+        #endregion
+
+        #region OnLegend
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
+            ICartesianChartContext chartContext
+        )
+        {
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
+            {
+                var coordinate = chartContext.RetrieveCoordinate(position);
                 var toggleBrush = ToggleFill ?? ToggleStroke;
 
                 var value = coordinate.GetValue(this);
                 var offsetY = chartContext.GetOffsetY(value);
-                drawingContext.DrawEllipse(toggleBrush, 2, Brushes.White, 5, 5, coordinate.Offset, offsetY);
 
-                tooltips.Add(new SeriesTooltip(toggleBrush, Title ?? coordinate.Title, value.ToString()));
+                yield return new SeriesLegendEntry(toggleBrush, Title ?? coordinate.Title, value.ToString());
             }
         }
         #endregion

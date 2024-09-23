@@ -14,6 +14,13 @@ namespace Panuon.WPF.Charts
         private Dictionary<ClusteredColumnSeriesSegment, List<Point>> _segmentPoints;
         #endregion
 
+        #region Ctor
+        static ClusteredColumnSeries()
+        {
+            ToggleHighlightLayer.Regist<ClusteredColumnSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
 
         #region Spacing
@@ -24,18 +31,29 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(ClusteredColumnSeries), new PropertyMetadata(5d));
+            DependencyProperty.Register("Spacing", typeof(double), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(5d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region Width
-        public GridLength Width
+        #region ColumnWidth
+        public GridLength ColumnWidth
         {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
+            get { return (GridLength)GetValue(ColumnWidthProperty); }
+            set { SetValue(ColumnWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(ClusteredColumnSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
+        public static readonly DependencyProperty ColumnWidthProperty =
+            DependencyProperty.Register("ColumnWidth", typeof(GridLength), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(new GridLength(1, GridUnitType.Auto), FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region Radius
+        public double Radius
+        {
+            get { return (double)GetValue(RadiusProperty); }
+            set { SetValue(RadiusProperty, value); }
+        }
+
+        public static readonly DependencyProperty RadiusProperty =
+            DependencyProperty.Register("Radius", typeof(double), typeof(ClusteredColumnSeries), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion
@@ -45,13 +63,13 @@ namespace Panuon.WPF.Charts
         #region OnRenderBegin
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
-            IChartContext chartContext
+            ICartesianChartContext chartContext
         )
         {
             _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
 
             var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
             var columnWidth = CalculateBarWidth(clusterWidth);
 
             var coordinates = chartContext.Coordinates;
@@ -79,14 +97,14 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            ICartesianChartContext chartContext,
             double animationProgress
         )
         {
             var coordinates = chartContext.Coordinates;
 
             var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
+            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
             var columnWidth = CalculateBarWidth(clusterWidth);
 
             foreach (var segmentPoint in _segmentPoints)
@@ -104,7 +122,9 @@ namespace Panuon.WPF.Charts
                             startX: point.X - columnWidth / 2,
                             startY: 0,
                             width: columnWidth,
-                            height: chartContext.AreaHeight
+                            height: chartContext.AreaHeight,
+                            radiusX: Radius,
+                            radiusY: Radius
                         );
                     }
 
@@ -115,7 +135,9 @@ namespace Panuon.WPF.Charts
                         startX: point.X - columnWidth / 2,
                         startY: chartContext.AreaHeight - (chartContext.AreaHeight - point.Y) * animationProgress,
                         width: columnWidth,
-                        height: (chartContext.AreaHeight - point.Y) * animationProgress
+                        height: (chartContext.AreaHeight - point.Y) * animationProgress,
+                        radiusX: Radius,
+                        radiusY: Radius
                     );
                 }
             }
@@ -123,36 +145,20 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override void OnHighlighting(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
+            ICartesianChartContext chartContext
+        )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
             {
-                var coordinate = layerContext.GetCoordinate(position.X);
-
-                var offsetX = coordinate.Offset;
-
-                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-                var clusterWidth = GridLengthUtil.GetActualValue(Width, deltaX);
-                var columnWidth = CalculateBarWidth(clusterWidth);
-
-                var left = offsetX - clusterWidth / 2;
+                var coordinate = chartContext.RetrieveCoordinate(position);
 
                 foreach (var segment in Segments)
                 {
                     var value = coordinate.GetValue(segment);
                     var offsetY = chartContext.GetOffsetY(value);
-                    drawingContext.DrawEllipse(segment.Fill,
-                        2,
-                        Brushes.White,
-                        5,
-                        5,
-                        left + columnWidth / 2, offsetY);
-                    left += (columnWidth + Spacing);
 
-                    tooltips.Add(new SeriesTooltip(segment.Fill, segment.Title ?? coordinate.Title, value.ToString()));
+                    yield return new SeriesLegendEntry(segment.Fill, segment.Title ?? coordinate.Title, value.ToString());
                 }
             }
         }
@@ -160,11 +166,58 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            ClusteredColumnSeries series,
+            IDrawingContext drawingContext,
+            ICartesianChartContext chartContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+
+                var offsetX = coordinate.Offset;
+
+                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+                var clusterWidth = GridLengthUtil.GetActualValue(series.ColumnWidth, deltaX);
+                var columnWidth = series.CalculateBarWidth(clusterWidth);
+
+                var left = offsetX - clusterWidth / 2;
+                foreach (var segment in series.Segments)
+                {
+                    var value = coordinate.GetValue(segment);
+                    var offsetY = chartContext.GetOffsetY(value);
+                    drawingContext.DrawEllipse(
+                        stroke: segment.Fill,
+                        strokeThickness: layer.HighlightToggleStrokeThickness,
+                        fill: layer.HighlightToggleFill,
+                        radiusX: progress * layer.HighlightToggleRadius,
+                        radiusY: progress * layer.HighlightToggleRadius,
+                        left + columnWidth / 2,
+                        offsetY
+                    );
+                    left += (columnWidth + series.Spacing);
+                }
+            }
+        }
+        #endregion
+
         #region Functions
         private double CalculateBarWidth(double totalWidth)
         {
             return Math.Max(0, (totalWidth - (Segments.Count - 1) * Spacing) / Segments.Count);
         }
+
         #endregion
 
     }

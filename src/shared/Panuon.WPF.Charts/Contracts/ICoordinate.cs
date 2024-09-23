@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Panuon.WPF.Charts
+﻿namespace Panuon.WPF.Charts
 {
     public interface ICoordinate
     {
@@ -8,9 +6,8 @@ namespace Panuon.WPF.Charts
 
         int Index { get; }
 
+        double GetValue(IChartArgument seriesOrSegment);
+
         double Offset { get; }
-
-        double GetValue(IChartValueProvider seriesOrSegment);
-
     }
 }

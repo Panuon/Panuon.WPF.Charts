@@ -3,6 +3,6 @@
     public enum ToolTipPlacement
     {
         Fixed,
-        Cursor
+        FollowMouse
     }
 }

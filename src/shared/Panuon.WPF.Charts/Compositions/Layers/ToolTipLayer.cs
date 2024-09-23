@@ -15,7 +15,7 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public ToolTipLayer()
         {
-            _label = new Label() 
+            _label = new Label()
             {
                 ContentTemplate = (DataTemplate)Application.Current.FindResource(TooltipContentTemplateKey),
                 VerticalAlignment = VerticalAlignment.Top,

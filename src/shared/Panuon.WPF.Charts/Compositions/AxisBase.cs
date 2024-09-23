@@ -1,12 +1,19 @@
 ﻿using Panuon.WPF.Charts.Controls.Internals;
+using Panuon.WPF.Charts.Implements;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class AxisBase
-        : DependencyObject
+        : FrameworkElement
     {
+        #region Fields
+        protected CartesianChart _chart;
+
+        #endregion
+
         #region RoutedEvent
 
         #endregion
@@ -21,8 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SpacingProperty =
-            AxisPresenterBase.SpacingProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(5d,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("Spacing", typeof(double), typeof(AxisBase), new PropertyMetadata(5d));
         #endregion
 
         #region LabelStyle
@@ -44,8 +50,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty ForegroundProperty =
-            AxisPresenterBase.ForegroundProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("Foreground", typeof(Brush), typeof(AxisBase), new PropertyMetadata(Brushes.Black));
         #endregion
 
         #region StrokeThickness
@@ -56,8 +61,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeThicknessProperty =
-            AxisPresenterBase.StrokeThicknessProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(1d,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("StrokeThickness", typeof(double), typeof(AxisBase), new PropertyMetadata(1d));
         #endregion
 
         #region Stroke
@@ -68,8 +72,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty StrokeProperty =
-            AxisPresenterBase.StrokeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(AxisBase), new PropertyMetadata(Brushes.Black));
         #endregion
 
         #region FontFamily
@@ -80,8 +83,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FontFamilyProperty =
-            AxisPresenterBase.FontFamilyProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontFamily,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("FontFamily", typeof(FontFamily), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontFamily));
         #endregion
 
         #region FontStyle
@@ -92,8 +94,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FontStyleProperty =
-            AxisPresenterBase.FontStyleProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontStyle,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("FontStyle", typeof(FontStyle), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontStyle));
         #endregion
 
         #region FontWeight
@@ -104,8 +105,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FontWeightProperty =
-            AxisPresenterBase.FontWeightProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontWeight,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("FontWeight", typeof(FontWeight), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontWeight));
         #endregion
 
         #region FontStretch
@@ -116,8 +116,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FontStretchProperty =
-            AxisPresenterBase.FontStretchProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(FontStretches.Normal,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("FontStretch", typeof(FontStretch), typeof(AxisBase), new PropertyMetadata(FontStretches.Normal));
         #endregion
 
         #region FontSize
@@ -128,8 +127,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty FontSizeProperty =
-            AxisPresenterBase.FontSizeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(SystemFonts.MessageFontSize,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("FontSize", typeof(double), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontSize));
         #endregion
 
         #region TicksSize
@@ -140,8 +138,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty TicksSizeProperty =
-            AxisPresenterBase.TicksSizeProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(3d,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("TicksSize", typeof(double), typeof(AxisBase), new PropertyMetadata(3d));
         #endregion
 
         #region TicksBrush
@@ -152,10 +149,16 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty TicksBrushProperty =
-            AxisPresenterBase.TicksBrushProperty.AddOwner(typeof(AxisBase), new FrameworkPropertyMetadata(Brushes.Black,
-                FrameworkPropertyMetadataOptions.Inherits));
+            DependencyProperty.Register("TicksBrush", typeof(Brush), typeof(AxisBase), new PropertyMetadata(Brushes.Black));
         #endregion
 
+        #endregion
+
+        #region Internal Methods
+        internal void OnAttached(CartesianChart chart)
+        {
+            _chart = chart;
+        }
         #endregion
 
         #region Event Handlers

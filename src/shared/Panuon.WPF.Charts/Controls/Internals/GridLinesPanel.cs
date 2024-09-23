@@ -50,7 +50,7 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
 
             var drawingContext = _chart.CreateDrawingContext(context);
-            var chartContext = _chart.GetCanvasContext();
+            var chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
 
             var pen = new Pen(_chart.GridLinesBrush, _chart.GridLinesThickness);
             pen.Freeze();
@@ -58,35 +58,37 @@ namespace Panuon.WPF.Charts.Controls.Internals
             if (_chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Vertical
                 || _chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Both)
             {
-                foreach(var coordinateText in _chart._xAxisPresenter._formattedTexts)
+                if (_chart.XAxis != null)
                 {
-                    var coordinate = coordinateText.Key;
+                    foreach (var coordinateText in _chart.XAxis._formattedTextOffsets)
+                    {
+                        var offsetX = coordinateText.Value();
 
-                    var offsetX = coordinate.Offset;
-
-                    drawingContext.DrawLine(_chart.GridLinesBrush,
-                        _chart.GridLinesThickness,
-                        offsetX,
-                        0,
-                        offsetX,
-                        ActualHeight);
+                        drawingContext.DrawLine(_chart.GridLinesBrush,
+                            _chart.GridLinesThickness,
+                            offsetX,
+                            0,
+                            offsetX,
+                            ActualHeight);
+                    }
                 }
             }
             if (_chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Horizontal
                 || _chart.GridLinesVisibility == CartesianChartGridLinesVisibility.Both)
             {
-                foreach (var valueText in _chart._yAxisPresenter._formattedTexts)
+                if (_chart.YAxis != null)
                 {
-                    var value = valueText.Key;
+                    foreach (var valueText in _chart.YAxis._formattedTextOffsets)
+                    {
+                        var offsetY = valueText.Value();
 
-                    var offsetY = chartContext.GetOffsetY(value);
-
-                    drawingContext.DrawLine(_chart.GridLinesBrush,
-                        _chart.GridLinesThickness,
-                        0,
-                        offsetY,
-                        ActualWidth,
-                        offsetY);
+                        drawingContext.DrawLine(_chart.GridLinesBrush,
+                            _chart.GridLinesThickness,
+                            0,
+                            offsetY,
+                            ActualWidth,
+                            offsetY);
+                    }
                 }
             }
         }

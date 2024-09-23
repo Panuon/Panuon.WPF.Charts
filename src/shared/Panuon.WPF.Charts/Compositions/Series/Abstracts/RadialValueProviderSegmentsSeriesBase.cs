@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class RadialValueProviderSegmentsSeriesBase
-       : RadialSeriesBase, IChartValueProvider, IChartSegmentsSeries
+       : RadialSeriesBase, IChartValueProvider
     {
         #region Fields
         private Dictionary<SegmentBase, Point> _segmentPoints;

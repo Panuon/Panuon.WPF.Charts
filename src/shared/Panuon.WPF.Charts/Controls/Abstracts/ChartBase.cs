@@ -1,11 +1,10 @@
-﻿using Panuon.WPF.Chart;
-using Panuon.WPF.Charts.Controls.Internals;
+﻿using Panuon.WPF.Charts.Controls.Internals;
 using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -21,8 +20,9 @@ namespace Panuon.WPF.Charts
         internal SeriesPanel _seriesPanel;
         internal LayersPanel _layersPanel;
 
-        private ChartContextImpl _chartContext;
-        private LayerContextImpl _layerContext;
+
+        private static TypeConverter _doubleTypeConverter = 
+            TypeDescriptor.GetConverter(typeof(double));
         #endregion
 
         #region Ctor
@@ -99,29 +99,6 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
-        #region Internal Properties
-
-        internal List<CoordinateImpl> Coordinates { get; private set; }
-
-        internal virtual double ActualMinValue
-        {
-            get
-            {
-                return _measuredMinValue;
-            }
-        }
-        private double _measuredMinValue;
-
-        internal virtual double ActualMaxValue
-        {
-            get
-            {
-                return _measuredMaxValue;
-            }
-        }
-        private double _measuredMaxValue;
-        #endregion
-
         #region Overrides
 
         #region VisualChildrenCount
@@ -135,81 +112,6 @@ namespace Panuon.WPF.Charts
         #region MeasureOverride
         protected override Size MeasureOverride(Size availableSize)
         {
-            var coordinates = new List<CoordinateImpl>();
-            if (ItemsSource != null)
-            {
-                var index = 0;
-                foreach (var item in ItemsSource)
-                {
-                    var itemType = item.GetType();
-                    string title = null;
-                    if (!string.IsNullOrEmpty(TitleMemberPath))
-                    {
-                        var titleProperty = itemType.GetProperty(TitleMemberPath);
-                        if (titleProperty == null)
-                        {
-                            throw new System.NullReferenceException($"Property {TitleMemberPath} does not exists.");
-                        }
-
-                        var titleValue = titleProperty.GetValue(item);
-                        title = titleValue is string
-                            ? (string)titleValue
-                            : titleValue.ToString();
-                    }
-
-                    var values = new Dictionary<IChartValueProvider, double>();
-                    foreach (var series in GetSeries())
-                    {
-                        if (series is IChartValueProvider valueProvider)
-                        {
-                            var value = GetValueFromValueProvider(valueProvider, item);
-                            values.Add(valueProvider, value);
-                        }
-                        if (series is CartesianSegmentsSeriesBase cartesianSeries)
-                        {
-                            foreach (ValueProviderSegmentBase segment in cartesianSeries.GetSegments())
-                            {
-                                var value = GetValueFromValueProvider(segment, item);
-                                values.Add(segment, value);
-                            }
-                        }
-                        if (series is RadialSegmentsSeriesBase radialSeries)
-                        {
-                            foreach (ValueProviderSegmentBase segment in radialSeries.GetSegments())
-                            {
-                                var value = GetValueFromValueProvider(segment, item);
-                                values.Add(segment, value);
-                            }
-                        }
-                    }
-
-                    coordinates.Add(new CoordinateImpl()
-                    {
-                        Title = title,
-                        Values = values,
-                        Index = index
-                    });
-                    index++;
-                }
-            }
-
-            Coordinates = coordinates;
-            if (coordinates.Any())
-            {
-                CheckMinMaxValue(coordinates.SelectMany(x => x.Values.Values).Min(),
-                    coordinates.SelectMany(x => x.Values.Values).Max(),
-                    out int minValue,
-                    out int maxValue);
-
-                _measuredMinValue = minValue;
-                _measuredMaxValue = maxValue;
-            }
-            else
-            {
-                _measuredMinValue = 0;
-                _measuredMaxValue = 10;
-            }
-
             _seriesPanel.Measure(availableSize);
             _layersPanel.Measure(availableSize);
 
@@ -222,14 +124,6 @@ namespace Panuon.WPF.Charts
         {
             var renderWidth = finalSize.Width - Padding.Left - Padding.Right;
             var renderHeight = finalSize.Height - Padding.Top - Padding.Bottom;
-
-            var deltaX = renderWidth / Coordinates.Count;
-
-            for (int i = 0; i < Coordinates.Count; i++)
-            {
-                var coordinate = Coordinates[i];
-                coordinate.Offset = (i + 0.5) * deltaX;
-            }
 
             _seriesPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
             _layersPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
@@ -247,6 +141,55 @@ namespace Panuon.WPF.Charts
 
         public abstract IEnumerable<SeriesBase> GetSeries();
 
+        #region Protected Methods
+        protected double GetValueFromValueProvider(
+            IChartValueProvider valueProvider,
+            object item,
+            int index = -1
+        )
+        {
+            var itemType = item.GetType();
+
+            double value;
+            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
+            {
+                try
+                {
+                    if (index != -1
+                        && item is IEnumerable enumerableItem)
+                    {
+                        var enumerator = enumerableItem.GetEnumerator();
+                        for (int i = 0; i <= index; i++)
+                        {
+                            enumerator.MoveNext();
+                        }
+                        value = Convert.ToDouble(enumerator.Current);
+                    }
+                    else
+                    {
+                        value = Convert.ToDouble(item);
+                    }
+                }
+                catch
+                {
+                    throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
+                }
+            }
+            else
+            {
+                var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
+                if (valueProperty == null)
+                {
+                    throw new System.InvalidOperationException($"Property named '{valueProvider.ValueMemberPath}' does not exists in {item}.");
+                }
+                var valueValue = valueProperty.GetValue(item);
+                value = Convert.ToDouble(valueValue);
+            }
+
+            return value;
+        }
+        #endregion
+
         #region Internal Methods
         internal bool IsCanvasReady()
         {
@@ -260,24 +203,7 @@ namespace Panuon.WPF.Charts
             return drawingContext;
         }
 
-        internal IChartContext GetCanvasContext()
-        {
-            if(_chartContext == null)
-            {
-                _chartContext = new ChartContextImpl(this);
-            }
-
-            return _chartContext;
-        }
-
-        internal ILayerContext CreateLayerContext()
-        {
-            if (_layerContext == null)
-            {
-                _layerContext = new LayerContextImpl(this);
-            }
-            return _layerContext;
-        }
+        internal abstract IChartContext GetCanvasContext();
         #endregion
 
         #endregion
@@ -306,45 +232,5 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region Functions
-        private void CheckMinMaxValue(double minValue,
-            double maxValue,
-            out int resultMin,
-            out int resultMax)
-        {
-            var min = (int)Math.Floor(minValue);
-            var max = (int)Math.Ceiling(maxValue);
-
-            var digit = Math.Max(1, max.ToString().Length - 1);
-            var baseValue = Math.Pow(10d, digit);
-
-            resultMin = (int)Math.Floor(min / baseValue) * (int)baseValue;
-            resultMax = (int)Math.Ceiling(max / baseValue) * (int)baseValue;
-
-        }
-
-        private double GetValueFromValueProvider(
-            IChartValueProvider valueProvider,
-            object item
-        )
-        {
-            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
-            {
-                throw new NullReferenceException("Property ValueMemberPath of Series can not be null.");
-            }
-
-            var itemType = item.GetType();
-
-            var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
-            if (valueProperty == null)
-            {
-                throw new System.NullReferenceException($"Property named '{valueProvider.ValueMemberPath}' does not exists.");
-            }
-            var valueValue = valueProperty.GetValue(item);
-            var value = Convert.ToDouble(valueValue);
-
-            return value;
-        }
-        #endregion
     }
 }

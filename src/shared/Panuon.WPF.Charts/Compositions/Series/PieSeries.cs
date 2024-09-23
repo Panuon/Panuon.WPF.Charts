@@ -25,29 +25,14 @@ namespace Panuon.WPF.Charts
         private Dictionary<PieSeriesSegment, PieSeriesSegmentInfo> _segmentInfos;
         #endregion
 
+        #region Ctor
+        static PieSeries()
+        {
+            ToggleHighlightLayer.Regist<PieSeries>(OnToggleHighlighting);
+        }
+        #endregion
+
         #region Properties
-
-        #region Spacing
-        public double Spacing
-        {
-            get { return (double)GetValue(SpacingProperty); }
-            set { SetValue(SpacingProperty, value); }
-        }
-
-        public static readonly DependencyProperty SpacingProperty =
-            DependencyProperty.Register("Spacing", typeof(double), typeof(PieSeries), new PropertyMetadata(5d));
-        #endregion
-
-        #region Width
-        public GridLength Width
-        {
-            get { return (GridLength)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
-        }
-
-        public static readonly DependencyProperty WidthProperty =
-            DependencyProperty.Register("Width", typeof(GridLength), typeof(PieSeries), new PropertyMetadata(new GridLength(1, GridUnitType.Auto), OnRenderPropertyChanged));
-        #endregion
 
         #endregion
 
@@ -58,29 +43,26 @@ namespace Panuon.WPF.Charts
         #region Overrides
 
         #region OnRenderBegin
-        protected override void OnRenderBegin(IDrawingContext drawingContext, IChartContext chartContext)
+        protected override void OnRenderBegin(IDrawingContext drawingContext, IRadialChartContext chartContext)
         {
             base.OnRenderBegin(drawingContext, chartContext);
 
             _segmentInfos = new Dictionary<PieSeriesSegment, PieSeriesSegmentInfo>();
 
-            var chartPanel = chartContext.ChartPanel;
+            var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-            var angleDelta = 360d / totalValue;
-
             var index = 0;
-            var totalAngle = 0d;
             foreach (var coordinate in coordinates)
             {
-                var value = coordinate.GetValue(this);
-                var angle = Math.Round(angleDelta * value, 2);
                 if (index >= Segments.Count)
                 {
                     break;
                 }
                 var segment = Segments[index];
+                var value = coordinate.GetValue(this);
+                var startAngle = coordinate.StartAngle;
+                var angle = coordinate.Angle;
 
                 var generatingTitleArgs = new GeneratingTitleEventArgs(
                     value: value,
@@ -91,7 +73,7 @@ namespace Panuon.WPF.Charts
                 var title = generatingTitleArgs.Title;
                 _segmentInfos[segment] = new PieSeriesSegmentInfo()
                 {
-                    StartAngle = totalAngle,
+                    StartAngle = startAngle,
                     Angle = angle,
                     Title = title == null
                         ? null
@@ -102,17 +84,15 @@ namespace Panuon.WPF.Charts
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
                             chartPanel.FontSize,
                             chartPanel.Foreground
-    #if NET452 || NET462 || NET472 || NET48
-    #else
+#if NET452 || NET462 || NET472 || NET48
+#else
                             , VisualTreeHelper.GetDpi(chartPanel).PixelsPerDip
-    #endif
+#endif
                         )
-                            {
-                                TextAlignment = TextAlignment.Center
-                            }
+                        {
+                            TextAlignment = TextAlignment.Center
+                        }
                 };
-
-                totalAngle += angle;
                 index++;
             }
         }
@@ -121,19 +101,19 @@ namespace Panuon.WPF.Charts
         #region OnRendering
         protected override void OnRendering(
             IDrawingContext drawingContext,
-            IChartContext chartContext,
+            IRadialChartContext chartContext,
             double animationProgress
         )
         {
-            var chartPanel = chartContext.ChartPanel;
+            var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = chartContext.AreaWidth - Spacing * 2;
-            var areaHeight = chartContext.AreaHeight - Spacing * 2;
+            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
 
             var radius = Math.Min(areaWidth, areaHeight) / 2;
-            var centerX = areaWidth / 2 + Spacing;
-            var centerY = areaHeight / 2 + Spacing;
+            var centerX = chartContext.AreaWidth / 2;
+            var centerY = chartContext.AreaHeight / 2;
 
             var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
             var angleDelta = 360d / totalValue;
@@ -162,7 +142,7 @@ namespace Panuon.WPF.Charts
 
                 var formattedText = segmentInfo.Value.Title;
 
-                if(formattedText == null)
+                if (formattedText == null)
                 {
                     continue;
                 }
@@ -172,8 +152,8 @@ namespace Panuon.WPF.Charts
                 var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
 
                 var halfPoint = new Point(
-                    centerX + (radius + Spacing + rayLength) * Math.Cos(radian),
-                    centerY + (radius + Spacing + rayLength) * Math.Sin(radian)
+                    centerX + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),
+                    centerY + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian)
                 );
 
                 if (segment.LabelStroke == null && segment.LabelForeground == null)
@@ -199,21 +179,21 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        protected override void OnHighlighting(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext,
-            in IList<SeriesTooltip> tooltips)
+        #region OnRetrieveLegendEntries
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
+            IRadialChartContext chartContext
+        )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point offset)
             {
                 var coordinates = chartContext.Coordinates;
 
-                var areaWidth = chartContext.AreaWidth - Spacing * 2;
-                var areaHeight = chartContext.AreaHeight - Spacing * 2;
+                var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+                var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
 
                 var radius = Math.Min(areaWidth, areaHeight) / 2;
-                var centerX = areaWidth / 2 + Spacing;
-                var centerY = areaHeight / 2 + Spacing;
+                var centerX = chartContext.AreaWidth / 2;
+                var centerY = chartContext.AreaHeight / 2;
 
                 var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
                 var angleDelta = 360d / totalValue;
@@ -226,27 +206,74 @@ namespace Panuon.WPF.Charts
                     var angle = Math.Round(angleDelta * value, 2);
                     if (index >= Segments.Count)
                     {
-                        return;
+                        yield break;
                     }
                     var segment = Segments[index];
 
-                    if (IsPointInsideSector(position,
+                    if (IsPointInsideSector(offset,
                         centerX, centerY,
                         radius,
                         totalAngle, totalAngle + angle))
                     {
-                        drawingContext.DrawArc(Brushes.Gold, 2,
-                                null,
-                                centerX, centerY,
-                                radius,
-                                totalAngle, totalAngle + angle);
-                        tooltips.Add(new SeriesTooltip(segment.Fill, segment.Title ?? coordinate.Title, value.ToString()));
-                        return;
+                        yield return new SeriesLegendEntry(segment.Fill, segment.Title ?? coordinate.Title, value.ToString());
                     }
 
                     totalAngle += angle;
                     index++;
                 }
+            }
+        }
+        #endregion
+
+        #endregion
+
+        #region Event Handlers
+        public static void OnToggleHighlighting(
+            ToggleHighlightLayer layer,
+            PieSeries series,
+            IDrawingContext drawingContext,
+            IRadialChartContext chartContext,
+            IDictionary<int, double> coordinatesProgress
+        )
+        {
+            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+
+            foreach (var coordinateProgress in coordinatesProgress)
+            {
+                var index = coordinateProgress.Key;
+                var coordinate = chartContext.Coordinates.FirstOrDefault(c => c.Index == index);
+                var progress = coordinateProgress.Value;
+
+                if (progress == 0)
+                {
+                    continue;
+                }
+
+                var radius = Math.Min(areaWidth, areaHeight) / 2;
+                var centerX = chartContext.AreaWidth / 2;
+                var centerY = chartContext.AreaHeight / 2;
+
+                var segmentInfo = series._segmentInfos.ElementAt(index);
+                var segment = segmentInfo.Key;
+                var startAngle = segmentInfo.Value.StartAngle;
+                var angle = Math.Round(segmentInfo.Value.Angle, 2);
+
+                var radians = (startAngle + angle / 2 - 90) * Math.PI / 180.0;
+                var point = new Point(
+                    centerX + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Cos(radians),
+                    centerY + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Sin(radians)
+                );
+
+                drawingContext.DrawEllipse(
+                    stroke: segment.Fill,
+                    strokeThickness: layer.HighlightToggleStrokeThickness,
+                    fill: layer.HighlightToggleFill,
+                    radiusX: progress * layer.HighlightToggleRadius,
+                    radiusY: progress * layer.HighlightToggleRadius,
+                    startX: point.X,
+                    startY: point.Y
+                );
             }
         }
         #endregion
@@ -257,7 +284,8 @@ namespace Panuon.WPF.Charts
             double centerY,
             double radius,
             double startAngle,
-            double endAngle)
+            double endAngle
+        )
         {
             var distance = Math.Sqrt(Math.Pow(point.X - centerX, 2) + Math.Pow(point.Y - centerY, 2));
             var angle = Math.Atan2(point.Y - centerY, point.X - centerX) * (180 / Math.PI);
@@ -330,6 +358,7 @@ namespace Panuon.WPF.Charts
 
             return intersectionDistance;
         }
+
         #endregion
 
     }

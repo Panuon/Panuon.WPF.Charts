@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Panuon.WPF.Chart;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -16,7 +17,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeProperty =
-            DependencyProperty.Register("AxisStroke", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(Brushes.LightGray, OnRenderPropertyChanged));
+            DependencyProperty.Register("AxisStroke", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(Brushes.LightGray, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region AxisStrokeThickness
@@ -27,7 +28,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty AxisStrokeThicknessProperty =
-            DependencyProperty.Register("AxisStrokeThickness", typeof(double), typeof(RadarSeriesSegment), new PropertyMetadata(2d, OnRenderPropertyChanged));
+            DependencyProperty.Register("AxisStrokeThickness", typeof(double), typeof(RadarSeriesSegment), new PropertyMetadata(2d, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region LabelForeground
@@ -38,7 +39,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region LabelStroke
@@ -49,7 +50,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelStrokeProperty =
-            DependencyProperty.Register("LabelStroke", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(null, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelStroke", typeof(Brush), typeof(RadarSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
         #endregion
 
         #region LabelStrokeThickness
@@ -60,7 +61,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty LabelStrokeThicknessProperty =
-            DependencyProperty.Register("LabelStrokeThickness", typeof(double), typeof(RadarSeriesSegment), new PropertyMetadata(0.3, OnRenderPropertyChanged));
+            DependencyProperty.Register("LabelStrokeThickness", typeof(double), typeof(RadarSeriesSegment), new PropertyMetadata(0.3, OnAffectsRenderPropertyChanged));
         #endregion
 
         #endregion

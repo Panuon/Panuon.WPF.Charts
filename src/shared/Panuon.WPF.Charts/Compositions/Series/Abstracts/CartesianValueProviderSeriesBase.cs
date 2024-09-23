@@ -41,5 +41,8 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #endregion
+
+        #region Methods
+        #endregion
     }
 }

@@ -1,0 +1,72 @@
+﻿<Window x:Class="Samples.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Samples"
+        xmlns:pw="https://opensource.panuon.com/wpf"
+        xmlns:pc="https://opensource.panuon.com/wpf-charts"
+        mc:Ignorable="d"
+        Title="Panauon.WPF.Charts"
+        Height="750"
+        Width="1300"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid Margin="35,35,35,35">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="Samples"
+                           FontSize="30" />
+                <ScrollViewer Grid.Row="1"
+                              Margin="0,15,0,0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl x:Name="LsbExamples"
+                                  VerticalAlignment="Top">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,10,10"
+                                        BorderThickness="0"
+                                        Background="Transparent"
+                                        Width="{Binding ActualHeight, Converter={x:Static pw:Converters.DoublePlusConverter}, ConverterParameter=100, RelativeSource={RelativeSource Self}, Mode=OneWay}"
+                                        Padding="5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Viewbox HorizontalAlignment="Center">
+                                            <ContentControl Content="{Binding PreviewView}" />
+                                        </Viewbox>
+                                        <TextBlock Grid.Row="1"
+                                                   Margin="0,5,0,0"
+                                                   FontWeight="Bold"
+                                                   Text="{Binding DisplayName}"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Row="2"
+                                                   Margin="0,5,0,0"
+                                                   Foreground="DimGray"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Text="{Binding ViewPath}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</Window>
