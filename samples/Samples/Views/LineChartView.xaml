@@ -37,7 +37,7 @@
                       StrokeThickness="2" />
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
-            <pc:CrosshairLayer LineVisibility="YAxis" />
+            <pc:CrosshairLayer LineVisibility="Horizontal" />
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"
                                      AnimationDuration="0:0:0.3" />
         </pc:CartesianChart.Layers>

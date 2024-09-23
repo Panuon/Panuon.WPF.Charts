@@ -211,24 +211,54 @@ namespace Panuon.WPF.Charts
         #region Event Handlers
         private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var chartPanel = (ChartBase)d;
+            var chart = (ChartBase)d;
             if (e.OldValue is INotifyCollectionChanged oldCollection)
             {
-                oldCollection.CollectionChanged -= chartPanel.ObservableItemsSource_CollectionChanged;
+                oldCollection.CollectionChanged -= chart.ObservableItemsSource_CollectionChanged;
             }
             if (e.NewValue is INotifyCollectionChanged newCollection)
             {
-                newCollection.CollectionChanged -= chartPanel.ObservableItemsSource_CollectionChanged;
-                newCollection.CollectionChanged += chartPanel.ObservableItemsSource_CollectionChanged;
+                newCollection.CollectionChanged -= chart.ObservableItemsSource_CollectionChanged;
+                newCollection.CollectionChanged += chart.ObservableItemsSource_CollectionChanged;
             }
+
+            if (!chart.IsLoaded)
+            {
+                return;
+            }
+
+            chart.Rerender();
         }
 
         private void ObservableItemsSource_CollectionChanged(object sender,
             NotifyCollectionChangedEventArgs e)
         {
+            Rerender();
+        }
+        #endregion
+
+        #region Function
+        private void Rerender()
+        {
             InvalidateMeasure();
             InvalidateArrange();
             InvalidateVisual();
+
+            foreach (UIElement child in _children)
+            {
+                if (child is Decorator decorator)
+                {
+                    decorator.Child.InvalidateMeasure();
+                    decorator.Child.InvalidateArrange();
+                    decorator.Child.InvalidateVisual();
+                }
+                else
+                {
+                    child.InvalidateMeasure();
+                    child.InvalidateArrange();
+                    child.InvalidateVisual();
+                }
+            }
         }
         #endregion
 

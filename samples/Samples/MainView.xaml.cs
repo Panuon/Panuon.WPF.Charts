@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Panuon.WPF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -18,6 +20,8 @@ namespace Samples
         private int _themeFlag = 0;
         #endregion
 
+        MainViewModel viewModel;
+
         #region Ctor
         static MainView()
         {
@@ -31,6 +35,9 @@ namespace Samples
         public MainView()
         {
             InitializeComponent();
+
+            viewModel = new MainViewModel();
+            DataContext = viewModel;
 
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
@@ -58,5 +65,34 @@ namespace Samples
             LsbExamples.ItemsSource = items;
         }
         #endregion
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(2000);
+
+            viewModel.IncomeSourcesProportion = new object[]
+            {
+                new { Title = "已登记", Value = 50 },
+                new { Title = "已总检", Value = 40 },
+                new { Title = "已审核", Value = 50 },
+                new { Title = "正在分检", Value = 20 }
+            };
+        }
+    }
+
+    class MainViewModel
+        : NotifyPropertyChangedBase
+    {
+        public MainViewModel()
+        {
+            IncomeSourcesProportion = new object[]
+            {
+                new { Title = "医保收入3", Value = 900 },
+                new { Title = "门诊收入2", Value = 100 }
+            };
+        }
+
+        public IEnumerable<object> IncomeSourcesProportion { get => _IncomeSourcesProportion; set => Set(ref _IncomeSourcesProportion, value); }
+        private IEnumerable<object> _IncomeSourcesProportion;
     }
 }

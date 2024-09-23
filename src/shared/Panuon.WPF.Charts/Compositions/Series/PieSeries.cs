@@ -37,7 +37,15 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Events
-        public event GeneratingTitleEventHandler GeneratingTitle;
+
+        public event GeneratingTitleRoutedEventHandler GeneratingTitle
+        {
+            add { AddHandler(GeneratingTitleEvent, value); }
+            remove { RemoveHandler(GeneratingTitleEvent, value); }
+        }
+
+        public static readonly RoutedEvent GeneratingTitleEvent =
+            EventManager.RegisterRoutedEvent("GeneratingTitle", RoutingStrategy.Bubble, typeof(GeneratingTitleRoutedEventHandler), typeof(PieSeries));
         #endregion
 
         #region Overrides
@@ -64,11 +72,12 @@ namespace Panuon.WPF.Charts
                 var startAngle = coordinate.StartAngle;
                 var angle = coordinate.Angle;
 
-                var generatingTitleArgs = new GeneratingTitleEventArgs(
+                var generatingTitleArgs = new GeneratingTitleRoutedEventArgs(
+                    GeneratingTitleEvent,
                     value: value,
                     label: segment.Label ?? coordinate.Label
                 );
-                GeneratingTitle?.Invoke(this, generatingTitleArgs);
+                RaiseEvent(generatingTitleArgs);
 
                 var label = generatingTitleArgs.Label;
                 _segmentInfos[segment] = new PieSeriesSegmentInfo()
@@ -149,31 +158,36 @@ namespace Panuon.WPF.Charts
 
                 var currentAngle = startAngle + angle / 2;
                 var radian = (currentAngle - 90) * Math.PI / 180.0;
-                var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
+                var rayLength = formattedText == null
+                    ? 0
+                    : CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
 
                 var halfPoint = new Point(
                     centerX + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),
                     centerY + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian)
                 );
 
-                if (segment.LabelStroke == null && segment.LabelForeground == null)
+                if (formattedText != null)
                 {
-                    drawingContext.DrawText(
-                        formattedText,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
-                }
-                else
-                {
-                    drawingContext.DrawText(
-                        formattedText,
-                        segment.LabelForeground,
-                        segment.LabelStroke,
-                        segment.LabelStrokeThickness,
-                        halfPoint.X,
-                        halfPoint.Y - formattedText.Height / 2
-                    );
+                    if (segment.LabelStroke == null && segment.LabelForeground == null)
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
+                    else
+                    {
+                        drawingContext.DrawText(
+                            formattedText,
+                            segment.LabelForeground,
+                            segment.LabelStroke,
+                            segment.LabelStrokeThickness,
+                            halfPoint.X,
+                            halfPoint.Y - formattedText.Height / 2
+                        );
+                    }
                 }
             }
         }

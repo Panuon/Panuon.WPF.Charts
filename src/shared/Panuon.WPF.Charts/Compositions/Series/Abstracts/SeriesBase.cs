@@ -15,7 +15,6 @@ namespace Panuon.WPF.Charts
         private ChartBase _chart;
 
         internal bool _isAnimationCompleted;
-
         private bool _isAnimationBeginCalled = false;
 
         private AnimationProgressObject _loadAnimationProgressObject;
@@ -24,7 +23,7 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public SeriesBase()
         {
-            Loaded += Series_Loaded;
+            Loaded += SeriesBase_Loaded;
         }
         #endregion
 
@@ -60,12 +59,16 @@ namespace Panuon.WPF.Charts
         #region Overrides
         protected sealed override void OnRender(DrawingContext drawingContext)
         {
-            base.OnRender(drawingContext);
-
             if (_chart == null
                 || !_chart.IsCanvasReady()
-                || _loadAnimationProgressObject?.Progress == null)
+                || _chart.ItemsSource == null)
             {
+                return;
+            }
+
+            if (_loadAnimationProgressObject?.Progress == null)
+            {
+                BeginLoadAnimation();
                 return;
             }
 
@@ -136,16 +139,24 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Event Handlers
+        private void SeriesBase_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= SeriesBase_Loaded;
+
+            if(_chart.ItemsSource != null)
+            {
+                BeginLoadAnimation();
+            }
+        }
+
         private static void OnAnimationPercentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var series = (SeriesBase)d;
             series.InvalidateVisual();
         }
 
-        private void Series_Loaded(object sender, RoutedEventArgs e)
+        private void BeginLoadAnimation()
         {
-            Loaded -= Series_Loaded;
-
             _loadAnimationProgressObject = new AnimationProgressObject();
             _loadAnimationProgressObject.ProgressChanged += LoadAnimationProgressObject_ProgressChanged;
 

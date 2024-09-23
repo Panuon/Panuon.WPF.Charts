@@ -192,7 +192,15 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Events
-        public event GeneratingTitleEventHandler GeneratingTitle;
+
+        public event GeneratingTitleRoutedEventHandler GeneratingTitle
+        {
+            add { AddHandler(GeneratingTitleEvent, value); }
+            remove { RemoveHandler(GeneratingTitleEvent, value); }
+        }
+
+        public static readonly RoutedEvent GeneratingTitleEvent =
+            EventManager.RegisterRoutedEvent("GeneratingTitle", RoutingStrategy.Bubble, typeof(GeneratingTitleRoutedEventHandler), typeof(RadarSeries));
         #endregion
 
         #region Methods
@@ -229,11 +237,12 @@ namespace Panuon.WPF.Charts
                 var value = coordinate.GetValue(this);
                 var startAngle = angleDelta * index;
 
-                var generatingTitleArgs = new GeneratingTitleEventArgs(
+                var generatingTitleArgs = new GeneratingTitleRoutedEventArgs(
+                    GeneratingTitleEvent,
                     value: value,
                     label: segment.Label ?? coordinate.Label
                 );
-                GeneratingTitle?.Invoke(this, generatingTitleArgs);
+                RaiseEvent(generatingTitleArgs);
 
                 CheckMinMaxValue(
                     coordinates.Select(c => c.GetValue(this)).Min(),

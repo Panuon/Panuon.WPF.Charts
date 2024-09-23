@@ -1,13 +1,11 @@
-﻿using Panuon.WPF.Charts.Controls.Internals;
-using Panuon.WPF.Charts.Implements;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class AxisBase
-        : FrameworkElement
+        : Control
     {
         #region Fields
         protected CartesianChart _chart;
@@ -29,28 +27,6 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty SpacingProperty =
             DependencyProperty.Register("Spacing", typeof(double), typeof(AxisBase), new PropertyMetadata(5d));
-        #endregion
-
-        #region LabelStyle
-        public Style LabelStyle
-        {
-            get { return (Style)GetValue(LabelStyleProperty); }
-            set { SetValue(LabelStyleProperty, value); }
-        }
-
-        public static readonly DependencyProperty LabelStyleProperty =
-            DependencyProperty.Register("LabelStyle", typeof(Style), typeof(AxisBase), new PropertyMetadata(null));
-        #endregion
-
-        #region Foreground
-        public Brush Foreground
-        {
-            get { return (Brush)GetValue(ForegroundProperty); }
-            set { SetValue(ForegroundProperty, value); }
-        }
-
-        public static readonly DependencyProperty ForegroundProperty =
-            DependencyProperty.Register("Foreground", typeof(Brush), typeof(AxisBase), new PropertyMetadata(Brushes.Black));
         #endregion
 
         #region StrokeThickness
@@ -75,59 +51,26 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("Stroke", typeof(Brush), typeof(AxisBase), new PropertyMetadata(Brushes.Black));
         #endregion
 
-        #region FontFamily
-        public FontFamily FontFamily
+        #region LabelMaxWidth
+        public double LabelMaxWidth
         {
-            get { return (FontFamily)GetValue(FontFamilyProperty); }
-            set { SetValue(FontFamilyProperty, value); }
+            get { return (double)GetValue(LabelMaxWidthProperty); }
+            set { SetValue(LabelMaxWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty FontFamilyProperty =
-            DependencyProperty.Register("FontFamily", typeof(FontFamily), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontFamily));
+        public static readonly DependencyProperty LabelMaxWidthProperty =
+            DependencyProperty.Register("LabelMaxWidth", typeof(double), typeof(AxisBase), new PropertyMetadata(100d));
         #endregion
 
-        #region FontStyle
-        public FontStyle FontStyle
+        #region LabelMaxLineCount
+        public int LabelMaxLineCount
         {
-            get { return (FontStyle)GetValue(FontStyleProperty); }
-            set { SetValue(FontStyleProperty, value); }
+            get { return (int)GetValue(LabelMaxLineCountProperty); }
+            set { SetValue(LabelMaxLineCountProperty, value); }
         }
 
-        public static readonly DependencyProperty FontStyleProperty =
-            DependencyProperty.Register("FontStyle", typeof(FontStyle), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontStyle));
-        #endregion
-
-        #region FontWeight
-        public FontWeight FontWeight
-        {
-            get { return (FontWeight)GetValue(FontWeightProperty); }
-            set { SetValue(FontWeightProperty, value); }
-        }
-
-        public static readonly DependencyProperty FontWeightProperty =
-            DependencyProperty.Register("FontWeight", typeof(FontWeight), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontWeight));
-        #endregion
-
-        #region FontStretch
-        public FontStretch FontStretch
-        {
-            get { return (FontStretch)GetValue(FontStretchProperty); }
-            set { SetValue(FontStretchProperty, value); }
-        }
-
-        public static readonly DependencyProperty FontStretchProperty =
-            DependencyProperty.Register("FontStretch", typeof(FontStretch), typeof(AxisBase), new PropertyMetadata(FontStretches.Normal));
-        #endregion
-
-        #region FontSize
-        public double FontSize
-        {
-            get { return (double)GetValue(FontSizeProperty); }
-            set { SetValue(FontSizeProperty, value); }
-        }
-
-        public static readonly DependencyProperty FontSizeProperty =
-            DependencyProperty.Register("FontSize", typeof(double), typeof(AxisBase), new PropertyMetadata(SystemFonts.MessageFontSize));
+        public static readonly DependencyProperty LabelMaxLineCountProperty =
+            DependencyProperty.Register("LabelMaxLineCount", typeof(int), typeof(AxisBase), new PropertyMetadata(1));
         #endregion
 
         #region TicksSize

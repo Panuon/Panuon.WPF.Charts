@@ -38,11 +38,16 @@ namespace Panuon.WPF.Charts
                         new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
                         FontSize,
                         Foreground
-#if NET452 || NET462 || NET472 || NET48
-                    );
+#if NET452
 #else
-                        , VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                        , VisualTreeHelper.GetDpi(this).PixelsPerDip
 #endif
+                    )
+                    {
+                        MaxLineCount = LabelMaxLineCount,
+                        MaxTextWidth = LabelMaxWidth,
+                        Trimming = TextTrimming.CharacterEllipsis
+                    };
 
                     _formattedTextOffsets.Add(formattedText, () => coordinate.Offset);
                 }
@@ -61,11 +66,16 @@ namespace Panuon.WPF.Charts
                         new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
                         FontSize,
                         Foreground
-#if NET452 || NET462 || NET472 || NET48
+#if NET452
 #else
                         , VisualTreeHelper.GetDpi(this).PixelsPerDip
 #endif
-                    );
+                    )
+                    {
+                        MaxLineCount = LabelMaxLineCount,
+                        MaxTextWidth = LabelMaxWidth,
+                        Trimming = TextTrimming.CharacterEllipsis
+                    };
                     _formattedTextOffsets.Add(formattedText, () => (_chart.GetCanvasContext() as ICartesianChartContext).GetOffsetY(value));
                 }
             }

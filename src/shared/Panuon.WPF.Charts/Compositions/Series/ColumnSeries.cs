@@ -188,7 +188,7 @@ namespace Panuon.WPF.Charts
                             fill: BackgroundFill,
                             startX: 0,
                             startY: offsetY - columnSize / 2,
-                            width: offsetX,
+                            width: chartContext.AreaWidth,
                             height: columnSize,
                             radiusX: Radius,
                             radiusY: Radius

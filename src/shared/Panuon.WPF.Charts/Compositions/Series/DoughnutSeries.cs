@@ -49,7 +49,15 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Events
-        public event GeneratingTitleEventHandler GeneratingTitle;
+
+        public event GeneratingTitleRoutedEventHandler GeneratingTitle
+        {
+            add { AddHandler(GeneratingTitleEvent, value); }
+            remove { RemoveHandler(GeneratingTitleEvent, value); }
+        }
+
+        public static readonly RoutedEvent GeneratingTitleEvent =
+            EventManager.RegisterRoutedEvent("GeneratingTitle", RoutingStrategy.Bubble, typeof(GeneratingTitleRoutedEventHandler), typeof(DoughnutSeries));
         #endregion
 
         #region Overrides
@@ -79,11 +87,12 @@ namespace Panuon.WPF.Charts
                 var startAngle = coordinate.StartAngle;
                 var angle = coordinate.Angle;
 
-                var generatingTitleArgs = new GeneratingTitleEventArgs(
+                var generatingTitleArgs = new GeneratingTitleRoutedEventArgs(
+                    GeneratingTitleEvent,
                     value: value,
                     label: segment.Label ?? coordinate.Label
                 );
-                GeneratingTitle?.Invoke(this, generatingTitleArgs);
+                RaiseEvent(generatingTitleArgs);
 
                 _segmentInfos[segment] = new DoughnutSeriesSegmentInfo()
                 {
@@ -145,10 +154,11 @@ namespace Panuon.WPF.Charts
                         segment.Fill,
                         centerX,
                         centerY,
-                        outterRadius - thickness,
+                        Math.Max(0, outterRadius - thickness),
                         outterRadius,
                         startAngle,
-                        startAngle + angle);
+                        startAngle + angle
+                    );
             }
 
             foreach (var segmentInfo in _segmentInfos)
@@ -160,7 +170,9 @@ namespace Panuon.WPF.Charts
 
                 var currentAngle = startAngle + angle / 2;
                 var radian = (currentAngle - 90) * Math.PI / 180.0;
-                var rayLength = CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
+                var rayLength = formattedText == null
+                    ? 0
+                    : CalculateRayLength(formattedText.Width, formattedText.Height, currentAngle + 90);
 
                 var halfPoint = new Point(
                     centerX + (outterRadius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),

@@ -10,7 +10,8 @@
         Title="Panauon.WPF.Charts"
         Height="750"
         Width="1300"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
     <Grid>
         <Grid Margin="35,35,35,35">
             <Grid>
@@ -67,6 +68,5 @@
                 </ScrollViewer>
             </Grid>
         </Grid>
-
     </Grid>
 </Window>

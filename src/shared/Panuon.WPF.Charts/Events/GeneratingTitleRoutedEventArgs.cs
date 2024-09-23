@@ -1,15 +1,17 @@
 ﻿using System;
+using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
-    public class GeneratingTitleEventArgs
-        : EventArgs
+    public class GeneratingTitleRoutedEventArgs
+        : RoutedEventArgs
     {
         #region Ctor
-        public GeneratingTitleEventArgs(
+        public GeneratingTitleRoutedEventArgs(
+            RoutedEvent @event,
             double value,
             string label
-        )
+        ) : base(@event)
         {
             Value = value;
             Label = label;
