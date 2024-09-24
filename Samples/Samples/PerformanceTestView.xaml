@@ -1,4 +1,4 @@
-﻿<Grid x:Class="Samples.Views.PerformanceTestLineChartView"
+﻿<Grid x:Class="Samples.Views.PerformanceTestView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,11 +15,24 @@
                     Value="2" />
         </Style>
     </Grid.Resources>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition />
+        <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <TextBlock x:Name="RunTime"
+               Grid.Row="1"
+               Foreground="Gray"
+               FontWeight="Bold">
+    </TextBlock>
     <pc:CartesianChart x:Name="chart"
+                       Grid.Row="2"
+                       Margin="0,30,0,0"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
-                       AnimationEasing="CubicOut"
-                       AnimationDuration="0:0:5">
+                       AnimationDuration="{x:Null}">
         <pc:CartesianChart.Layers>
             <pc:CrosshairLayer LineVisibility="Vertical" />
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"
@@ -47,21 +60,20 @@
                        Style="{StaticResource LineSeriesStyle}" />
     </pc:CartesianChart>
 
-    <TextBlock HorizontalAlignment="Right"
-               VerticalAlignment="Top"
+    <TextBlock Grid.Row="3"
+               Margin="0,30,0,0"
                TextWrapping="Wrap"
-               MaxWidth="400"
+               Foreground="OrangeRed"
                FontWeight="Bold">
-        <Run>Panuon.WPF.Charts has not yet provided a data simplification algorithm; all the data points are rendered as-is. To reduce quality and improve rendering speed, try adjusting the RenderQuality property of the series (0-100).</Run>
-        <LineBreak />
-        <Run x:Name="RunTime"
-             Foreground="Red"></Run>
+        Panuon.WPF.Charts has not yet provided a data simplification algorithm; all the data points are rendered as-is.
     </TextBlock>
-    
+
     <StackPanel Orientation="Horizontal"
                 VerticalAlignment="Top"
-                HorizontalAlignment="Left"
-                Margin="50,0">
+                HorizontalAlignment="Left">
+        <TextBlock Foreground="Gray"
+                   VerticalAlignment="Center"
+                   Text="Dataset Volume: " />
         <ComboBox x:Name="DataCountComboBox"
                   Height="25"
                   SelectionChanged="DataCountComboBox_SelectionChanged">
@@ -76,5 +88,9 @@
             <ComboBoxItem Content="50000" />
             <ComboBoxItem Content="100000" />
         </ComboBox>
+        <RepeatButton Margin="15,0,0,0"
+                      Content="Generate"
+                      Click="GenerateButton_Click" />
+
     </StackPanel>
 </Grid>

@@ -7,13 +7,13 @@ using System.Windows.Media;
 
 namespace Samples.Views
 {
-    public partial class PerformanceTestLineChartView
+    public partial class PerformanceTestView
         : Grid
     {
         private Stopwatch _stopwatch;
 
         #region Ctor
-        public PerformanceTestLineChartView()
+        public PerformanceTestView()
         {
             InitializeComponent();
         }
@@ -21,21 +21,32 @@ namespace Samples.Views
 
         private void DataCountComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded)
+            {
+                return;
+            }
+
+            Generate();
+        }
+
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            CompositionTarget.Rendering -= CompositionTarget_Rendering;
+            if (_stopwatch != null)
+            {
+                _stopwatch.Stop();
+                RunTime.Text = $"Render Time: {_stopwatch.ElapsedMilliseconds}ms";
+            }
+        }
+
+        private void GenerateButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Generate();
+        }
+
+        private void Generate()
+        {
             var count = int.Parse((DataCountComboBox.SelectedItem as ComboBoxItem).Content.ToString());
-
-            var quality = 100;
-            if(count >= 10000)
-            {
-                quality = 80;
-            }
-            else if (count >= 5000)
-            {
-                quality = 90;
-            }
-
-            lineSeries1.RenderQuality = quality;
-            lineSeries2.RenderQuality = quality;
-            lineSeries3.RenderQuality = quality;
 
             var itemsSource = new List<object>();
 
@@ -60,24 +71,10 @@ namespace Samples.Views
                 lastValue3 = value3;
             }
 
-            if (IsLoaded)
-            {
-                CompositionTarget.Rendering += CompositionTarget_Rendering;
-                _stopwatch = new Stopwatch();
-                _stopwatch.Start();
-            }
+            CompositionTarget.Rendering += CompositionTarget_Rendering;
+            _stopwatch = new Stopwatch();
+            _stopwatch.Start();
             chart.ItemsSource = itemsSource;
         }
-
-        private void CompositionTarget_Rendering(object sender, EventArgs e)
-        {
-            CompositionTarget.Rendering -= CompositionTarget_Rendering;
-            if (_stopwatch != null)
-            {
-                _stopwatch.Stop();
-                RunTime.Text = $"Render Time: {_stopwatch.ElapsedMilliseconds}ms";
-            }
-        }
-
     }
 }

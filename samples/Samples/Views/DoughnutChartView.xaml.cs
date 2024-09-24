@@ -2,7 +2,7 @@
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 6, DisplayName = "DoughnutChart")]
+    [ExampleView(Index = 6, DisplayName = "DoughnutChart", Type = "Radial" )]
     public partial class DoughnutChartView
         : Grid
     {

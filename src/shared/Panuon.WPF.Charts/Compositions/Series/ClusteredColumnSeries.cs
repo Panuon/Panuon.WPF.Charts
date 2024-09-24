@@ -103,42 +103,79 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
-            var columnWidth = CalculateBarWidth(clusterWidth);
+            var delta = chartContext.SwapXYAxes
+                ? chartContext.AreaHeight / chartContext.Coordinates.Count()
+                : chartContext.AreaWidth / chartContext.Coordinates.Count();
+            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, delta);
+            var columnSize = CalculateBarWidth(clusterWidth);
 
             foreach (var segmentPoint in _segmentPoints)
             {
                 var segment = segmentPoint.Key;
 
-                foreach (var point in segmentPoint.Value)
+                foreach (var valuePoint in segmentPoint.Value)
                 {
-                    if (segment.BackgroundFill != null)
+                    var offsetX = valuePoint.X;
+                    var offsetY = valuePoint.Y;
+
+                    if (!chartContext.SwapXYAxes)
                     {
+                        if (segment.BackgroundFill != null)
+                        {
+                            drawingContext.DrawRectangle(
+                                stroke: null,
+                                strokeThickness: 0,
+                                fill: segment.BackgroundFill,
+                                startX: offsetX - columnSize / 2,
+                                startY: 0,
+                                width: columnSize,
+                                height: chartContext.AreaHeight,
+                                radiusX: Radius,
+                                radiusY: Radius
+                            );
+                        }
+
                         drawingContext.DrawRectangle(
-                            stroke: null,
-                            strokeThickness: 0,
-                            fill: segment.BackgroundFill,
-                            startX: point.X - columnWidth / 2,
-                            startY: 0,
-                            width: columnWidth,
-                            height: chartContext.AreaHeight,
+                            stroke: segment.Stroke,
+                            strokeThickness: segment.StrokeThickness,
+                            fill: segment.Fill,
+                            startX: offsetX - columnSize / 2,
+                            startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
+                            width: columnSize,
+                            height: (chartContext.AreaHeight - offsetY) * animationProgress,
                             radiusX: Radius,
                             radiusY: Radius
                         );
                     }
+                    else
+                    {
+                        if (segment.BackgroundFill != null)
+                        {
+                            drawingContext.DrawRectangle(
+                                stroke: null,
+                                strokeThickness: 0,
+                                fill: segment.BackgroundFill,
+                                startX: offsetX - columnSize / 2,
+                                startY: 0,
+                                width: chartContext.AreaWidth,
+                                height: columnSize,
+                                radiusX: Radius,
+                                radiusY: Radius
+                            );
+                        }
 
-                    drawingContext.DrawRectangle(
-                        stroke: segment.Stroke,
-                        strokeThickness: segment.StrokeThickness,
-                        fill: segment.Fill,
-                        startX: point.X - columnWidth / 2,
-                        startY: chartContext.AreaHeight - (chartContext.AreaHeight - point.Y) * animationProgress,
-                        width: columnWidth,
-                        height: (chartContext.AreaHeight - point.Y) * animationProgress,
-                        radiusX: Radius,
-                        radiusY: Radius
-                    );
+                        drawingContext.DrawRectangle(
+                            stroke: segment.Stroke,
+                            strokeThickness: segment.StrokeThickness,
+                            fill: segment.Fill,
+                            startX: offsetX - columnSize / 2,
+                            startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
+                            width: offsetX * animationProgress,
+                            height: columnSize,
+                            radiusX: Radius,
+                            radiusY: Radius
+                        );
+                    }
                 }
             }
         }

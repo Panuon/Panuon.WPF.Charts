@@ -1,26 +1,48 @@
-﻿using System.Windows.Controls;
+﻿using Panuon.WPF;
+using Panuon.WPF.Charts;
+using Samples.Utils;
+using System;
+using System.Collections.Generic;
+using System.Windows.Controls;
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 4, DisplayName = "ClusteredColumnChart")]
+    [ExampleView(Index = 4, DisplayName = "ClusteredColumnChart", Type = "Cartesian")]
     public partial class ClusteredColumnChartView
-        : Grid
+        : Grid, ICartesianChartView
     {
         #region Ctor
         public ClusteredColumnChartView()
         {
             InitializeComponent();
+        }
 
-            var itemsSource = new object[]
+        public void Generate()
+        {
+            var itemsSource = new List<object>();
+            for (var i = 0; i < 5; i++)
             {
-                new { Label = "Data 1", Values = new int[] { 25, 4, 72 } },
-                new { Label = "Data 2", Values = new int[] { 9, 86, 35 } },
-                new { Label = "Data 3", Values = new int[] { 67, 4, 1 } },
-                new { Label = "Data 4", Values = new int[] { 18, 5, 24 } },
-                new { Label = "Data 5", Values = new int[] { 89, 16, 60 } },
-            };
-
+                itemsSource.Add(new
+                {
+                    Label = $"Data {i + 1}",
+                    Values = new int[]
+                    {
+                        RandomUtil.Next(0, 100),
+                        RandomUtil.Next(0, 100),
+                        RandomUtil.Next(0, 100),
+                    }
+                });
+            }
             chart.ItemsSource = itemsSource;
+        }
+
+        public void SetAnimation(
+            AnimationEasing animationEasing,
+            TimeSpan? animationTime
+        )
+        {
+            chart.AnimationEasing = animationEasing;
+            chart.AnimationDuration = animationTime;
         }
         #endregion
     }

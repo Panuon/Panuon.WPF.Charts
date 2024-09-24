@@ -60,7 +60,7 @@ namespace Panuon.WPF.Charts
             var currentCoordinates = new List<int>();
             foreach (var series in chartContext.Series)
             {
-                if (!series._isAnimationCompleted)
+                if (!series._isAnimationBeginCalled)
                 {
                     continue;
                 }

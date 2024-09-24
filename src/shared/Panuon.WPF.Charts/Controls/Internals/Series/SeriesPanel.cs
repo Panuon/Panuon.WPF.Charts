@@ -59,10 +59,14 @@ namespace Panuon.WPF.Charts.Controls.Internals
             foreach (SeriesBase child in _children)
             {
                 child.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
+
+                child.InvalidateLayout();
                 child.InvalidateVisual();
             }
             return base.ArrangeOverride(finalSize);
         }
+
+
         #endregion
 
         #region Event Handlers

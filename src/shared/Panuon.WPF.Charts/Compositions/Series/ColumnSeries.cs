@@ -140,9 +140,7 @@ namespace Panuon.WPF.Charts
             var delta = chartContext.SwapXYAxes
                 ? chartContext.AreaHeight / chartContext.Coordinates.Count()
                 : chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var columnSize = chartContext.SwapXYAxes
-                ? GridLengthUtil.GetActualValue(ColumnWidth, delta)
-                : GridLengthUtil.GetActualValue(ColumnWidth, delta);
+            var columnSize = GridLengthUtil.GetActualValue(ColumnWidth, delta);
 
             foreach (var valuePoint in _valuePoints)
             {

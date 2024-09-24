@@ -1,5 +1,4 @@
 ﻿using Panuon.WPF;
-using Panuon.WPF.Charts;
 using Samples.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,12 +6,12 @@ using System.Windows.Controls;
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 2, DisplayName = "DotChart", Type = "Cartesian")]
-    public partial class DotChartView
+    [ExampleView(Index = 1, DisplayName = "LineChart", Type = "Cartesian")]
+    public partial class LineChartView
         : Grid, ICartesianChartView
     {
         #region Ctor
-        public DotChartView()
+        public LineChartView()
         {
             InitializeComponent();
         }
@@ -20,7 +19,7 @@ namespace Samples.Views
         public void Generate()
         {
             var itemsSource = new List<object>();
-            for (var i = 0; i < 5; i++)
+            for(var i = 0; i < 5; i++)
             {
                 itemsSource.Add(new
                 {
@@ -34,7 +33,7 @@ namespace Samples.Views
         }
 
         public void SetAnimation(
-            AnimationEasing animationEasing,
+            AnimationEasing animationEasing, 
             TimeSpan? animationTime
         )
         {

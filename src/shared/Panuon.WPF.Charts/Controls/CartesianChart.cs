@@ -150,6 +150,13 @@ namespace Panuon.WPF.Charts
         private double _measuredMaxValue;
         #endregion
 
+        #region Internal Methods
+        internal override void OnClearValues()
+        {
+            Coordinates = null;
+        }
+        #endregion
+
         #region Overrides
         public override IEnumerable<SeriesBase> GetSeries() => Series;
 
@@ -326,7 +333,6 @@ namespace Panuon.WPF.Charts
             }
         }
         #endregion
-
 
         #region Functions
         private void CheckMinMaxValue(double minValue,

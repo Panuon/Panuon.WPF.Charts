@@ -14,17 +14,17 @@ namespace Panuon.WPF.Charts
         #region Fields
         private ChartBase _chart;
 
-        internal bool _isAnimationCompleted;
-        private bool _isAnimationBeginCalled = false;
+        internal bool _isAnimationBeginCalled = false;
 
         private AnimationProgressObject _loadAnimationProgressObject;
+
+        private bool _isRenderEverCalled;
         #endregion
 
         #region Ctor
         public SeriesBase()
         {
             Loaded += SeriesBase_Loaded;
-            CacheMode = new BitmapCache();
         }
         #endregion
 
@@ -48,6 +48,27 @@ namespace Panuon.WPF.Charts
                 chartContext: chartContext
             );
         }
+
+        public void InvalidateLayout()
+        {
+            if (IsLoaded
+                && (_loadAnimationProgressObject == null || _chart.AnimationMode == AnimationTriggerMode.Always))
+            {
+                _isAnimationBeginCalled = false;
+                BeginLoadAnimation();
+                return;
+            }
+
+            if (_loadAnimationProgressObject == null
+                || !_isRenderEverCalled)
+            {
+                return;
+            }
+
+            _isAnimationBeginCalled = false;
+            _loadAnimationProgressObject.BeginAnimation(AnimationProgressObject.ProgressProperty, null);
+            _loadAnimationProgressObject.Progress = 1;
+        }
         #endregion
 
         #region Internal Methods
@@ -67,11 +88,12 @@ namespace Panuon.WPF.Charts
                 return;
             }
 
-            if (_loadAnimationProgressObject?.Progress == null)
+            if (_loadAnimationProgressObject == null)
             {
-                BeginLoadAnimation();
                 return;
             }
+
+            _isRenderEverCalled = true;
 
             var context = _chart.CreateDrawingContext(drawingContext);
             var chartContext = _chart.GetCanvasContext();
@@ -89,7 +111,7 @@ namespace Panuon.WPF.Charts
             OnInternalRendering(
                 drawingContext: context,
                 chartContext: chartContext,
-                animationProgress: (double)_loadAnimationProgressObject.Progress
+                animationProgress: Math.Max(0, Math.Min(1, (double)_loadAnimationProgressObject.Progress))
             );
 
             if (_loadAnimationProgressObject.Progress == 1)
@@ -144,7 +166,8 @@ namespace Panuon.WPF.Charts
         {
             Loaded -= SeriesBase_Loaded;
 
-            if(_chart.ItemsSource != null)
+            if(_chart.ItemsSource != null
+                && _loadAnimationProgressObject == null)
             {
                 BeginLoadAnimation();
             }
@@ -172,7 +195,6 @@ namespace Panuon.WPF.Charts
                 animation.Completed += delegate
                 {
                     _loadAnimationProgressObject.Progress = 1;
-                    _isAnimationCompleted = true;
                 };
 
                 _loadAnimationProgressObject.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
@@ -180,13 +202,12 @@ namespace Panuon.WPF.Charts
             else
             {
                 _loadAnimationProgressObject.Progress = 1;
-                _isAnimationCompleted = true;
             }
         }
 
         private void LoadAnimationProgressObject_ProgressChanged(object sender, EventArgs e)
         {
-            InvalidateVisual();
+            base.InvalidateVisual();
         }
         #endregion
 

@@ -1,8 +1,8 @@
 ﻿using Panuon.WPF.Chart;
 using Panuon.WPF.Charts.Controls.Internals;
 using Panuon.WPF.Charts.Implements;
-using System.Collections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -56,6 +56,13 @@ namespace Panuon.WPF.Charts
 
         #region Internal Properties
         internal List<RadialCoordinateImpl> Coordinates { get; private set; }
+        #endregion
+
+        #region Internal Methods
+        internal override void OnClearValues()
+        {
+            Coordinates = null;
+        }
         #endregion
 
         #region Overrides

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Panuon.WPF;
 
 namespace Panuon.WPF.Charts
 {
@@ -94,6 +95,17 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty AnimationDurationProperty =
             DependencyProperty.Register("AnimationDuration", typeof(TimeSpan?), typeof(ChartBase), new PropertyMetadata(TimeSpan.FromSeconds(1)));
+        #endregion
+
+        #region AnimationMode
+        public AnimationTriggerMode AnimationMode
+        {
+            get { return (AnimationTriggerMode)GetValue(AnimationModeProperty); }
+            set { SetValue(AnimationModeProperty, value); }
+        }
+
+        public static readonly DependencyProperty AnimationModeProperty =
+            DependencyProperty.Register("AnimationMode", typeof(AnimationTriggerMode), typeof(ChartBase));
         #endregion
 
         #endregion
@@ -203,6 +215,8 @@ namespace Panuon.WPF.Charts
         }
 
         internal abstract IChartContext GetCanvasContext();
+
+        internal abstract void OnClearValues();
         #endregion
 
         #endregion
@@ -245,6 +259,8 @@ namespace Panuon.WPF.Charts
         #region Function
         private void Rerender()
         {
+            OnClearValues();
+
             InvalidateMeasure();
             InvalidateArrange();
             InvalidateVisual();

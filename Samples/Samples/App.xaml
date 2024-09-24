@@ -2,8 +2,64 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Samples"
+             xmlns:pu="https://opensource.panuon.com/wpf-ui"
              StartupUri="MainView.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <pu:StyleDictionary Includes="All" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="ComboBox"
+                   BasedOn="{StaticResource {x:Static pu:StyleKeys.ComboBoxStyle}}">
+                <Setter Property="pu:ComboBoxHelper.CornerRadius"
+                        Value="2" />
+                <Setter Property="BorderBrush"
+                        Value="#3c46ff" />
+                <Setter Property="BorderThickness"
+                        Value="2" />
+                <Setter Property="pu:DropDownHelper.Width"
+                        Value="150" />
+                <Setter Property="pu:ComboBoxHelper.ItemsSelectedBackground"
+                        Value="#3c46ff" />
+                <Setter Property="pu:ComboBoxHelper.ItemsSelectedForeground"
+                        Value="#ffffff" />
+                <Setter Property="pu:ComboBoxHelper.ToggleArrowTransformControlStyle">
+                    <Setter.Value>
+                        <Style TargetType="pu:TransformControl"
+                               BasedOn="{StaticResource {x:Static pu:ComboBoxHelper.ToggleArrowTransformControlStyleKey}}">
+                            <Setter Property="Foreground"
+                                    Value="#3c46ff" />
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="Button"
+                   BasedOn="{StaticResource {x:Static pu:StyleKeys.ButtonStyle}}">
+                <Setter Property="Padding"
+                        Value="15,0" />
+                <Setter Property="pu:ButtonHelper.CornerRadius"
+                        Value="5" />
+                <Setter Property="Background"
+                        Value="#3c46ff" />
+                <Setter Property="Foreground"
+                        Value="#FFFFFF" />
+            </Style>
+            <Style TargetType="Slider"
+                   BasedOn="{StaticResource {x:Static pu:StyleKeys.SliderStyle}}">
+                <Setter Property="Background"
+                        Value="#1A3c46ff" />
+                <Setter Property="pu:SliderHelper.TrackThickness"
+                        Value="3" />
+                <Setter Property="Foreground"
+                        Value="#3c46ff" />
+                <Setter Property="pu:SliderHelper.CoveredBackground"
+                        Value="#3c46ff" />
+                <Setter Property="pu:SliderHelper.ThumbBorderBrush"
+                        Value="#3c46ff" />
+                <Setter Property="pu:SliderHelper.ThumbBorderThickness"
+                        Value="2" />
+            </Style>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
