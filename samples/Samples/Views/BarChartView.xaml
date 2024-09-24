@@ -34,7 +34,7 @@
         <pc:ColumnSeries ValueMemberPath="Value"
                          ColumnWidth="0.8*"
                          BackgroundFill="#1A8446e4"
-                         Radius="10"
+                         Radius="5"
                          Style="{StaticResource ColumnSeriesStyle}">
             <pc:ColumnSeries.Fill>
                 <LinearGradientBrush StartPoint="1,0.5"

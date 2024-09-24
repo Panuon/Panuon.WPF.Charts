@@ -25,7 +25,7 @@
         <pc:PieSeries ValueMemberPath="Value"
                       Style="{StaticResource PieSeriesStyle}">
             <pc:PieSeriesSegment Stroke="White"
-                                 StrokeThickness="5"
+                                 StrokeThickness="2"
                                  LabelForeground="#d03f34">
                 <pc:PieSeriesSegment.Fill>
                     <LinearGradientBrush StartPoint="0.5,0"
@@ -40,7 +40,7 @@
                 </pc:PieSeriesSegment.Fill>
             </pc:PieSeriesSegment>
             <pc:PieSeriesSegment Stroke="White"
-                                 StrokeThickness="5"
+                                 StrokeThickness="2"
                                  LabelForeground="#bb3dbd">
                 <pc:PieSeriesSegment.Fill>
                     <LinearGradientBrush StartPoint="0.5,0"
@@ -55,7 +55,7 @@
                 </pc:PieSeriesSegment.Fill>
             </pc:PieSeriesSegment>
             <pc:PieSeriesSegment Stroke="White"
-                                 StrokeThickness="5"
+                                 StrokeThickness="2"
                                  LabelForeground="#8446e4">
                 <pc:PieSeriesSegment.Fill>
                     <LinearGradientBrush StartPoint="0.5,0"
@@ -70,7 +70,7 @@
                 </pc:PieSeriesSegment.Fill>
             </pc:PieSeriesSegment>
             <pc:PieSeriesSegment Stroke="White"
-                                 StrokeThickness="5"
+                                 StrokeThickness="2"
                                  LabelForeground="#4b5ae7">
                 <pc:PieSeriesSegment.Fill>
                     <LinearGradientBrush StartPoint="0.5,0"
@@ -85,7 +85,7 @@
                 </pc:PieSeriesSegment.Fill>
             </pc:PieSeriesSegment>
             <pc:PieSeriesSegment Stroke="White"
-                                 StrokeThickness="5"
+                                 StrokeThickness="2"
                                  LabelForeground="#feb03d">
                 <pc:PieSeriesSegment.Fill>
                     <LinearGradientBrush StartPoint="0.5,0"

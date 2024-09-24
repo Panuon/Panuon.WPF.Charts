@@ -15,6 +15,9 @@ namespace Panuon.WPF.Charts
             new Dictionary<FormattedText, Func<double>>();
         #endregion
 
+        #region Ctor
+        #endregion
+
         #region Overrides
 
         #region MeasureOverride

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -9,6 +10,13 @@ namespace Panuon.WPF.Charts
         #region Fields
         protected CartesianChart _chart;
 
+        #endregion
+
+        #region Ctor
+        public AxisBase()
+        {
+            
+        }
         #endregion
 
         #region RoutedEvent

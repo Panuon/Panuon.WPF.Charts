@@ -18,8 +18,6 @@ namespace Panuon.WPF.Charts
     {
         #region Fields
         private GridLinesPanel _gridLinesPanel;
-        private Decorator _xAxisDecorator;
-        private Decorator _yAxisDecorator;
 
         private CartesianChartContextImpl _chartContext;
         #endregion
@@ -32,14 +30,8 @@ namespace Panuon.WPF.Charts
             _gridLinesPanel = new GridLinesPanel(this);
             _children.Insert(0, _gridLinesPanel);
 
-            _xAxisDecorator = new Decorator();
-            _children.Insert(1, _xAxisDecorator);
-
-            _yAxisDecorator = new Decorator();
-            _children.Insert(2, _yAxisDecorator);
-
             _seriesPanel = new SeriesPanel(this);
-            _children.Insert(3, _seriesPanel);
+            _children.Insert(1, _seriesPanel);
 
             XAxis = new XAxis();
             YAxis = new YAxis();
@@ -309,28 +301,28 @@ namespace Panuon.WPF.Charts
         private static void OnXAxisChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var chart = (CartesianChart)d;
-            if(e.OldValue != null)
+            if(e.OldValue is AxisBase oldAxis)
             {
-                chart._xAxisDecorator.Child = null;
+                chart._children.Remove(oldAxis);
             }
-            if (e.NewValue is XAxis xAxis)
+            if (e.NewValue is AxisBase newAxis)
             {
-                xAxis.OnAttached(chart);
-                chart._xAxisDecorator.Child = xAxis;
+                newAxis.OnAttached(chart);
+                chart._children.Insert(1, newAxis);
             }
         }
 
         private static void OnYAxisChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var chart = (CartesianChart)d;
-            if (e.OldValue != null)
+            if (e.OldValue is AxisBase oldAxis)
             {
-                chart._yAxisDecorator.Child = null;
+                chart._children.Remove(oldAxis);
             }
-            if (e.NewValue is YAxis yAxis)
+            if (e.NewValue is AxisBase newAxis)
             {
-                yAxis.OnAttached(chart);
-                chart._yAxisDecorator.Child = yAxis;
+                newAxis.OnAttached(chart);
+                chart._children.Insert(2, newAxis);
             }
         }
         #endregion

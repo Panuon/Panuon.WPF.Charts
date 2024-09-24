@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Samples"
+        xmlns:local="clr-namespace:Samples.Views"
         xmlns:pw="https://opensource.panuon.com/wpf"
         xmlns:pc="https://opensource.panuon.com/wpf-charts"
         xmlns:v="clr-namespace:Samples.Views"
@@ -13,25 +13,18 @@
         Width="1300"
         MinHeight="400"
         MinWidth="600"
+        Background="#1e1e1e"
+        Foreground="White"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded">
-    <Grid>
-        <Grid Margin="35,0,35,35">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Samples"
-                           FontSize="30" />
+    <Grid Margin="35,0,35,35">
+        <TabControl>
+            <TabItem Header="Samples">
                 <ScrollViewer Grid.Row="1"
                               Margin="0,15,0,0"
                               VerticalScrollBarVisibility="Visible"
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <v:LineChartView Height="200" 
-                                         Margin="0, 15, 0, 0"/>
                         <ItemsControl x:Name="LsbExamples"
                                       VerticalAlignment="Top"
                                       Margin="0, 15, 0, 0">
@@ -71,8 +64,11 @@
                         </ItemsControl>
                     </StackPanel>
                 </ScrollViewer>
-            </Grid>
-
-        </Grid>
+            </TabItem>
+            <TabItem Header="Performance">
+                <local:PerformanceTestLineChartView Height="300"
+                                                    Margin="0, 15, 0, 0" />
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialChartContext.cs" />
-    <Compile Include="..\shared\Panuon.WPF.Charts\controls\abstracts\ChartElementBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Abstracts\ChartElementBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\MouseRelativeTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleRoutedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleRoutedEventHandler.cs" />

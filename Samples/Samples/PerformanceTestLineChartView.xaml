@@ -1,4 +1,4 @@
-﻿<Grid x:Class="Samples.Views.LineChartView"
+﻿<Grid x:Class="Samples.Views.PerformanceTestLineChartView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -19,7 +19,7 @@
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
                        AnimationEasing="CubicOut"
-                       AnimationDuration="0:0:2">
+                       AnimationDuration="0:0:5">
         <pc:CartesianChart.Layers>
             <pc:CrosshairLayer LineVisibility="Vertical" />
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"
@@ -51,13 +51,11 @@
                VerticalAlignment="Top"
                TextWrapping="Wrap"
                MaxWidth="400"
-               Opacity="0.5"
                FontWeight="Bold">
-        <Run Foreground="Red">*</Run>
-        <Run>Panuon.WPF.Charts has not yet provided a data simplification algorithm; all the data points are rendered as-is.</Run>
+        <Run>Panuon.WPF.Charts has not yet provided a data simplification algorithm; all the data points are rendered as-is. To reduce quality and improve rendering speed, try adjusting the RenderQuality property of the series (0-100).</Run>
         <LineBreak />
-        <Run x:Name="RunQuality"
-             Foreground="OrangeRed"></Run>
+        <Run x:Name="RunTime"
+             Foreground="Red"></Run>
     </TextBlock>
     
     <StackPanel Orientation="Horizontal"
@@ -69,9 +67,10 @@
                   SelectionChanged="DataCountComboBox_SelectionChanged">
             <ComboBoxItem Content="25" />
             <ComboBoxItem Content="50" />
-            <ComboBoxItem Content="100"
+            <ComboBoxItem Content="100" />
+            <ComboBoxItem Content="500" />
+            <ComboBoxItem Content="1000"
                           IsSelected="True" />
-            <ComboBoxItem Content="1000" />
             <ComboBoxItem Content="5000" />
             <ComboBoxItem Content="10000" />
             <ComboBoxItem Content="50000" />

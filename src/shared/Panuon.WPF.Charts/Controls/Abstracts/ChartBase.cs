@@ -1,5 +1,4 @@
 ﻿using Panuon.WPF.Charts.Controls.Internals;
-using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
