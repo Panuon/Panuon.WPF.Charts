@@ -88,9 +88,9 @@ namespace Panuon.WPF.Charts
             _drawingContext.DrawEllipse(
                 fill, 
                 GetPen(stroke, strokeThickness), 
-                new Point(offsetX, offsetY), 
-                radiusX, 
-                radiusY
+                new Point(offsetX, offsetY),
+                Math.Max(0, radiusX),
+                Math.Max(0, radiusY)
             );
         }
 
@@ -108,8 +108,8 @@ namespace Panuon.WPF.Charts
                 fill,
                 GetPen(stroke, strokeThickness, dashArray),
                 new Point(offsetX, offsetY),
-                radiusX,
-                radiusY
+                Math.Max(0, radiusX),
+                Math.Max(0, radiusY)
             );
         }
 
@@ -144,7 +144,7 @@ namespace Panuon.WPF.Charts
             _drawingContext.DrawRectangle(
                 fill, 
                 GetPen(stroke, strokeThickness), 
-                new Rect(startX, startY, width, height)
+                new Rect(startX, startY, Math.Max(0, width), Math.Max(0, height))
             );
         }
 
@@ -161,7 +161,7 @@ namespace Panuon.WPF.Charts
             _drawingContext.DrawRoundedRectangle(
                 fill,
                 GetPen(stroke, strokeThickness),
-                new Rect(startX, startY, width, height),
+                new Rect(startX, startY, Math.Max(0, width), Math.Max(0, height)),
                 radiusX,
                 radiusY
             );

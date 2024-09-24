@@ -131,8 +131,8 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaWidth = Math.Max(0, chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaHeight = Math.Max(0, chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
 
             var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
             var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
@@ -222,8 +222,8 @@ namespace Panuon.WPF.Charts
             IDictionary<int, double> coordinatesProgress
         )
         {
-            var areaWidth = chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
-            var areaHeight = chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2;
+            var areaWidth = Math.Max(0, chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaHeight = Math.Max(0, chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
 
             foreach (var coordinateProgress in coordinatesProgress)
             {

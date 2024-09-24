@@ -20,8 +20,6 @@
         </Style>
     </Grid.Resources>
     <pc:CartesianChart x:Name="chart"
-                       Height="300"
-                       Width="500"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
                        AnimationEasing="CubicOut"

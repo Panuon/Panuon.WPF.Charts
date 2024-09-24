@@ -14,8 +14,6 @@
         </Style>
     </Grid.Resources>
     <pc:CartesianChart x:Name="chart"
-                       Height="300"
-                       Width="500"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
                        GridLinesVisibility="Horizontal"
@@ -25,7 +23,8 @@
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
         <pc:CartesianChart.YAxis>
-            <pc:YAxis StrokeThickness="2" />
+            <pc:YAxis StrokeThickness="2" 
+                      MaxValue="100"/>
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"

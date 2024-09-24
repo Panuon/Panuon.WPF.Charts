@@ -24,6 +24,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\ICartesianCoordinate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Contracts\IRadialChartContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\Abstracts\ChartElementBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\AnimationTriggerMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\MouseRelativeTarget.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleRoutedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Events\GeneratingTitleRoutedEventHandler.cs" />
@@ -66,7 +68,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\GridLinesPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Layer\LayersPanel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\Internals\Series\SeriesPanel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Enums\AnimationEasing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CrosshairLineVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\CartesianChartGridLinesVisibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\DrawingEngine.cs" />

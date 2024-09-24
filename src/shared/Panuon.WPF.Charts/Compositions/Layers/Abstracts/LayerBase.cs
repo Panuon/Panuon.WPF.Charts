@@ -6,7 +6,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public abstract class LayerBase
-        : FrameworkElement
+        : ChartElementBase
     {
         #region Fields
         internal UIElementCollection _children;

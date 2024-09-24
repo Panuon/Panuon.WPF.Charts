@@ -2,7 +2,7 @@
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 5, DisplayName = "PieChart")]
+    [ExampleView(Index = 5, DisplayName = "PieChart", Type = "Radial")]
     public partial class PieChartView
         : Grid
     {

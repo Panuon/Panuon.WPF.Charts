@@ -1,26 +1,43 @@
-﻿using System.Windows.Controls;
+﻿using Panuon.WPF;
+using Panuon.WPF.Charts;
+using Samples.Utils;
+using System;
+using System.Collections.Generic;
+using System.Windows.Controls;
 
 namespace Samples.Views
 {
-    [ExampleView(Index = 3, DisplayName = "ColumnChart")]
+    [ExampleView(Index = 3, DisplayName = "ColumnChart", Type = "Cartesian")]
     public partial class ColumnChartView
-        : Grid
+        : Grid, ICartesianChartView
     {
         #region Ctor
         public ColumnChartView()
         {
             InitializeComponent();
+        }
 
-            var itemsSource = new object[]
+        public void Generate()
+        {
+            var itemsSource = new List<object>();
+            for (var i = 0; i < 5; i++)
             {
-                new { Label = "Data 1", Value = 5 },
-                new { Label = "Data 2", Value = 9 },
-                new { Label = "Data 3", Value = 2 },
-                new { Label = "Data 4", Value = 8 },
-                new { Label = "Data 5", Value = 9 },
-            };
-
+                itemsSource.Add(new
+                {
+                    Label = $"Data {i + 1}",
+                    Value = RandomUtil.Next(0, 100),
+                });
+            }
             chart.ItemsSource = itemsSource;
+        }
+
+        public void SetAnimation(
+            AnimationEasing animationEasing,
+            TimeSpan? animationTime
+        )
+        {
+            chart.AnimationEasing = animationEasing;
+            chart.AnimationDuration = animationTime;
         }
         #endregion
     }

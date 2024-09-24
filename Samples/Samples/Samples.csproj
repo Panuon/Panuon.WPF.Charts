@@ -15,12 +15,12 @@
     <Reference Include="Panuon.WPF">
       <HintPath>..\..\src\references\net6.0-windows\Panuon.WPF.dll</HintPath>
     </Reference>
+    <Reference Include="Panuon.WPF.UI">
+      <HintPath>..\references\Panuon.WPF.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\BarChartView.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Update="Views\RadarChartView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -43,9 +43,6 @@
 
   <ItemGroup>
     <Page Update="Views\ClusteredColumnChartView.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Views\BarChartView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RadarChartView.xaml">
