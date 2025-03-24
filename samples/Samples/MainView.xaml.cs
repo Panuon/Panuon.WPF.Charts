@@ -76,7 +76,7 @@ namespace Samples
             var cartesianItems = createItems(_cartesianViewTypes);
             LsbCartesianExamples.ItemsSource = cartesianItems;
             UpdateCartesianChartViewAnimation();
-            GenerateCartesianChartDataset();
+            //GenerateCartesianChartDataset();
 
             var radialItems = createItems(_radialViewTypes);
             LsbRadialExamples.ItemsSource = radialItems;

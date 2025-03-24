@@ -70,18 +70,12 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnRetrieveLegendEntries
-        protected internal sealed override IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries(
-            IChartContext chartContext
-        )
+        protected internal sealed override IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries()
         {
-            return OnRetrieveLegendEntries(
-                (IRadialChartContext)chartContext
-            );
+            return OnRetrieveLegendEntries();
         }
 
-        protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            IRadialChartContext chartContext
-        );
+        protected abstract IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries();
         #endregion
 
         #endregion

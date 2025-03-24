@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -10,8 +11,26 @@ namespace Panuon.WPF.Charts
         : AxisBase
     {
         #region Fields
-        internal readonly Dictionary<FormattedText, Func<double>> _formattedTextOffsets =
-            new Dictionary<FormattedText, Func<double>>();
+        internal readonly List<YAxisLabelOffset> _labelOffsets =
+            new List<YAxisLabelOffset>();
+        #endregion
+
+        #region Ctor
+        public YAxis()
+        {
+            Labels = new Collection<YAxisLabel>();
+        }
+        #endregion
+
+        #region Events
+        public event YAxisGeneratingLabelRoutedEventHandler GeneratingLabel
+        {
+            add { AddHandler(GeneratingLabelEvent, value); }
+            remove { RemoveHandler(GeneratingLabelEvent, value); }
+        }
+
+        public static readonly RoutedEvent GeneratingLabelEvent =
+            EventManager.RegisterRoutedEvent("GeneratingLabel", RoutingStrategy.Bubble, typeof(YAxisGeneratingLabelRoutedEventHandler), typeof(YAxis));
         #endregion
 
         #region Properties
@@ -38,6 +57,17 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("MaxValue", typeof(double?), typeof(YAxis));
         #endregion
 
+        #region Labels
+        public Collection<YAxisLabel> Labels
+        {
+            get { return (Collection<YAxisLabel>)GetValue(LabelsProperty); }
+            set { SetValue(LabelsProperty, value); }
+        }
+
+        public static readonly DependencyProperty LabelsProperty =
+            DependencyProperty.Register("Labels", typeof(Collection<YAxisLabel>), typeof(YAxis), new PropertyMetadata(OnLabelsChanged));
+        #endregion
+
         #endregion
 
         #region Overrides
@@ -47,125 +77,204 @@ namespace Panuon.WPF.Charts
         {
             base.MeasureOverride(availableSize);
 
-            _formattedTextOffsets.Clear();
+            var canvasContext = _chart.GetCanvasContext() as ICartesianChartContext;
+            _labelOffsets.Clear();
 
-            if (!_chart.SwapXYAxes)
+            if (Labels != null
+                && Labels.Any())
+            {
+                foreach (var label in Labels)
+                {
+                    _labelOffsets.Add(new YAxisLabelOffset(
+                        label.Label,
+                        label.Value,
+                        () => canvasContext.GetOffsetY(label.Value)
+                    ));
+                }
+            }
+            else
             {
                 var deltaX = (_chart.ActualMaxValue - _chart.ActualMinValue) / 5;
 
                 for (int i = 0; i <= 5; i++)
                 {
                     var value = _chart.ActualMinValue + deltaX * i;
-                    var formattedText = new FormattedText(
-                        value.ToString(),
-                        System.Globalization.CultureInfo.CurrentCulture,
-                        FlowDirection.LeftToRight,
-                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
-                        FontSize,
-                        Foreground
-#if NET452
-#else
-                        , VisualTreeHelper.GetDpi(this).PixelsPerDip
-#endif
-                    )
-                    {
-                        MaxLineCount = LabelMaxLineCount,
-                        MaxTextWidth = LabelMaxWidth,
-                        Trimming = TextTrimming.CharacterEllipsis
-                    };
-                    _formattedTextOffsets.Add(formattedText, () => (_chart.GetCanvasContext() as ICartesianChartContext).GetOffsetY(value));
-                }
-            }
-            else
-            {
-                foreach (var coordinate in _chart.Coordinates)
-                {
-                    if (coordinate.Label == null)
-                    {
-                        continue;
-                    }
-                    var formattedText = new FormattedText(coordinate.Label,
-                        System.Globalization.CultureInfo.CurrentCulture,
-                        FlowDirection.LeftToRight,
-                        new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
-                        FontSize,
-                        Foreground
-#if NET452
-#else
-                        , VisualTreeHelper.GetDpi(this).PixelsPerDip
-#endif
-                    )
-                    {
-                        MaxLineCount = LabelMaxLineCount,
-                        MaxTextWidth = LabelMaxWidth,
-                        Trimming = TextTrimming.CharacterEllipsis
-                    };
+                    var label = value.ToString();
+                    var eventArgs = new YAxisGeneratingLabelRoutedEventArgs(
+                        GeneratingLabelEvent,
+                        value,
+                        canvasContext.MinValue,
+                        canvasContext.MaxValue,
+                        label);
+                    RaiseEvent(eventArgs);
+                    label = eventArgs.Label;
 
-                    _formattedTextOffsets.Add(formattedText, () => coordinate.Offset);
+                    _labelOffsets.Add(new YAxisLabelOffset(
+                        label,
+                        value,
+                        () => canvasContext.GetOffsetY(value)
+                    ));
                 }
             }
 
-            if (!_formattedTextOffsets.Any())
+            if (!_labelOffsets.Any())
             {
                 return new Size(0, 0);
             }
 
-            return new Size(
-                _formattedTextOffsets.Keys.Max(x => x.Width) + Spacing + TicksSize + StrokeThickness,
-                0
-            );
+            var maxText = _labelOffsets.OrderByDescending(lc => lc.Label?.Length ?? 0).First().Label;
+
+            FormattedText maxFormattedText = null;
+            if (!string.IsNullOrEmpty(maxText))
+            {
+                maxFormattedText = CreateFormattedText(
+                    maxText,
+                    maxLineCount: LabelMaxLineCount,
+                    maxTextWidth: LabelMaxWidth
+                );
+            }
+
+            if (!_chart.SwapXYAxes)
+            {
+                return new Size(
+                    (maxFormattedText?.Width ?? 0) + Spacing + TicksSize + StrokeThickness,
+                    0
+                );
+            }
+            else
+            {
+                return new Size(
+                    0,
+                    (maxFormattedText?.Height ?? 0) + Spacing + TicksSize + StrokeThickness
+                );
+            }
         }
         #endregion
 
         #region ArrangeOverride
         protected override Size ArrangeOverride(Size finalSize)
         {
-            return new Size(DesiredSize.Width, finalSize.Height);
+            if (!_chart.SwapXYAxes)
+            {
+                return new Size(
+                    DesiredSize.Width, 
+                    finalSize.Height
+                );
+            }
+            else
+            {
+                return new Size(
+                    finalSize.Width,
+                    DesiredSize.Height
+                );
+            }
         }
         #endregion
 
         #region OnRender
-        protected override void OnRender(DrawingContext context)
+        protected override void OnRender(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
         {
-            if (!_chart.IsCanvasReady())
+            if (!_chart.SwapXYAxes)
             {
-                return;
+                drawingContext.DrawLine(
+                    Stroke,
+                    StrokeThickness,
+                    new Point(ActualWidth, -StrokeThickness / 2),
+                    new Point(ActualWidth, ActualHeight + StrokeThickness / 2));
+            }
+            else
+            {
+                drawingContext.DrawLine(
+                    Stroke,
+                    StrokeThickness,
+                    new Point(-StrokeThickness / 2, 0),
+                    new Point(ActualWidth, 0));
             }
 
-            var drawingContext = _chart.CreateDrawingContext(context);
-            var chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
-
-            drawingContext.DrawLine(
-                Stroke,
-                StrokeThickness,
-                ActualWidth,
-                -StrokeThickness / 2,
-                ActualWidth,
-                ActualHeight
-            );
-
-            foreach (var valueText in _formattedTextOffsets)
+            for(var index = 0; index < _labelOffsets.Count; index++)
             {
-                var text = valueText.Key;
-                var offsetY = valueText.Value();
+                var coordinateText = _labelOffsets.ElementAt(index);
+                if (!_chart.SwapXYAxes)
+                {
+                    var text = coordinateText.Label;
+                    var offsetY = coordinateText.GetOffsetY();
+                    if (index != 0)
+                    {
+                        drawingContext.DrawLine(
+                            TicksBrush,
+                            StrokeThickness,
+                            new Point(ActualWidth - StrokeThickness / 2, offsetY),
+                            new Point(ActualWidth - StrokeThickness / 2 - TicksSize, offsetY));
+                    }
 
-                drawingContext.DrawLine(
-                    TicksBrush,
-                    StrokeThickness,
-                    ActualWidth - StrokeThickness / 2,
-                    offsetY,
-                    ActualWidth - StrokeThickness / 2 - TicksSize,
-                    offsetY
-                );
-                drawingContext.DrawText(
-                    text,
-                    ActualWidth - StrokeThickness - Spacing - TicksSize - text.Width,
-                    offsetY - text.Height / 2
-                );
+                    var formattedText = CreateFormattedText(
+                        text,
+                        maxLineCount: LabelMaxLineCount,
+                        maxTextWidth: LabelMaxWidth);
+
+                    drawingContext.DrawText(
+                        text: formattedText,
+                        startPoint: new Point(ActualWidth - StrokeThickness - Spacing - TicksSize - formattedText.Width, offsetY - formattedText.Height / 2));
+                }
+                else
+                {
+                    var text = coordinateText.Label;
+                    var offsetX = coordinateText.GetOffsetY();
+                    if (index != 0)
+                    {
+                        drawingContext.DrawLine(
+                             TicksBrush,
+                             StrokeThickness,
+                             new Point(offsetX, StrokeThickness / 2),
+                             new Point(offsetX, StrokeThickness / 2 + TicksSize)
+                         );
+                    }
+
+                    var formattedText = CreateFormattedText(
+                        text,
+                        maxLineCount: LabelMaxLineCount,
+                        maxTextWidth: LabelMaxWidth
+                    );
+                    drawingContext.DrawText(
+                        formattedText,
+                        new Point(offsetX - formattedText.Width / 2, StrokeThickness + Spacing + TicksSize)
+                    );
+                }
             }
         }
         #endregion
 
+        #endregion
+
+        #region Event Handlers
+        private static void OnLabelsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var axis = d as YAxis;
+
+            if (e.OldValue is ObservableCollection<YAxisLabel> oldCollection)
+            {
+                oldCollection.CollectionChanged -= axis.Labels_CollectionChanged;
+            }
+
+            if (e.NewValue is ObservableCollection<YAxisLabel> newCollection)
+            {
+                newCollection.CollectionChanged -= axis.Labels_CollectionChanged;
+                newCollection.CollectionChanged += axis.Labels_CollectionChanged;
+            }
+            axis.InvalidateMeasure();
+            axis.InvalidateArrange();
+            axis.InvalidateVisual();
+        }
+
+        private void Labels_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            InvalidateMeasure();
+            InvalidateArrange();
+            InvalidateVisual();
+        }
         #endregion
     }
 }

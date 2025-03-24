@@ -1,33 +1,43 @@
-﻿using System.Windows.Media;
+﻿using System;
+using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public class SeriesLegendEntry
     {
         public SeriesLegendEntry(
-            Brush brush,
-            string label
-        )
+            string title,
+            MarkerShape markerShape,
+            Brush markerStroke,
+            double markerStrokeThickness,
+            Brush markerFill)
         {
-            Brush = brush;
-            Label = label;
+            Title = title;
+            MarkerShape = markerShape;
+            MarkerStroke = markerStroke;
+            MarkerStrokeThickness = markerStrokeThickness;
+            MarkerFill = markerFill;
         }
 
         public SeriesLegendEntry(
-            Brush highlightBrush,
-            string label,
-            string value
-        )
-            : this(highlightBrush, label)
+            string title,
+            Action<DrawingMarkerEventArgs> onDrawingMarker)
         {
-            Value = value;
+            Title = title;
+            OnDrawingMarker = onDrawingMarker;
         }
 
-        public string Label { get; set; }
+        public string Title { get; set; }
 
-        public string Value { get; set; }
+        public MarkerShape MarkerShape { get; set; }
 
-        public Brush Brush { get; set; }
+        public Brush MarkerStroke { get; set; }
+
+        public double MarkerStrokeThickness { get; set; }
+
+        public Brush MarkerFill { get; set; }
+
+        public Action<DrawingMarkerEventArgs> OnDrawingMarker { get; set; }
 
     }
 

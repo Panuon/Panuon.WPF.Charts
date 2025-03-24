@@ -7,26 +7,26 @@ namespace Panuon.WPF.Charts
     {
         #region Properties
 
-        #region Label
-        public string Label
+        #region Title
+        public string Title
         {
             get { return (string)GetValue(TitleProperty); }
             set { SetValue(TitleProperty, value); }
         }
 
         public static readonly DependencyProperty TitleProperty =
-            DependencyProperty.Register("Label", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
+            DependencyProperty.Register("Title", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
         #endregion
 
-        #region LabelMemberPath
-        public string LabelMemberPath
+        #region TitleMemberPath
+        public string TitleMemberPath
         {
             get { return (string)GetValue(TitleMemberPathProperty); }
-            set { SetValue(TitleMemberPathProperty, Label); }
+            set { SetValue(TitleMemberPathProperty, Title); }
         }
 
         public static readonly DependencyProperty TitleMemberPathProperty =
-            DependencyProperty.Register("LabelMemberPath", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
+            DependencyProperty.Register("TitleMemberPath", typeof(string), typeof(CartesianValueProviderSeriesBase), new PropertyMetadata(null));
         #endregion
 
         #region ValueMemberPath

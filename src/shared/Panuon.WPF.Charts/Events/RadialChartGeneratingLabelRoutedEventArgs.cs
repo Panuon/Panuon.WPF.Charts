@@ -1,27 +1,30 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Panuon.WPF.Charts
 {
-    public class GeneratingTitleRoutedEventArgs
+    public class RadialChartGeneratingLabelRoutedEventArgs
         : RoutedEventArgs
     {
         #region Ctor
-        public GeneratingTitleRoutedEventArgs(
+        public RadialChartGeneratingLabelRoutedEventArgs(
             RoutedEvent @event,
+            string label,
             double value,
-            string label
+            double totalValue
         ) : base(@event)
         {
             Value = value;
             Label = label;
+            TotalValue = totalValue;
         }
         #endregion
 
         #region Properties
+        public string Label { get; set; }
+
         public double Value { get; }
 
-        public string Label { get; set; }
+        public double TotalValue { get; }
         #endregion
     }
 }

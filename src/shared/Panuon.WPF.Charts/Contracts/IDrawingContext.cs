@@ -1,120 +1,42 @@
-﻿using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public interface IDrawingContext
     {
-        void DrawLine(
-            Brush stroke,
-            double strokeThickness,
-            double startX,
-            double startY,
-            double endX,
-            double endY
-        );
+        void DrawLine(Brush stroke, double strokeThickness, Point startPoint, Point endPoint, DoubleCollection dashArray = null);
 
-        void DrawLine(
-            Brush stroke,
-            double strokeThickness,
-            DoubleCollection dashArray,
-            double startX,
-            double startY,
-            double endX,
-            double endY
-        );
+        void DrawEllipse(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, DoubleCollection dashArray = null);
 
-        void DrawEllipse(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            double radiusX,
-            double radiusY,
-            double startX,
-            double startY
-        );
+        void DrawRectangle(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, Size? radius = null, DoubleCollection dashArray = null);
 
-        void DrawEllipse(
-            Brush stroke,
-            double strokeThickness,
-            DoubleCollection dashArray,
-            Brush fill,
-            double radiusX,
-            double radiusY,
-            double startX,
-            double startY
-        );
+        void DrawTriangle(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, DoubleCollection dashArray = null);
 
-        void DrawGeometry(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            Geometry geometry
-        );
+        void DrawCross(Brush stroke, double strokeThickness, Brush fill, Size size, Point startPoint, DoubleCollection dashArray = null);
 
-        void DrawGeometry(
-            Brush stroke,
-            double strokeThickness,
-            DoubleCollection dashArray,
-            Brush fill,
-            Geometry geometry
-        );
+        void DrawDiamond(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, DoubleCollection dashArray = null);
 
-        void DrawText(
-            FormattedText text,
-            double offsetX,
-            double offsetY
-        );
+        void DrawStar(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, DoubleCollection dashArray = null);
 
-        void DrawText(FormattedText text,
-            Brush fill,
-            Brush stroke,
-            double strokeThickness,
-            double offsetX,
-            double offsetY);
+        void DrawArrowUp(Brush stroke, double strokeThickness, Brush fill, Size size, Point targetPoint, DoubleCollection dashArray = null);
 
-        void DrawRectangle(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            double startX,
-            double startY,
-            double width,
-            double height
-        );
+        void DrawArrowDown(Brush stroke, double strokeThickness, Brush fill, Size size, Point targetPoint, DoubleCollection dashArray = null);
 
-        void DrawRectangle(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            double startX,
-            double startY,
-            double width,
-            double height,
-            double radiusX,
-            double radiusY
-        );
+        void DrawPlus(Brush stroke, double strokeThickness, Brush fill, Size size, Point centerPoint, DoubleCollection dashArray = null);
 
-        void DrawArc(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            double centerX,
-            double centerY,
-            double radius,
-            double startAngle,
-            double endAngle
-        );
+        void DrawGeometry(Brush stroke, double strokeThickness, Brush fill, Geometry geometry, DoubleCollection dashArray = null);
 
-        void DrawArc(
-            Brush stroke,
-            double strokeThickness,
-            Brush fill,
-            double centerX,
-            double centerY,
-            double innerRadius,
-            double outterRadius,
-            double startAngle,
-            double endAngle
-        );
+        void DrawText(FormattedText text, Point startPoint);
+
+        void DrawText(FormattedText text, Point startPoint, Brush fill, Brush stroke, double strokeThickness);
+
+        void DrawArc(Brush stroke, double strokeThickness, Brush fill, Point centerPoint, double radius, double startAngle, double endAngle);
+
+        void DrawArc(Brush stroke, double strokeThickness, Brush fill, Point centerPoint, double innerRadius, double outterRadius, double startAngle, double endAngle);
+
+        void PushTranslate(double offsetX, double offsetY);
+
+        void PushClip(double offsetX, double offsetY, double width, double height);
     }
 }

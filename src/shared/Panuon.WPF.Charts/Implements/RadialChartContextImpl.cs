@@ -26,12 +26,12 @@ namespace Panuon.WPF.Charts.Implements
         {
             var coordinates = Coordinates;
 
-            var areaWidth = Math.Max(0, AreaWidth - (Chart.LabelSpacing + Chart.FontSize) * 2);
-            var areaHeight = Math.Max(0, AreaHeight - (Chart.LabelSpacing + Chart.FontSize) * 2);
+            var areaWidth = Math.Max(0, CanvasWidth - (Chart.LabelSpacing + Chart.FontSize) * 2);
+            var areaHeight = Math.Max(0, CanvasHeight - (Chart.LabelSpacing + Chart.FontSize) * 2);
 
             var radius = Math.Min(areaWidth, areaHeight) / 2;
-            var centerX = AreaWidth / 2;
-            var centerY = AreaHeight / 2;
+            var centerX = CanvasWidth / 2;
+            var centerY = CanvasHeight / 2;
 
             foreach (var coordinate in coordinates)
             {

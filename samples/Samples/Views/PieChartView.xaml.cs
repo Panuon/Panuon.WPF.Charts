@@ -4,7 +4,7 @@ namespace Samples.Views
 {
     [ExampleView(Index = 5, DisplayName = "PieChart", Type = "Radial")]
     public partial class PieChartView
-        : Grid
+        : UserControl
     {
         #region Ctor
         public PieChartView()

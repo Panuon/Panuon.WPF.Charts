@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Ink;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -21,48 +22,48 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region ToggleStroke
-        public Brush ToggleStroke
+        #region MarkerStroke
+        public Brush MarkerStroke
         {
-            get { return (Brush)GetValue(ToggleStrokeProperty); }
-            set { SetValue(ToggleStrokeProperty, value); }
+            get { return (Brush)GetValue(MarkerStrokeProperty); }
+            set { SetValue(MarkerStrokeProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleStrokeProperty =
-            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerStrokeProperty =
+            DependencyProperty.Register("MarkerStroke", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleStrokeThickness
-        public double ToggleStrokeThickness
+        #region MarkerStrokeThickness
+        public double MarkerStrokeThickness
         {
-            get { return (double)GetValue(ToggleStrokeThicknessProperty); }
-            set { SetValue(ToggleStrokeThicknessProperty, value); }
+            get { return (double)GetValue(MarkerStrokeThicknessProperty); }
+            set { SetValue(MarkerStrokeThicknessProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleStrokeThicknessProperty =
-            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerStrokeThicknessProperty =
+            DependencyProperty.Register("MarkerStrokeThickness", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleFill
-        public Brush ToggleFill
+        #region MarkerFill
+        public Brush MarkerFill
         {
-            get { return (Brush)GetValue(ToggleFillProperty); }
-            set { SetValue(ToggleFillProperty, value); }
+            get { return (Brush)GetValue(MarkerFillProperty); }
+            set { SetValue(MarkerFillProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerFillProperty =
+            DependencyProperty.Register("MarkerFill", typeof(Brush), typeof(DotSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleRadius
-        public double ToggleRadius
+        #region MarkerSize
+        public double MarkerSize
         {
-            get { return (double)GetValue(ToggleRadiusProperty); }
-            set { SetValue(ToggleRadiusProperty, value); }
+            get { return (double)GetValue(MarkerSizeProperty); }
+            set { SetValue(MarkerSizeProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerSizeProperty =
+            DependencyProperty.Register("MarkerSize", typeof(double), typeof(DotSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
         #endregion
@@ -132,7 +133,7 @@ namespace Panuon.WPF.Charts
 
             var accumulatedLength = 0d;
             var lastPoint = _valuePoints[0];
-            var toggleFill = ToggleFill ?? ToggleStroke;
+            var toggleFill = MarkerFill ?? MarkerStroke;
 
             for (int i = 0; i < segmentLengths.Count; i++)
             {
@@ -142,26 +143,20 @@ namespace Panuon.WPF.Charts
                 if (animationProgress >= 0)
                 {
                     drawingContext.DrawEllipse(
-                        ToggleStroke,
-                        ToggleStrokeThickness,
+                        stroke: MarkerStroke, 
+                        strokeThickness: MarkerStrokeThickness,
                         toggleFill,
-                        ToggleRadius,
-                        ToggleRadius,
-                        _valuePoints[i].X,
-                        _valuePoints[i].Y
-                    );
+                        size: new Size(MarkerSize, MarkerSize),
+                        centerPoint: _valuePoints[i]);
                 }
                 if (animationProgress == 1)
                 {
                     drawingContext.DrawEllipse(
-                        ToggleStroke,
-                        ToggleStrokeThickness,
-                        toggleFill,
-                        ToggleRadius,
-                        ToggleRadius,
-                        _valuePoints.Last().X,
-                        _valuePoints.Last().Y
-                    );
+                        stroke: MarkerStroke,
+                        strokeThickness: MarkerStrokeThickness,
+                        fill: toggleFill,
+                        size: new Size(MarkerSize, MarkerSize),
+                        centerPoint: _valuePoints.Last());
                 }
 
                 if (accumulatedLength + segmentLength >= targetLength)
@@ -178,16 +173,12 @@ namespace Panuon.WPF.Charts
                     return;
                 }
 
-
                 drawingContext.DrawEllipse(
-                    ToggleStroke,
-                    ToggleStrokeThickness,
-                    toggleFill,
-                    ToggleRadius,
-                    ToggleRadius,
-                    point.X,
-                    point.Y
-                );
+                    stroke: MarkerStroke,
+                    strokeThickness: MarkerStrokeThickness,
+                    fill: toggleFill,
+                    size: new Size(MarkerSize, MarkerSize),
+                    centerPoint: point);
 
                 lastPoint = point;
                 accumulatedLength += segmentLength;
@@ -219,26 +210,20 @@ namespace Panuon.WPF.Charts
                 if (!chartContext.SwapXYAxes)
                 {
                     drawingContext.DrawEllipse(
-                        stroke: series.ToggleStroke ?? series.ToggleFill,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: coordinate.Offset,
-                        startY: point.Y
-                    );
+                        stroke: series.MarkerStroke ?? series.MarkerFill,
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                        centerPoint: new Point(coordinate.Offset, point.Y));
                 }
                 else
                 {
                     drawingContext.DrawEllipse(
-                        stroke: series.ToggleStroke ?? series.ToggleFill,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: point.X,
-                        startY: coordinate.Offset
-                    );
+                        stroke: series.MarkerStroke ?? series.MarkerFill,
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                        centerPoint: new Point(point.X, coordinate.Offset));
                 }
             }
         }
@@ -246,20 +231,14 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnLegend
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            ICartesianChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
-            {
-                var coordinate = chartContext.RetrieveCoordinate(position);
-                var toggleBrush = ToggleFill ?? ToggleStroke;
-
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
-
-                yield return new SeriesLegendEntry(toggleBrush, Label ?? coordinate.Label, value.ToString());
-            }
+            yield return new SeriesLegendEntry(
+                    Title,
+                    markerShape: MarkerShape.Circle,
+                    markerStroke: MarkerStroke,
+                    markerStrokeThickness: MarkerStrokeThickness,
+                    markerFill: MarkerFill);
         }
         #endregion
 

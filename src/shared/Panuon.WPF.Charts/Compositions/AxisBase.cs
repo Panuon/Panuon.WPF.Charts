@@ -1,15 +1,15 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class AxisBase
-        : ChartElementBase
+        : ChartDrawingControlBase
     {
         #region Fields
         protected CartesianChart _chart;
-
         #endregion
 
         #region Ctor
@@ -104,18 +104,60 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
+        #region Internal Properties
+
+        #region Offset
+        internal double Offset
+        {
+            get { return (double)GetValue(OffsetProperty); }
+            set { SetValue(OffsetProperty, value); }
+        }
+
+        internal static readonly DependencyProperty OffsetProperty =
+            DependencyProperty.Register("Offset", typeof(double), typeof(AxisBase), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #endregion
+
         #region Internal Methods
         internal void OnAttached(CartesianChart chart)
         {
             _chart = chart;
+            SetBinding(Control.ForegroundProperty, new Binding
+            {
+                Path = new PropertyPath(Control.ForegroundProperty),
+                Source = chart
+            });
         }
         #endregion
 
-        #region Event Handlers
-        #endregion
+        #region Overrides
+        protected sealed override void OnRender(DrawingContext drawingContext)
+        {
+            if (!_chart.IsCanvasReady())
+            {
+                return;
+            }
+            IDrawingContext drawingContext2 = _chart.CreateDrawingContext(drawingContext);
+            ICartesianChartContext chartContext = _chart.GetCanvasContext() as ICartesianChartContext;
+            CartesianChart chart = _chart;
+            if (chart != null && chart.CanvasWidth > chart.SliceWidth)
+            {
+                if (!chart.SwapXYAxes)
+                {
+                    drawingContext2.PushTranslate(Offset, 0.0);
+                }
+                else
+                {
+                    drawingContext2.PushTranslate(0.0, Offset);
+                }
+            }
+            OnRender(drawingContext2, chartContext);
+        }
 
-        #region Functions
-
+        protected abstract void OnRender(
+            IDrawingContext drawingContext, 
+            IChartContext chartContext);
         #endregion
 
     }

@@ -8,6 +8,8 @@
 
         double GetValue(IChartArgument seriesOrSegment);
 
+        object GetSource();
+
         double Offset { get; }
     }
 }

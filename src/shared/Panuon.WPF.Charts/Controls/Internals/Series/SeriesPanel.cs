@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -20,21 +18,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
         #endregion
 
         #region Ctor
-        internal SeriesPanel(ChartBase chartPanel)
+        internal SeriesPanel(ChartBase chart)
         {
-            _chart = chartPanel;
-            if (chartPanel is CartesianChart cartesianChart)
-            {
-                cartesianChart.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
-            }
-            else if (chartPanel is RadialChart radialChart)
-            {
-                radialChart.Series.CollectionChanged += ChartPanelSeries_CollectionChanged;
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            _chart = chart;
 
             _children = new UIElementCollection(this, this);
         }
@@ -65,28 +51,15 @@ namespace Panuon.WPF.Charts.Controls.Internals
             }
             return base.ArrangeOverride(finalSize);
         }
-
-
         #endregion
 
-        #region Event Handlers
-        private void ChartPanelSeries_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        #region Methods
+        public void ResetSeries()
         {
-            if (e.OldItems != null)
+            _children.Clear();
+            foreach(var series in _chart.GetSeries())
             {
-                foreach (SeriesBase series in e.OldItems)
-                {
-                    _children.Remove(series);
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (SeriesBase series in e.NewItems)
-                {
-                    series.OnAttached(_chart);
-                    var index = GetSeries().ToList().IndexOf(series);
-                    _children.Insert(index, series);
-                }
+                _children.Add(series);
             }
         }
         #endregion

@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Panuon.WPF;
 
 namespace Panuon.WPF.Charts
 {
@@ -19,7 +18,7 @@ namespace Panuon.WPF.Charts
 
         internal SeriesPanel _seriesPanel;
         internal LayersPanel _layersPanel;
-
+        internal LegendPanel _legendPanel;
 
         private static TypeConverter _doubleTypeConverter = 
             TypeDescriptor.GetConverter(typeof(double));
@@ -30,10 +29,19 @@ namespace Panuon.WPF.Charts
         {
             _children = new UIElementCollection(this, this);
 
-            Layers = new LayerCollection();
+            SetCurrentValue(LayersProperty, new LayerCollection());
 
             _layersPanel = new LayersPanel(this);
             _children.Add(_layersPanel);
+
+            var itemTemplate = FindResource(LegendItemTemplateKey) as DataTemplate;
+            SetCurrentValue(LegendItemTemplateProperty, itemTemplate);
+
+            var labelStyle = FindResource(LegendLabelStyleKey) as Style;
+            SetCurrentValue(LegendLabelStyleProperty, labelStyle);
+
+            _legendPanel = new LegendPanel(this);
+            _children.Add(_legendPanel);
         }
         #endregion
 
@@ -56,11 +64,11 @@ namespace Panuon.WPF.Charts
         #region LabelMemberPath
         public string LabelMemberPath
         {
-            get { return (string)GetValue(TitleMemberPathProperty); }
-            set { SetValue(TitleMemberPathProperty, value); }
+            get { return (string)GetValue(LabelMemberPathProperty); }
+            set { SetValue(LabelMemberPathProperty, value); }
         }
 
-        public static readonly DependencyProperty TitleMemberPathProperty =
+        public static readonly DependencyProperty LabelMemberPathProperty =
             DependencyProperty.Register("LabelMemberPath", typeof(string), typeof(ChartBase));
         #endregion
 
@@ -73,6 +81,72 @@ namespace Panuon.WPF.Charts
 
         public static readonly DependencyProperty LayersProperty =
             DependencyProperty.Register("Layers", typeof(LayerCollection), typeof(ChartBase), new PropertyMetadata(null));
+        #endregion
+
+        #region ShowLegend
+        public bool ShowLegend
+        {
+            get { return (bool)GetValue(ShowLegendProperty); }
+            set { SetValue(ShowLegendProperty, value); }
+        }
+
+        public static readonly DependencyProperty ShowLegendProperty =
+           DependencyProperty.Register("ShowLegend", typeof(bool), typeof(ChartBase), new FrameworkPropertyMetadata(false));
+        #endregion
+
+        #region LegendLabelStyle
+        public Style LegendLabelStyle
+        {
+            get { return (Style)GetValue(LegendLabelStyleProperty); }
+            set { SetValue(LegendLabelStyleProperty, value); }
+        }
+
+        public static readonly DependencyProperty LegendLabelStyleProperty =
+           DependencyProperty.Register("LegendLabelStyle", typeof(Style), typeof(ChartBase), new FrameworkPropertyMetadata(null));
+        #endregion
+
+        #region LegendItemTemplate
+        public DataTemplate LegendItemTemplate
+        {
+            get { return (DataTemplate)GetValue(LegendItemTemplateProperty); }
+            set { SetValue(LegendItemTemplateProperty, value); }
+        }
+
+        public static readonly DependencyProperty LegendItemTemplateProperty =
+           DependencyProperty.Register("LegendItemTemplate", typeof(DataTemplate), typeof(ChartBase), new FrameworkPropertyMetadata(null));
+        #endregion
+
+        #region LegendPosition
+        public LegendPosition LegendPosition
+        {
+            get { return (LegendPosition)GetValue(LegendPositionProperty); }
+            set { SetValue(LegendPositionProperty, value); }
+        }
+
+        public static readonly DependencyProperty LegendPositionProperty =
+           DependencyProperty.Register("LegendPosition", typeof(LegendPosition), typeof(ChartBase), new FrameworkPropertyMetadata(LegendPosition.TopRight, OnLegendPositionChanged));
+        #endregion
+
+        #region LegendOffsetX
+        public double LegendOffsetX
+        {
+            get { return (double)GetValue(LegendOffsetXProperty); }
+            set { SetValue(LegendOffsetXProperty, value); }
+        }
+
+        public static readonly DependencyProperty LegendOffsetXProperty =
+           DependencyProperty.Register("LegendOffsetX", typeof(double), typeof(ChartBase), new FrameworkPropertyMetadata(0d, OnLegendPositionChanged));
+        #endregion
+
+        #region LegendOffsetY
+        public double LegendOffsetY
+        {
+            get { return (double)GetValue(LegendOffsetYProperty); }
+            set { SetValue(LegendOffsetYProperty, value); }
+        }
+
+        public static readonly DependencyProperty LegendOffsetYProperty =
+           DependencyProperty.Register("LegendOffsetY", typeof(double), typeof(ChartBase), new FrameworkPropertyMetadata(0d, OnLegendPositionChanged));
         #endregion
 
         #region AnimationEasing
@@ -110,6 +184,14 @@ namespace Panuon.WPF.Charts
 
         #endregion
 
+        #region ComponentStyleKeys
+        public static ComponentResourceKey LegendItemTemplateKey { get; } =
+            new ComponentResourceKey(typeof(ChartBase), nameof(LegendItemTemplateKey));
+
+        public static ComponentResourceKey LegendLabelStyleKey { get; } =
+            new ComponentResourceKey(typeof(ChartBase), nameof(LegendLabelStyleKey));
+        #endregion
+
         #region Overrides
 
         #region VisualChildrenCount
@@ -126,6 +208,9 @@ namespace Panuon.WPF.Charts
             _seriesPanel.Measure(availableSize);
             _layersPanel.Measure(availableSize);
 
+            _legendPanel.UpdateEntries();
+            _legendPanel.Measure(availableSize);
+
             return base.MeasureOverride(availableSize);
         }
         #endregion
@@ -138,6 +223,7 @@ namespace Panuon.WPF.Charts
 
             _seriesPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
             _layersPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
+            _legendPanel.Arrange(new Rect(Padding.Left, Padding.Top, renderWidth, renderHeight));
 
             _seriesPanel.InvalidateVisual();
             _layersPanel.InvalidateVisual();
@@ -161,40 +247,43 @@ namespace Panuon.WPF.Charts
         {
             var itemType = item.GetType();
 
-            double value;
-            if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
+            double value = 0d;
+            try
             {
-                try
+                if (index != -1
+                    && item is IEnumerable enumerableItem)
                 {
-                    if (index != -1
-                        && item is IEnumerable enumerableItem)
+                    var enumerator = enumerableItem.GetEnumerator();
+                    for (int i = 0; i <= index; i++)
                     {
-                        var enumerator = enumerableItem.GetEnumerator();
-                        for (int i = 0; i <= index; i++)
+                        enumerator.MoveNext();
+                        if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
                         {
-                            enumerator.MoveNext();
+                            value = Convert.ToDouble(enumerator.Current);
                         }
-                        value = Convert.ToDouble(enumerator.Current);
+                        else
+                        {
+                            var valueValue = PropertyAccessor.GetValue(enumerator.Current, valueProvider.ValueMemberPath);
+                            value = Convert.ToDouble(valueValue);
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
                     {
                         value = Convert.ToDouble(item);
                     }
-                }
-                catch
-                {
-                    throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
+                    else
+                    {
+                        var valueValue = PropertyAccessor.GetValue(item, valueProvider.ValueMemberPath);
+                        value = Convert.ToDouble(valueValue);
+                    }
                 }
             }
-            else
+            catch
             {
-                var valueProperty = itemType.GetProperty(valueProvider.ValueMemberPath);
-                if (valueProperty == null)
-                {
-                    throw new System.InvalidOperationException($"Property named '{valueProvider.ValueMemberPath}' does not exists in {item}.");
-                }
-                var valueValue = valueProperty.GetValue(item);
-                value = Convert.ToDouble(valueValue);
+                throw new InvalidOperationException($"Type '{itemType}' cannot be converted to double. To specify the value property, use the ValueMemberPath property.");
             }
 
             return value;
@@ -254,16 +343,24 @@ namespace Panuon.WPF.Charts
         {
             Rerender();
         }
+
+        private static void OnLegendPositionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chart = (ChartBase)d;
+            chart.OnLegendPositionChanged();
+        }
         #endregion
 
         #region Function
-        private void Rerender()
+        protected void Rerender()
         {
             OnClearValues();
 
             InvalidateMeasure();
             InvalidateArrange();
             InvalidateVisual();
+
+            _seriesPanel.ResetSeries();
 
             foreach (UIElement child in _children)
             {
@@ -280,6 +377,11 @@ namespace Panuon.WPF.Charts
                     child.InvalidateVisual();
                 }
             }
+        }
+
+        private void OnLegendPositionChanged()
+        {
+            _legendPanel.InvalidateArrange();
         }
         #endregion
 

@@ -1,4 +1,5 @@
 ﻿using Panuon.WPF.Charts.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -10,7 +11,7 @@ namespace Panuon.WPF.Charts
         : CartesianValueProviderSeriesBase
     {
         #region Fields
-        private List<Point> _valuePoints;
+        private Dictionary<ICoordinate, Point> _coordinatePoints;
         #endregion
 
         #region Ctor
@@ -101,13 +102,38 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            _valuePoints = new List<Point>();
-            foreach (var coordinate in coordinates)
+            _coordinatePoints = new Dictionary<ICoordinate, Point>();
+            var coordinateEnumerator = coordinates.GetEnumerator();
+            coordinateEnumerator.MoveNext();
+            ICoordinate lastCoordinate = null;
+
+            for (int i = 0; i < coordinates.Count(); i++)
             {
+                var coordinate = coordinateEnumerator.Current;
+                ICoordinate nextCoordinate = null;
+
+                if (coordinateEnumerator.MoveNext())
+                {
+                    nextCoordinate = coordinateEnumerator.Current;
+                }
+
                 var value = coordinate.GetValue(this);
 
                 double offsetX = 0d;
                 double offsetY = 0d;
+
+                if (coordinate.Offset < chartContext.CurrentOffset
+                   && nextCoordinate != null
+                   && nextCoordinate.Offset < chartContext.CurrentOffset)
+                {
+                    continue;
+                }
+                else if (coordinate.Offset > chartContext.CurrentOffset + chartContext.SliceWidth
+                    && lastCoordinate != null
+                    && lastCoordinate.Offset > chartContext.CurrentOffset)
+                {
+                    break;
+                }
 
                 if (!chartContext.SwapXYAxes)
                 {
@@ -120,12 +146,15 @@ namespace Panuon.WPF.Charts
                     offsetY = coordinate.Offset;
                 }
 
-                _valuePoints.Add(
+                _coordinatePoints.Add(
+                    coordinate,
                     new Point(
                         x: offsetX,
                         y: offsetY
                     )
                 );
+
+                lastCoordinate = coordinate;
             }
         }
         #endregion
@@ -138,14 +167,15 @@ namespace Panuon.WPF.Charts
         )
         {
             var delta = chartContext.SwapXYAxes
-                ? chartContext.AreaHeight / chartContext.Coordinates.Count()
-                : chartContext.AreaWidth / chartContext.Coordinates.Count();
+                ? chartContext.CanvasHeight / chartContext.Coordinates.Count()
+                : chartContext.CanvasWidth / chartContext.Coordinates.Count();
             var columnSize = GridLengthUtil.GetActualValue(ColumnWidth, delta);
 
-            foreach (var valuePoint in _valuePoints)
+            foreach (var coordinatePoint in _coordinatePoints)
             {
-                var offsetX = valuePoint.X;
-                var offsetY = valuePoint.Y;
+                var coordinate = coordinatePoint.Key;
+                var offsetX = coordinatePoint.Value.X;
+                var offsetY = coordinatePoint.Value.Y;
 
                 if (!chartContext.SwapXYAxes)
                 {
@@ -155,26 +185,64 @@ namespace Panuon.WPF.Charts
                             stroke: null,
                             strokeThickness: 0,
                             fill: BackgroundFill,
-                            startX: offsetX - columnSize / 2,
-                            startY: 0,
-                            width: columnSize,
-                            height: chartContext.AreaHeight,
-                            radiusX: Radius,
-                            radiusY: Radius
+                            centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
+                            size: new Size(columnSize, chartContext.CanvasHeight),
+                            radius: new Size(Radius, Radius)
                         );
                     }
+
+                    var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
+                    var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
 
                     drawingContext.DrawRectangle(
                         stroke: Stroke,
                         strokeThickness: StrokeThickness,
                         fill: Fill,
-                        startX: offsetX - columnSize / 2,
-                        startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
-                        width: columnSize,
-                        height: (chartContext.AreaHeight - offsetY) * animationProgress,
-                        radiusX: Radius,
-                        radiusY: Radius
-                    );
+                        centerPoint: new Point(offsetX, startY + height / 2),
+                        size: new Size(columnSize, height),
+                        radius: new Size(Radius, Radius));
+
+                    if (ShowValueLabels)
+                    {
+                        var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+
+                        var fill = Foreground;
+                        var labelOffsetY = 0d;
+                        if (InvertForeground != null)
+                        {
+                            switch (ValueLabelPlacement)
+                            {
+                                case SeriesLabelPlacement.Top:
+                                    if (offsetY < label.Height / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    labelOffsetY = 0;
+                                    break;
+                                case SeriesLabelPlacement.Above:
+                                    labelOffsetY = Math.Max(0, startY - label.Height);
+                                    if (startY < label.Height / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    break;
+                                case SeriesLabelPlacement.Bottom:
+                                    if (height < label.Height / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    labelOffsetY = chartContext.CanvasHeight - label.Height;
+                                    break;
+                            }
+                        }
+
+                        drawingContext.DrawText(
+                            label,
+                            startPoint: new Point(offsetX, labelOffsetY),
+                            fill: fill,
+                            stroke: ValueLabelStroke,
+                            strokeThickness: ValueLabelStrokeThickness);
+                    }
                 }
                 else
                 {
@@ -184,44 +252,78 @@ namespace Panuon.WPF.Charts
                             stroke: null,
                             strokeThickness: 0,
                             fill: BackgroundFill,
-                            startX: 0,
-                            startY: offsetY - columnSize / 2,
-                            width: chartContext.AreaWidth,
-                            height: columnSize,
-                            radiusX: Radius,
-                            radiusY: Radius
-                        );
+                            centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
+                            size: new Size(chartContext.CanvasWidth, columnSize),
+                            radius: new Size(Radius, Radius));
                     }
+
+                    var startY = offsetY - columnSize / 2;
+                    var width = offsetX * animationProgress;
 
                     drawingContext.DrawRectangle(
                         stroke: Stroke,
                         strokeThickness: StrokeThickness,
                         fill: Fill,
-                        startX: 0,
-                        startY: offsetY - columnSize / 2,
-                        width: offsetX * animationProgress,
-                        height: columnSize,
-                        radiusX: Radius,
-                        radiusY: Radius
-                    );
+                        centerPoint: new Point(offsetX * animationProgress / 2, startY + columnSize / 2),
+                        size: new Size(offsetX * animationProgress, columnSize),
+                        radius: new Size(Radius, Radius));
+
+                    if (ShowValueLabels)
+                    {
+                        var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+
+                        var fill = Foreground;
+                        var labelOffsetX = 0d;
+                        if (InvertForeground != null)
+                        {
+                            switch (ValueLabelPlacement)
+                            {
+                                case SeriesLabelPlacement.Top:
+                                    if (chartContext.CanvasWidth - width < label.Width / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    labelOffsetX = chartContext.CanvasWidth - label.Width;
+                                    break;
+                                case SeriesLabelPlacement.Above:
+                                    labelOffsetX = Math.Max(0, width + label.Width);
+                                    if (chartContext.CanvasWidth - width < label.Width / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    break;
+                                case SeriesLabelPlacement.Bottom:
+                                    if (width < label.Width / 2)
+                                    {
+                                        fill = InvertForeground;
+                                    }
+                                    labelOffsetX = 0d;
+                                    break;
+                            }
+                        }
+
+                        drawingContext.DrawText(
+                            label,
+                            new Point(labelOffsetX, offsetY - label.Height / 2),
+                            fill: fill,
+                            stroke: ValueLabelStroke,
+                            strokeThickness: ValueLabelStrokeThickness);
+                    }
+
                 }
             }
         }
         #endregion
 
         #region OnRetrieveLegendEntries
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            ICartesianChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point offset)
-            {
-                var coordinate = chartContext.RetrieveCoordinate(offset);
-
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
-                yield return new SeriesLegendEntry(Fill, Label ?? coordinate.Label, value.ToString());
-            }
+            yield return new SeriesLegendEntry(
+                Title,
+                markerShape: MarkerShape.Circle,
+                markerStroke: Stroke,
+                markerStrokeThickness: StrokeThickness,
+                markerFill: Fill);
         }
         #endregion
 
@@ -246,30 +348,26 @@ namespace Panuon.WPF.Charts
                 {
                     continue;
                 }
-                var point = series._valuePoints[coordinate.Index];
+                var point = series._coordinatePoints[coordinate];
 
                 if (!chartContext.SwapXYAxes)
                 {
                     drawingContext.DrawEllipse(
                         stroke: series.Fill,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: coordinate.Offset,
-                        startY: point.Y
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                        centerPoint: new Point(coordinate.Offset, point.Y)
                     );
                 }
                 else
                 {
                     drawingContext.DrawEllipse(
                         stroke: series.Fill,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: point.X,
-                        startY: coordinate.Offset
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                        centerPoint: new Point(point.X, coordinate.Offset)
                     );
                 }
             }

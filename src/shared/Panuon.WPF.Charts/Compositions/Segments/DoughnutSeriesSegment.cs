@@ -9,39 +9,6 @@ namespace Panuon.WPF.Charts
     {
         #region Properties
 
-        #region LabelForeground
-        public Brush LabelForeground
-        {
-            get { return (Brush)GetValue(LabelForegroundProperty); }
-            set { SetValue(LabelForegroundProperty, value); }
-        }
-
-        public static readonly DependencyProperty LabelForegroundProperty =
-            DependencyProperty.Register("LabelForeground", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
-        #endregion
-
-        #region LabelStroke
-        public Brush LabelStroke
-        {
-            get { return (Brush)GetValue(LabelStrokeProperty); }
-            set { SetValue(LabelStrokeProperty, value); }
-        }
-
-        public static readonly DependencyProperty LabelStrokeProperty =
-            DependencyProperty.Register("LabelStroke", typeof(Brush), typeof(DoughnutSeriesSegment), new PropertyMetadata(null, OnAffectsRenderPropertyChanged));
-        #endregion
-
-        #region LabelStrokeThickness
-        public double LabelStrokeThickness
-        {
-            get { return (double)GetValue(LabelStrokeThicknessProperty); }
-            set { SetValue(LabelStrokeThicknessProperty, value); }
-        }
-
-        public static readonly DependencyProperty LabelStrokeThicknessProperty =
-            DependencyProperty.Register("LabelStrokeThickness", typeof(double), typeof(DoughnutSeriesSegment), new PropertyMetadata(0.3, OnAffectsRenderPropertyChanged));
-        #endregion
-
         #region Fill
         public Brush Fill
         {

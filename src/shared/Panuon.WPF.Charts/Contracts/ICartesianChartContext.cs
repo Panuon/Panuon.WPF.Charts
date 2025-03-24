@@ -12,6 +12,12 @@ namespace Panuon.WPF.Charts
 
         double MaxValue { get; }
 
+        double CurrentOffset { get; }
+
+        double SliceWidth { get; }
+
+        double SliceHeight { get; }
+
         IEnumerable<ICartesianCoordinate> Coordinates { get; }
 
         new ICartesianCoordinate RetrieveCoordinate(Point position);

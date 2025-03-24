@@ -9,7 +9,7 @@ namespace Samples.Views
 {
     [ExampleView(Index = 2, DisplayName = "DotChart", Type = "Cartesian")]
     public partial class DotChartView
-        : Grid, ICartesianChartView
+        : UserControl, ICartesianChartView
     {
         #region Ctor
         public DotChartView()

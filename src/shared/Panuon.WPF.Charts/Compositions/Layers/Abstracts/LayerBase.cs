@@ -6,7 +6,7 @@ using System.Windows.Media;
 namespace Panuon.WPF.Charts
 {
     public abstract class LayerBase
-        : ChartElementBase
+        : ChartDrawingControlBase
     {
         #region Fields
         internal UIElementCollection _children;
@@ -21,7 +21,7 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        #region Methods
+        #region Internal Methods
         internal void OnAttached(ChartBase chart)
         {
             _chart = chart;
@@ -68,18 +68,12 @@ namespace Panuon.WPF.Charts
         protected sealed override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            if(_chart == null)
+            if (_chart != null)
             {
-                return;
+                var drawingContext2 = _chart.CreateDrawingContext(drawingContext);
+                var canvasContext = _chart.GetCanvasContext();
+                OnRender(drawingContext2, canvasContext);
             }
-
-            var context = _chart.CreateDrawingContext(drawingContext);
-            var chartContext = _chart.GetCanvasContext();
-
-            OnRender(
-                context,
-                chartContext
-            );
         }
 
         protected sealed override void OnMouseEnter(MouseEventArgs e)
@@ -107,10 +101,10 @@ namespace Panuon.WPF.Charts
             IChartContext chartContext
         );
 
-        protected abstract void OnRender(
+        protected virtual void OnRender(
             IDrawingContext drawingContext,
-            IChartContext chartContext
-        );
+            IChartContext chartContext)
+        { }
 
         protected void AddChild(UIElement child)
         {

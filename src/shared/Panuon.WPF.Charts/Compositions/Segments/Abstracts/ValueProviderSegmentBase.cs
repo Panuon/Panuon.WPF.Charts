@@ -2,7 +2,7 @@
 using System;
 using System.Windows;
 
-namespace Panuon.WPF.Chart
+namespace Panuon.WPF.Charts
 {
     public abstract class ValueProviderSegmentBase
         : SegmentBase, IChartValueProvider

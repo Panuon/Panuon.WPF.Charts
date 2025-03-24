@@ -15,37 +15,37 @@ namespace Panuon.WPF.Charts
 
         #region Properties
 
-        #region HighlightToggleRadius
-        public double HighlightToggleRadius
+        #region HighlightMarkerSize
+        public double HighlightMarkerSize
         {
-            get { return (double)GetValue(HighlightToggleRadiusProperty); }
-            set { SetValue(HighlightToggleRadiusProperty, value); }
+            get { return (double)GetValue(HighlightMarkerSizeProperty); }
+            set { SetValue(HighlightMarkerSizeProperty, value); }
         }
 
-        public static readonly DependencyProperty HighlightToggleRadiusProperty =
-            DependencyProperty.Register("HighlightToggleRadius", typeof(double), typeof(ToggleHighlightLayer), new PropertyMetadata(6d));
+        public static readonly DependencyProperty HighlightMarkerSizeProperty =
+            DependencyProperty.Register("HighlightMarkerSize", typeof(double), typeof(ToggleHighlightLayer), new PropertyMetadata(6d));
         #endregion
 
-        #region HighlightToggleStrokeThickness
-        public double HighlightToggleStrokeThickness
+        #region HighlightMarkerStrokeThickness
+        public double HighlightMarkerStrokeThickness
         {
-            get { return (double)GetValue(HighlightToggleStrokeThicknessProperty); }
-            set { SetValue(HighlightToggleStrokeThicknessProperty, value); }
+            get { return (double)GetValue(HighlightMarkerStrokeThicknessProperty); }
+            set { SetValue(HighlightMarkerStrokeThicknessProperty, value); }
         }
 
-        public static readonly DependencyProperty HighlightToggleStrokeThicknessProperty =
-            DependencyProperty.Register("HighlightToggleStrokeThickness", typeof(double), typeof(ToggleHighlightLayer), new PropertyMetadata(2d));
+        public static readonly DependencyProperty HighlightMarkerStrokeThicknessProperty =
+            DependencyProperty.Register("HighlightMarkerStrokeThickness", typeof(double), typeof(ToggleHighlightLayer), new PropertyMetadata(2d));
         #endregion
 
-        #region HighlightToggleFill
-        public Brush HighlightToggleFill
+        #region HighlightMarkerFill
+        public Brush HighlightMarkerFill
         {
-            get { return (Brush)GetValue(HighlightToggleFillProperty); }
-            set { SetValue(HighlightToggleFillProperty, value); }
+            get { return (Brush)GetValue(HighlightMarkerFillProperty); }
+            set { SetValue(HighlightMarkerFillProperty, value); }
         }
 
-        public static readonly DependencyProperty HighlightToggleFillProperty =
-            DependencyProperty.Register("HighlightToggleFill", typeof(Brush), typeof(ToggleHighlightLayer), new PropertyMetadata(Brushes.White));
+        public static readonly DependencyProperty HighlightMarkerFillProperty =
+            DependencyProperty.Register("HighlightMarkerFill", typeof(Brush), typeof(ToggleHighlightLayer), new PropertyMetadata(Brushes.White));
         #endregion
 
         #endregion

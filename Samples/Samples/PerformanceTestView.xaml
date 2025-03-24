@@ -30,6 +30,7 @@
     <pc:CartesianChart x:Name="chart"
                        Grid.Row="2"
                        Margin="0,30,0,0"
+                       ShowLegend="True"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
                        AnimationDuration="{x:Null}">
@@ -39,7 +40,8 @@
                                      AnimationDuration="0:0:0.3" />
         </pc:CartesianChart.Layers>
         <pc:CartesianChart.XAxis>
-            <pc:XAxis StrokeThickness="2" />
+            <pc:XAxis StrokeThickness="2" 
+                      CoordinateMinWidth="30" />
         </pc:CartesianChart.XAxis>
         <pc:CartesianChart.YAxis>
             <pc:YAxis MaxValue="100"
@@ -47,14 +49,17 @@
                       MinValue="0" />
         </pc:CartesianChart.YAxis>
         <pc:LineSeries x:Name="lineSeries1"
+                       Title="Line 1"
                        ValueMemberPath="Value1"
                        Stroke="#91C653"
                        Style="{StaticResource LineSeriesStyle}" />
         <pc:LineSeries x:Name="lineSeries2"
+                       Title="Line 2"
                        ValueMemberPath="Value2"
                        Stroke="#e5115f"
                        Style="{StaticResource LineSeriesStyle}" />
         <pc:LineSeries x:Name="lineSeries3"
+                       Title="Line 3"
                        ValueMemberPath="Value3"
                        Stroke="#08bfd8"
                        Style="{StaticResource LineSeriesStyle}" />

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
@@ -15,9 +15,9 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public ToolTipLayer()
         {
+            //SetCurrentValue(ContentTemplateProperty, (DataTemplate)Application.Current.FindResource(TooltipContentTemplateKey));
             _label = new Label()
             {
-                ContentTemplate = (DataTemplate)Application.Current.FindResource(TooltipContentTemplateKey),
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Background = Brushes.White,
@@ -26,6 +26,14 @@ namespace Panuon.WPF.Charts
                 Padding = new Thickness(10, 5, 10, 5),
                 Visibility = Visibility == ToolTipVisibility.Visible ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed
             };
+            _label.SetBinding(
+                Label.ContentTemplateProperty,
+                new Binding()
+                {
+                    Path = new PropertyPath(ContentTemplateProperty),
+                    Source = this
+                }
+            );
             AddChild(_label);
         }
         #endregion
@@ -34,14 +42,25 @@ namespace Panuon.WPF.Charts
         public static ComponentResourceKey TooltipContentTemplateKey { get; } =
             new ComponentResourceKey(typeof(ToolTipLayer), nameof(TooltipContentTemplateKey));
 
+        #region ContentTemplate
+        public DataTemplate ContentTemplate
+        {
+            get { return (DataTemplate)GetValue(ContentTemplateProperty); }
+            set { SetValue(ContentTemplateProperty, value); }
+        }
+
+        public static readonly DependencyProperty ContentTemplateProperty =
+            DependencyProperty.Register("ContentTemplate", typeof(DataTemplate), typeof(ToolTipLayer));
+        #endregion
+
         #region Visibility
-        public ToolTipVisibility Visibility
+        public new ToolTipVisibility Visibility
         {
             get { return (ToolTipVisibility)GetValue(VisibilityProperty); }
             set { SetValue(VisibilityProperty, value); }
         }
 
-        public static readonly DependencyProperty VisibilityProperty =
+        public new static readonly DependencyProperty VisibilityProperty =
             DependencyProperty.Register("Visibility", typeof(ToolTipVisibility), typeof(ToolTipLayer), new PropertyMetadata(ToolTipVisibility.VisibleOnHover));
         #endregion
 
@@ -92,38 +111,42 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected override void OnMouseIn(IChartContext chartContext, 
-            ILayerContext layerContext)
+        protected override void OnMouseIn(IChartContext chartContext)
         {
             _label.Content = null;
             _label.Visibility = System.Windows.Visibility.Visible;
-            InvalidRender();
+            InvalidateVisual();
         }
 
-        protected override void OnMouseOut(IChartContext chartContext, 
-            ILayerContext layerContext)
+        protected override void OnMouseOut(IChartContext chartContext)
         {
             _label.Content = null;
             _label.Visibility = System.Windows.Visibility.Collapsed;
-            InvalidRender();
+            InvalidateVisual();
         }
 
-        protected override void OnRender(IDrawingContext drawingContext,
-            IChartContext chartContext,
-            ILayerContext layerContext)
+        protected override void OnRender(
+            IDrawingContext drawingContext,
+            IChartContext chartContext
+        )
         {
-            if (layerContext.GetMousePosition() is Point position)
+            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
             {
-                var tooltips = new List<SeriesTooltip>();
-                foreach (var series in chartContext.Series)
+                var coordinate = chartContext.RetrieveCoordinate(position);
+                if (coordinate != null)
                 {
-                    series.Highlight(drawingContext,
-                        chartContext,
-                        layerContext,
-                        tooltips);
+                    _label.Content = coordinate.GetSource();
                 }
-                _label.Content = tooltips;
-                UpdateLabelPosition(position);
+
+                if (_label.Content != null)
+                {
+                    _label.Visibility = System.Windows.Visibility.Visible;
+                    UpdateLabelPosition(position);
+                }
+                else
+                {
+                    _label.Visibility = System.Windows.Visibility.Collapsed;
+                }
             }
         }
         #endregion
@@ -139,36 +162,36 @@ namespace Panuon.WPF.Charts
             switch (Position)
             {
                 case ToolTipPosition.Left:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X - _label.DesiredSize.Width : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y - _label.DesiredSize.Height / 2 : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X - _label.DesiredSize.Width : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y - _label.DesiredSize.Height / 2 : 0;
                     break;
                 case ToolTipPosition.TopLeft:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X - _label.DesiredSize.Width : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y - _label.DesiredSize.Height : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X - _label.DesiredSize.Width : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y - _label.DesiredSize.Height : 0;
                     break;
                 case ToolTipPosition.Top:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X - _label.DesiredSize.Width / 2 : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y - _label.DesiredSize.Height : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X - _label.DesiredSize.Width / 2 : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y - _label.DesiredSize.Height : 0;
                     break;
                 case ToolTipPosition.TopRight:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y - _label.DesiredSize.Height : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y - _label.DesiredSize.Height : 0;
                     break;
                 case ToolTipPosition.Right:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y - _label.DesiredSize.Height / 2 : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y - _label.DesiredSize.Height / 2 : 0;
                     break;
                 case ToolTipPosition.BottomRight:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y : 0;
                     break;
                 case ToolTipPosition.Bottom:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X - _label.DesiredSize.Width / 2 : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X - _label.DesiredSize.Width / 2 : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y : 0;
                     break;
                 case ToolTipPosition.BottomLeft:
-                    offsetX = Placement == ToolTipPlacement.Cursor ? mousePosition.X - _label.DesiredSize.Width : 0;
-                    offsetY = Placement == ToolTipPlacement.Cursor ? mousePosition.Y : 0;
+                    offsetX = Placement == ToolTipPlacement.FollowMouse ? mousePosition.X - _label.DesiredSize.Width : 0;
+                    offsetY = Placement == ToolTipPlacement.FollowMouse ? mousePosition.Y : 0;
                     break;
             }
 

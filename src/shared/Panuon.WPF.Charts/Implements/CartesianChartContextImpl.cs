@@ -23,11 +23,22 @@ namespace Panuon.WPF.Charts.Implements
         #region Properties
         public bool SwapXYAxes => _chart.SwapXYAxes;
 
+        public override double CanvasWidth => _chart.CanvasWidth;
+
+        public override double CanvasHeight => _chart.CanvasHeight;
+
+        public double SliceWidth => _chart.SliceWidth;
+
+        public double SliceHeight => _chart.SliceHeight;
+
+        public double CurrentOffset => _chart.CurrentOffset;
+
         public double MinValue => _chart.ActualMinValue;
 
         public double MaxValue => _chart.ActualMaxValue;
 
         public IEnumerable<ICartesianCoordinate> Coordinates => _chart.Coordinates;
+
         #endregion
 
         #region Methods
@@ -36,7 +47,7 @@ namespace Panuon.WPF.Charts.Implements
             if (!SwapXYAxes)
             {
                 if (position.X < 0 ||
-                    position.X > AreaWidth)
+                    position.X > CanvasWidth)
                 {
                     return null;
                 }
@@ -62,7 +73,7 @@ namespace Panuon.WPF.Charts.Implements
             else
             {
                 if (position.Y < 0 ||
-                    position.Y > AreaHeight)
+                    position.Y > CanvasHeight)
                 {
                     return null;
                 }
@@ -97,11 +108,11 @@ namespace Panuon.WPF.Charts.Implements
             var minMaxDelta = MaxValue - MinValue;
             if (!_chart.SwapXYAxes)
             {
-                return AreaHeight - AreaHeight * ((value - MinValue) / minMaxDelta);
+                return CanvasHeight - CanvasHeight * ((value - MinValue) / minMaxDelta);
             }
             else
             {
-                return AreaWidth * ((value - MinValue) / minMaxDelta);
+                return CanvasWidth * ((value - MinValue) / minMaxDelta);
             }
         }
 

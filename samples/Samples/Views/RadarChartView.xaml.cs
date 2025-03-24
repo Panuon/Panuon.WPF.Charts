@@ -4,7 +4,7 @@ namespace Samples.Views
 {
     [ExampleView(Index = 6, DisplayName = "RadarChartView", Type = "Radial")]
     public partial class RadarChartView
-        : Grid
+        : UserControl
     {
         #region Ctor
         public RadarChartView()

@@ -18,9 +18,9 @@ namespace Panuon.WPF.Charts.Implements
         #region Properties
         public ChartBase Chart { get; }
 
-        public double AreaWidth => Chart._seriesPanel.RenderSize.Width;
+        public virtual double CanvasWidth => Chart._seriesPanel.RenderSize.Width;
 
-        public double AreaHeight => Chart._seriesPanel.RenderSize.Height;
+        public virtual double CanvasHeight => Chart._seriesPanel.RenderSize.Height;
 
         public IEnumerable<SeriesBase> Series => Chart.GetSeries();
 

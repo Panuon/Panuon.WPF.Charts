@@ -193,24 +193,30 @@ namespace Panuon.WPF.Charts
 
         #region Events
 
-        public event GeneratingTitleRoutedEventHandler GeneratingTitle
+        public event RadialChartGeneratingLabelRoutedEventHandler GeneratingLabel
         {
-            add { AddHandler(GeneratingTitleEvent, value); }
-            remove { RemoveHandler(GeneratingTitleEvent, value); }
+            add { AddHandler(GeneratingLabelEvent, value); }
+            remove { RemoveHandler(GeneratingLabelEvent, value); }
         }
 
-        public static readonly RoutedEvent GeneratingTitleEvent =
-            EventManager.RegisterRoutedEvent("GeneratingTitle", RoutingStrategy.Bubble, typeof(GeneratingTitleRoutedEventHandler), typeof(RadarSeries));
+        public static readonly RoutedEvent GeneratingLabelEvent =
+            EventManager.RegisterRoutedEvent("GeneratingLabel", RoutingStrategy.Bubble, typeof(RadialChartGeneratingLabelRoutedEventHandler), typeof(RadarSeries));
         #endregion
 
         #region Methods
 
         #region OnHighlighting
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            IRadialChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            yield break;
+            foreach (var segment in Segments)
+            {
+                yield return new SeriesLegendEntry(
+                    segment.Title,
+                    markerShape: MarkerShape.Circle,
+                    markerStroke: segment.AxisStroke,
+                    markerStrokeThickness: segment.AxisStrokeThickness,
+                    markerFill: null); 
+            }
         }
         #endregion
 
@@ -237,12 +243,6 @@ namespace Panuon.WPF.Charts
                 var value = coordinate.GetValue(this);
                 var startAngle = angleDelta * index;
 
-                var generatingTitleArgs = new GeneratingTitleRoutedEventArgs(
-                    GeneratingTitleEvent,
-                    value: value,
-                    label: segment.Label ?? coordinate.Label
-                );
-                RaiseEvent(generatingTitleArgs);
 
                 CheckMinMaxValue(
                     coordinates.Select(c => c.GetValue(this)).Min(),
@@ -253,15 +253,23 @@ namespace Panuon.WPF.Charts
                 var actualMaxValue = MaxValue ?? maxValue;
                 var actualMinValue = MinValue ?? minValue;
 
+                var generatingLabelArgs = new RadialChartGeneratingLabelRoutedEventArgs(
+                    GeneratingLabelEvent,
+                    label: segment.Title ?? coordinate.Label,
+                    value: value,
+                    totalValue: actualMaxValue
+                );
+                RaiseEvent(generatingLabelArgs);
+
                 value = Math.Max(actualMinValue, Math.Min(actualMaxValue, value));
                 _segmentInfos[segment] = new RadarSeriesSegmentInfo()
                 {
                     Percent = (actualMaxValue - value) / (actualMaxValue - actualMinValue),
                     Angle = startAngle,
-                    Label = string.IsNullOrEmpty(generatingTitleArgs.Label)
+                    Label = string.IsNullOrEmpty(generatingLabelArgs.Label)
                         ? null
                         : new FormattedText(
-                            generatingTitleArgs.Label,
+                            generatingLabelArgs.Label,
                             CultureInfo.CurrentCulture,
                             FlowDirection.LeftToRight,
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
@@ -297,11 +305,11 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = Math.Max(0, chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
-            var areaHeight = Math.Max(0, chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaWidth = Math.Max(0, chartContext.CanvasWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaHeight = Math.Max(0, chartContext.CanvasHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
 
-            var centerX = chartContext.AreaWidth / 2;
-            var centerY = chartContext.AreaHeight / 2;
+            var centerX = chartContext.CanvasWidth / 2;
+            var centerY = chartContext.CanvasHeight / 2;
             var radius = Math.Min(areaWidth, areaHeight) / 2;
 
             #region GridLines
@@ -366,11 +374,8 @@ namespace Panuon.WPF.Charts
                     drawingContext.DrawLine(
                         stroke: segment.AxisStroke,
                         strokeThickness: segment.AxisStrokeThickness,
-                        startX: centerX,
-                        startY: centerY,
-                        endX: x,
-                        endY: y
-                    );
+                        startPoint: new Point(centerX, centerY),
+                        endPoint: new Point(x, y));
                 }
             }
             #endregion
@@ -426,27 +431,22 @@ namespace Panuon.WPF.Charts
 
                     var halfPoint = new Point(
                         centerX + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Cos(radian),
-                        centerY + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian)
-                    );
+                        centerY + (radius + chartContext.Chart.LabelSpacing + rayLength) * Math.Sin(radian));
 
                     if (segment.LabelStroke == null && segment.LabelForeground == null)
                     {
                         drawingContext.DrawText(
                             formattedText,
-                            halfPoint.X,
-                            halfPoint.Y - formattedText.Height / 2
-                        );
+                            new Point(halfPoint.X, halfPoint.Y - formattedText.Height / 2));
                     }
                     else
                     {
                         drawingContext.DrawText(
                             formattedText,
-                            segment.LabelForeground,
-                            segment.LabelStroke,
-                            segment.LabelStrokeThickness,
-                            halfPoint.X,
-                            halfPoint.Y - formattedText.Height / 2
-                        );
+                            startPoint: new Point(halfPoint.X, halfPoint.Y - formattedText.Height / 2),
+                            fill: segment.LabelForeground,
+                            stroke: segment.LabelStroke,
+                            strokeThickness: segment.LabelStrokeThickness);
                     }
                 }
             }
@@ -508,7 +508,12 @@ namespace Panuon.WPF.Charts
                 ctx.LineTo(points[0], true, false);
             }
 
-            drawingContext.DrawGeometry(stroke, strokThickness, dashArray, fill, geometry);
+            drawingContext.DrawGeometry(
+                stroke, 
+                strokThickness, 
+                fill, 
+                geometry,
+                dashArray);
         }
 
         private void CheckMinMaxValue(

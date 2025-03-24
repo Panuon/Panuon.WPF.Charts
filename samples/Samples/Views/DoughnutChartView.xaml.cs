@@ -4,7 +4,7 @@ namespace Samples.Views
 {
     [ExampleView(Index = 6, DisplayName = "DoughnutChart", Type = "Radial" )]
     public partial class DoughnutChartView
-        : Grid
+        : UserControl
     {
         #region Ctor
         public DoughnutChartView()

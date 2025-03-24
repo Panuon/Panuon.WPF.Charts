@@ -101,7 +101,7 @@ namespace Panuon.WPF.Charts
                             {
                                 To = 1,
                                 Duration = duration,
-                                EasingFunction = AnimationUtil.CreateEasingFunction(AnimationEasing)
+                                EasingFunction = AnimationEasing.ToEasingFunction()
                             };
 
                             @object.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
@@ -168,7 +168,7 @@ namespace Panuon.WPF.Charts
                         {
                             To = 0,
                             Duration = duration,
-                            EasingFunction = AnimationUtil.CreateEasingFunction(AnimationEasing)
+                            EasingFunction = AnimationEasing.ToEasingFunction()
                         };
                         oldObject.BeginAnimation(AnimationProgressObject.ProgressProperty, animation);
                     }

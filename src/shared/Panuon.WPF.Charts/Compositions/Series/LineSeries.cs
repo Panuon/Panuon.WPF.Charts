@@ -10,7 +10,7 @@ namespace Panuon.WPF.Charts
         : CartesianValueProviderSeriesBase
     {
         #region Fields
-        private List<Point> _valuePoints;
+        private Dictionary<ICartesianCoordinate, CartesianCoordinateInfo> _coordinateInfos;
         #endregion
 
         #region Ctor
@@ -56,50 +56,66 @@ namespace Panuon.WPF.Charts
             DependencyProperty.Register("StrokeThickness", typeof(double), typeof(LineSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleStroke
-        public Brush ToggleStroke
+        #region MarkerShape
+        public MarkerShape MarkerShape
         {
-            get { return (Brush)GetValue(ToggleStrokeProperty); }
-            set { SetValue(ToggleStrokeProperty, value); }
+            get { return (MarkerShape)GetValue(MarkerShapeProperty); }
+            set { SetValue(MarkerShapeProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleStrokeProperty =
-            DependencyProperty.Register("ToggleStroke", typeof(Brush), typeof(LineSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerShapeProperty =
+            DependencyProperty.Register("MarkerShape", typeof(MarkerShape), typeof(LineSeries), new FrameworkPropertyMetadata(MarkerShape.Circle, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleStrokeThickness
-        public double ToggleStrokeThickness
+        #region MarkerStroke
+        public Brush MarkerStroke
         {
-            get { return (double)GetValue(ToggleStrokeThicknessProperty); }
-            set { SetValue(ToggleStrokeThicknessProperty, value); }
+            get { return (Brush)GetValue(MarkerStrokeProperty) ?? (Brush)GetValue(StrokeProperty); }
+            set { SetValue(MarkerStrokeProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleStrokeThicknessProperty =
-            DependencyProperty.Register("ToggleStrokeThickness", typeof(double), typeof(LineSeries), new FrameworkPropertyMetadata(1d, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerStrokeProperty =
+            DependencyProperty.Register("MarkerStroke", typeof(Brush), typeof(LineSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleFill
-        public Brush ToggleFill
+        #region MarkerStrokeThickness
+        public double? MarkerStrokeThickness
         {
-            get { return (Brush)GetValue(ToggleFillProperty); }
-            set { SetValue(ToggleFillProperty, value); }
+            get { return (double?)GetValue(MarkerStrokeThicknessProperty) ?? (double)GetValue(StrokeThicknessProperty); }
+            set { SetValue(MarkerStrokeThicknessProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleFillProperty =
-            DependencyProperty.Register("ToggleFill", typeof(Brush), typeof(LineSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerStrokeThicknessProperty =
+            DependencyProperty.Register("MarkerStrokeThickness", typeof(double?), typeof(LineSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
-        #region ToggleRadius
-        public double ToggleRadius
+        #region MarkerFill
+        public Brush MarkerFill
         {
-            get { return (double)GetValue(ToggleRadiusProperty); }
-            set { SetValue(ToggleRadiusProperty, value); }
+            get { return (Brush)GetValue(MarkerFillProperty) ?? (Brush)GetValue(FillProperty); }
+            set { SetValue(MarkerFillProperty, value); }
         }
 
-        public static readonly DependencyProperty ToggleRadiusProperty =
-            DependencyProperty.Register("ToggleRadius", typeof(double), typeof(LineSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty MarkerFillProperty =
+            DependencyProperty.Register("MarkerFill", typeof(Brush), typeof(LineSeries), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         #endregion
 
+        #region MarkerSize
+        public double MarkerSize
+        {
+            get { return (double)GetValue(MarkerSizeProperty); }
+            set { SetValue(MarkerSizeProperty, value); }
+        }
+
+        public static readonly DependencyProperty MarkerSizeProperty =
+            DependencyProperty.Register("MarkerSize", typeof(double), typeof(LineSeries), new FrameworkPropertyMetadata(3d, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #endregion
+
+        #region Events
+
+        public event DrawingMarkerEventHandler DrawingMarker;
         #endregion
 
         #region Overrides
@@ -112,13 +128,38 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            _valuePoints = new List<Point>();
-            foreach (var coordinate in coordinates)
+            _coordinateInfos = new Dictionary<ICartesianCoordinate, CartesianCoordinateInfo>();
+            var coordinateEnumerator = coordinates.GetEnumerator();
+            coordinateEnumerator.MoveNext();
+            ICoordinate lastCoordinate = null;
+
+            for (int i = 0; i < coordinates.Count(); i++)
             {
+                var coordinate = coordinateEnumerator.Current;
+                ICoordinate nextCoordinate = null;
+
+                if (coordinateEnumerator.MoveNext())
+                {
+                    nextCoordinate = coordinateEnumerator.Current;
+                }
+
                 var value = coordinate.GetValue(this);
 
                 double offsetX = 0d;
                 double offsetY = 0d;
+
+                if (coordinate.Offset < chartContext.CurrentOffset
+                    && nextCoordinate != null
+                    && nextCoordinate.Offset < chartContext.CurrentOffset)
+                {
+                    continue;
+                }
+                else if (coordinate.Offset > chartContext.CurrentOffset + chartContext.SliceWidth
+                    && lastCoordinate != null
+                    && lastCoordinate.Offset > chartContext.CurrentOffset)
+                {
+                    break;
+                }
 
                 if (!chartContext.SwapXYAxes)
                 {
@@ -127,16 +168,21 @@ namespace Panuon.WPF.Charts
                 }
                 else
                 {
-                    offsetX = chartContext.GetOffsetY(value);
                     offsetY = coordinate.Offset;
+                    offsetX = chartContext.GetOffsetY(value);
                 }
 
-                _valuePoints.Add(
-                    new Point(
-                        x: offsetX,
-                        y: offsetY
-                    )
+                _coordinateInfos.Add(
+                    coordinate,
+                    new CartesianCoordinateInfo(
+                        new Point(
+                            x: offsetX,
+                            y: offsetY),
+                        value)
                 );
+
+                lastCoordinate = coordinate;
+
             }
         }
         #endregion
@@ -148,7 +194,7 @@ namespace Panuon.WPF.Charts
             double animationProgress
         )
         {
-            if (_valuePoints.Count < 2)
+            if (_coordinateInfos.Count < 2)
             {
                 return;
             }
@@ -156,9 +202,9 @@ namespace Panuon.WPF.Charts
             var totalLength = 0d;
             var segmentLengths = new List<double>();
 
-            for (int i = 0; i < _valuePoints.Count - 1; i++)
+            for (int i = 0; i < _coordinateInfos.Count - 1; i++)
             {
-                double segmentLength = (_valuePoints[i + 1] - _valuePoints[i]).Length;
+                double segmentLength = (_coordinateInfos.ElementAt(i + 1).Value.Point - _coordinateInfos.ElementAt(i).Value.Point).Length;
                 segmentLengths.Add(segmentLength);
                 totalLength += segmentLength;
             }
@@ -166,8 +212,8 @@ namespace Panuon.WPF.Charts
             var targetLength = totalLength * animationProgress;
 
             var accumulatedLength = 0d;
-            var lastPoint = _valuePoints[0];
-            var toggleFill = ToggleFill ?? ((ToggleStroke == null || ToggleStrokeThickness == 0) ? Stroke : null);
+            var lastPoint = _coordinateInfos.ElementAt(0).Value.Point;
+            var toggleFill = MarkerFill ?? ((MarkerStroke == null || MarkerStrokeThickness == 0) ? Stroke : null);
 
             var strokeGeometry = new StreamGeometry();
             var fillGeometry = new StreamGeometry();
@@ -176,22 +222,22 @@ namespace Panuon.WPF.Charts
             {
                 using (var fillCtx = fillGeometry.Open())
                 {
-                    strokeCtx.BeginFigure(_valuePoints[0], false, false);
+                    strokeCtx.BeginFigure(_coordinateInfos.ElementAt(0).Value.Point, false, false);
 
                     if (!chartContext.SwapXYAxes)
                     {
-                        fillCtx.BeginFigure(new Point(_valuePoints[0].X, chartContext.AreaHeight), true, true);
+                        fillCtx.BeginFigure(new Point(_coordinateInfos.ElementAt(0).Value.Point.X, chartContext.CanvasHeight), true, true);
                     }
                     else
                     {
-                        fillCtx.BeginFigure(new Point(0, _valuePoints[0].Y), true, true);
+                        fillCtx.BeginFigure(new Point(0, _coordinateInfos.ElementAt(0).Value.Point.Y), true, true);
                     }
 
-                    fillCtx.LineTo(_valuePoints[0], true, false);
+                    fillCtx.LineTo(_coordinateInfos.ElementAt(0).Value.Point, true, false);
 
                     for (int i = 0; i < segmentLengths.Count; i++)
                     {
-                        var point = _valuePoints[i + 1];
+                        var point = _coordinateInfos.ElementAt(i + 1).Value.Point;
                         var segmentLength = segmentLengths[i];
 
                         if (accumulatedLength + segmentLength >= targetLength)
@@ -199,8 +245,8 @@ namespace Panuon.WPF.Charts
                             var remainingLength = targetLength - accumulatedLength;
                             var t = remainingLength / segmentLength;
 
-                            var p1 = _valuePoints[i];
-                            var p2 = _valuePoints[i + 1];
+                            var p1 = _coordinateInfos.ElementAt(i).Value.Point;
+                            var p2 = _coordinateInfos.ElementAt(i + 1).Value.Point;
 
                             var x = p1.X + t * (p2.X - p1.X);
                             var y = p1.Y + t * (p2.Y - p1.Y);
@@ -210,7 +256,7 @@ namespace Panuon.WPF.Charts
 
                             if (!chartContext.SwapXYAxes)
                             {
-                                fillCtx.LineTo(new Point(x, chartContext.AreaHeight), true, false);
+                                fillCtx.LineTo(new Point(x, chartContext.CanvasHeight), true, false);
                             }
                             else
                             {
@@ -247,58 +293,109 @@ namespace Panuon.WPF.Charts
 
             #region Draw Toggle
             accumulatedLength = 0d;
-            lastPoint = _valuePoints[0];
-            if (ToggleRadius > 0
-                && (ToggleFill != null || ToggleStroke != null))
+            if (MarkerSize > 0
+                && (MarkerFill != null || MarkerStroke != null))
             {
                 for (int i = 0; i < segmentLengths.Count; i++)
                 {
-                    var point = _valuePoints[i + 1];
+                    var coordinate = _coordinateInfos.ElementAt(i).Key;
+                    var coordinateInfo = _coordinateInfos.ElementAt(i).Value;
+
+                    var nextCoordinate = _coordinateInfos.ElementAt(i + 1).Key;
+                    var nextCoordinateInfo = _coordinateInfos.ElementAt(i + 1).Value;
+
                     var segmentLength = segmentLengths[i];
 
-                    if (animationProgress >= 0)
-                    {
-                        drawingContext.DrawEllipse(
-                            ToggleStroke,
-                            ToggleStrokeThickness,
-                            toggleFill,
-                            ToggleRadius,
-                            ToggleRadius,
-                            _valuePoints[i].X,
-                            _valuePoints[i].Y
-                        );
-                    }
-                    if (animationProgress == 1)
-                    {
-                        drawingContext.DrawEllipse(
-                            ToggleStroke,
-                            ToggleStrokeThickness,
-                            toggleFill,
-                            ToggleRadius,
-                            ToggleRadius,
-                            _valuePoints.Last().X,
-                            _valuePoints.Last().Y
-                        );
-                    }
+                    DrawMarker(
+                        drawingContext,
+                        coordinate: coordinate,
+                        value: coordinateInfo.Value,
+                        MarkerShape,
+                        centerPoint: coordinateInfo.Point,
+                        MarkerStroke,
+                        MarkerStrokeThickness,
+                        toggleFill,
+                        MarkerSize);
 
-                    if (accumulatedLength + segmentLength >= targetLength)
+                    if (animationProgress < 1
+                        && accumulatedLength + segmentLength >= targetLength)
                     {
                         break;
                     }
 
                     //last Ellipse
-                    drawingContext.DrawEllipse(
-                        ToggleStroke,
-                        ToggleStrokeThickness,
+                    DrawMarker(
+                        drawingContext,
+                        coordinate: nextCoordinate,
+                        value: nextCoordinateInfo.Value,
+                        MarkerShape,
+                        centerPoint: nextCoordinateInfo.Point,
+                        MarkerStroke,
+                        MarkerStrokeThickness,
                         toggleFill,
-                        ToggleRadius,
-                        ToggleRadius,
-                        point.X,
-                        point.Y
-                    );
+                        MarkerSize);
 
-                    lastPoint = point;
                     accumulatedLength += segmentLength;
+                }
+            }
+            #endregion
+
+            #region Draw Label
+            accumulatedLength = 0d;
+            if (ShowValueLabels)
+            {
+                for (int i = 0; i < _coordinateInfos.Count; i++)
+                {
+                    var coordinate = _coordinateInfos.ElementAt(i).Key;
+                    var coordinateInfo = _coordinateInfos.ElementAt(i).Value;
+
+                    var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+
+                    var fill = Foreground;
+                    var labelOffsetY = 0d;
+                    if (InvertForeground != null)
+                    {
+                        switch (ValueLabelPlacement)
+                        {
+                            case SeriesLabelPlacement.Top:
+                            case SeriesLabelPlacement.Bottom:
+                                if (coordinateInfo.Point.Y < label.Height / 2)
+                                {
+                                    fill = InvertForeground;
+                                }
+                                labelOffsetY = 0;
+                                break;
+                            case SeriesLabelPlacement.Above:
+                                labelOffsetY = Math.Max(0, coordinateInfo.Point.Y - label.Height) - MarkerSize;
+                                if (coordinateInfo.Point.Y < label.Height / 2)
+                                {
+                                    fill = InvertForeground;
+                                }
+                                break;
+                                //if (height < label.Height / 2)
+                                //{
+                                //    fill = InvertForeground;
+                                //}
+                                //labelOffsetY = chartContext.CanvasHeight - label.Height;
+                                //break;
+                        }
+                    }
+                    drawingContext.DrawText(
+                        label,
+                        new Point(coordinateInfo.Point.X, labelOffsetY),
+                        fill: fill,
+                        stroke: ValueLabelStroke,
+                        strokeThickness: ValueLabelStrokeThickness);
+
+                    if (i < segmentLengths.Count)
+                    {
+                        if (animationProgress < 1
+                            && accumulatedLength + segmentLengths[i] >= targetLength)
+                        {
+                            break;
+                        }
+                        accumulatedLength += segmentLengths[i];
+                    }
                 }
             }
             #endregion
@@ -306,18 +403,14 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnRetrieveLegendEntries
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            ICartesianChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point offset)
-            {
-                var coordinate = chartContext.RetrieveCoordinate(offset);
-
-                var value = coordinate.GetValue(this);
-                var offsetY = chartContext.GetOffsetY(value);
-                yield return new SeriesLegendEntry(Stroke, Label ?? coordinate.Label, value.ToString());
-            }
+            yield return new SeriesLegendEntry(
+                Title,
+                markerShape: MarkerShape,
+                markerStroke: MarkerStroke,
+                markerStrokeThickness: MarkerStrokeThickness ?? 0,
+                markerFill: MarkerFill);
         }
         #endregion
 
@@ -342,30 +435,34 @@ namespace Panuon.WPF.Charts
                 {
                     continue;
                 }
-                var point = series._valuePoints[coordinate.Index];
+                var coordinateInfo = series._coordinateInfos.ElementAt(coordinate.Index).Value;
 
                 if (!chartContext.SwapXYAxes)
                 {
-                    drawingContext.DrawEllipse(
-                        stroke: series.Stroke ?? series.ToggleStroke,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: coordinate.Offset,
-                        startY: point.Y
+                    series.DrawMarker(
+                        drawingContext,
+                        coordinate,
+                        value: coordinateInfo.Value,
+                        series.MarkerShape,
+                        centerPoint: new Point(coordinate.Offset, coordinateInfo.Point.Y),
+                        stroke: series.Stroke ?? series.MarkerStroke,
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: progress * layer.HighlightMarkerSize
                     );
                 }
                 else
                 {
-                    drawingContext.DrawEllipse(
-                        stroke: series.Stroke ?? series.ToggleStroke,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        startX: point.X,
-                        startY: coordinate.Offset
+                    series.DrawMarker(
+                        drawingContext,
+                        coordinate,
+                        value: coordinateInfo.Value,
+                        series.MarkerShape,
+                        centerPoint: new Point(coordinateInfo.Point.X, coordinate.Offset),
+                        stroke: series.Stroke ?? series.MarkerStroke,
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: progress * layer.HighlightMarkerSize
                     );
                 }
             }
@@ -418,10 +515,10 @@ namespace Panuon.WPF.Charts
         //            );
         //            drawingContext.DrawEllipse(
         //                stroke: lineSeries.Stroke,
-        //                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-        //                fill: layerContext.HighlightLayer.HighlightToggleFill,
-        //                radiusX: lineSeries.ToggleRadius,
-        //                radiusY: lineSeries.ToggleRadius,
+        //                strokeThickness: layerContext.HighlightLayer.HighlightMarkerStrokeThickness,
+        //                fill: layerContext.HighlightLayer.HighlightMarkerFill,
+        //                radiusX: lineSeries.MarkerSize,
+        //                radiusY: lineSeries.MarkerSize,
         //                startX: lastPoint.Value.X,
         //                startY: lastPoint.Value.Y
         //            );
@@ -438,20 +535,20 @@ namespace Panuon.WPF.Charts
         //            );
         //            drawingContext.DrawEllipse(
         //                stroke: Stroke,
-        //                strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness,
-        //                fill: layerContext.HighlightLayer.HighlightToggleFill,
-        //                radiusX: lineSeries.ToggleRadius,
-        //                radiusY: lineSeries.ToggleRadius,
+        //                strokeThickness: layerContext.HighlightLayer.HighlightMarkerStrokeThickness,
+        //                fill: layerContext.HighlightLayer.HighlightMarkerFill,
+        //                radiusX: lineSeries.MarkerSize,
+        //                radiusY: lineSeries.MarkerSize,
         //                startX: nextPoint.Value.X,
         //                startY: nextPoint.Value.Y
         //            );
         //        }
         //        drawingContext.DrawEllipse(
         //            stroke: Stroke,
-        //            strokeThickness: layerContext.HighlightLayer.HighlightToggleStrokeThickness + progress * 2,
-        //            fill: layerContext.HighlightLayer.HighlightToggleFill,
-        //            radiusX: lineSeries.ToggleRadius + progress * 2,
-        //            radiusY: lineSeries.ToggleRadius + progress * 2,
+        //            strokeThickness: layerContext.HighlightLayer.HighlightMarkerStrokeThickness + progress * 2,
+        //            fill: layerContext.HighlightLayer.HighlightMarkerFill,
+        //            radiusX: lineSeries.MarkerSize + progress * 2,
+        //            radiusY: lineSeries.MarkerSize + progress * 2,
         //            startX: coordinate.Offset,
         //            startY: point.Y
         //        );
@@ -460,6 +557,108 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Functions
+        private void DrawMarker(
+            IDrawingContext drawingContext,
+            ICartesianCoordinate coordinate,
+            double value,
+            MarkerShape shape,
+            Point centerPoint,
+            Brush stroke,
+            double? strokeThickness,
+            Brush fill,
+            double size)
+        {
+            var eventArgs = new DrawingMarkerEventArgs(
+                drawingContext,
+                this,
+                coordinate,
+                value,
+                centerPoint,
+                stroke: stroke,
+                strokeThickness: strokeThickness ?? 0,
+                fill: fill,
+                size: size);
+            DrawingMarker?.Invoke(drawingContext, eventArgs);
+            if (!eventArgs.Cancel)
+            {
+                switch (shape)
+                {
+                    case MarkerShape.Circle:
+                        drawingContext.DrawEllipse(
+                            stroke: eventArgs.Stroke,
+                            strokeThickness: eventArgs.StrokeThickness,
+                            fill: eventArgs.Fill,
+                            size: new Size(eventArgs.Size, eventArgs.Size),
+                            centerPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Triangle:
+                        drawingContext.DrawTriangle(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           centerPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Square:
+                        drawingContext.DrawRectangle(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           centerPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Diamond:
+                        drawingContext.DrawDiamond(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           centerPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Cross:
+                        drawingContext.DrawCross(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           startPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Star:
+                        drawingContext.DrawStar(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           centerPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.ArrowUp:
+                        drawingContext.DrawArrowUp(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           targetPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.ArrowDown:
+                        drawingContext.DrawArrowDown(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           targetPoint: eventArgs.CenterPoint);
+                        break;
+                    case MarkerShape.Plus:
+                        drawingContext.DrawPlus(
+                           stroke: eventArgs.Stroke,
+                           strokeThickness: eventArgs.StrokeThickness,
+                           fill: eventArgs.Fill,
+                           size: new Size(eventArgs.Size, eventArgs.Size),
+                           centerPoint: eventArgs.CenterPoint);
+                        break;
+                }
+            }
+        }
+
         private static double CalculateRayLength(
             double radius,
             double angle

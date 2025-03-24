@@ -1,4 +1,4 @@
-﻿using Panuon.WPF.Chart;
+﻿using Panuon.WPF.Charts;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Markup;

@@ -5,9 +5,9 @@ namespace Panuon.WPF.Charts
 {
     public interface IChartContext
     {
-        double AreaWidth { get; }
+        double CanvasWidth { get; }
 
-        double AreaHeight { get; }
+        double CanvasHeight { get; }
 
         IEnumerable<SeriesBase> Series { get; }
 

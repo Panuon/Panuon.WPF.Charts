@@ -13,24 +13,24 @@ namespace Panuon.WPF.Charts
         #region Properties
 
         #region Label
-        public string Label
+        public string Title
         {
-            get { return (string)GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
+            get { return (string)GetValue(LabelProperty); }
+            set { SetValue(LabelProperty, value); }
         }
 
-        public static readonly DependencyProperty TitleProperty =
+        public static readonly DependencyProperty LabelProperty =
             DependencyProperty.Register("Label", typeof(string), typeof(RadialValueProviderSegmentsSeriesBase), new PropertyMetadata(null));
         #endregion
 
         #region LabelMemberPath
         public string LabelMemberPath
         {
-            get { return (string)GetValue(TitleMemberPathProperty); }
-            set { SetValue(TitleMemberPathProperty, Label); }
+            get { return (string)GetValue(LabelMemberPathProperty); }
+            set { SetValue(LabelMemberPathProperty, Title); }
         }
 
-        public static readonly DependencyProperty TitleMemberPathProperty =
+        public static readonly DependencyProperty LabelMemberPathProperty =
             DependencyProperty.Register("LabelMemberPath", typeof(string), typeof(RadialValueProviderSegmentsSeriesBase), new PropertyMetadata(null));
         #endregion
 

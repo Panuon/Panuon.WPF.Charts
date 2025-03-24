@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 
 namespace Panuon.WPF.Charts
 {
@@ -11,7 +10,7 @@ namespace Panuon.WPF.Charts
         : CartesianSegmentsSeriesBase<ClusteredColumnSeriesSegment>
     {
         #region Fields
-        private Dictionary<ClusteredColumnSeriesSegment, List<Point>> _segmentPoints;
+        private Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point>> _segmentPoints;
         #endregion
 
         #region Ctor
@@ -66,29 +65,78 @@ namespace Panuon.WPF.Charts
             ICartesianChartContext chartContext
         )
         {
-            _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, List<Point>>();
-
-            var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
-            var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, deltaX);
-            var columnWidth = CalculateBarWidth(clusterWidth);
-
             var coordinates = chartContext.Coordinates;
-            foreach (var coordinate in coordinates)
-            {
-                var offsetX = coordinate.Offset;
 
-                var left = offsetX - clusterWidth / 2 + columnWidth / 2;
-                foreach (var segment in Segments)
+            var delta = chartContext.SwapXYAxes
+                ? chartContext.CanvasHeight / chartContext.Coordinates.Count()
+                : chartContext.CanvasWidth / chartContext.Coordinates.Count();
+            var clusterSize = GridLengthUtil.GetActualValue(ColumnWidth, delta);
+            var columnSize = CalculateBarWidth(clusterSize);
+
+            _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point>>();
+            var coordinateEnumerator = coordinates.GetEnumerator();
+            coordinateEnumerator.MoveNext();
+            ICoordinate lastCoordinate = null;
+
+            for (int i = 0; i < coordinates.Count(); i++)
+            {
+                var coordinate = coordinateEnumerator.Current;
+                ICoordinate nextCoordinate = null;
+
+                if (coordinateEnumerator.MoveNext())
                 {
+                    nextCoordinate = coordinateEnumerator.Current;
+                }
+
+                for(var j = 0; j < Segments.Count; j ++)
+                {
+                    var segment = Segments[j];
                     var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffsetY(value);
+
+                    double offsetX = 0d;
+                    double offsetY = 0d;
+
+                    var offset = coordinate.Offset - clusterSize / 2 + columnSize / 2 + j * (columnSize + Spacing);
+
+                    if (coordinate.Offset < chartContext.CurrentOffset
+                        && nextCoordinate != null
+                        && nextCoordinate.Offset < chartContext.CurrentOffset)
+                    {
+                        continue;
+                    }
+                    else if (coordinate.Offset > chartContext.CurrentOffset + chartContext.SliceWidth
+                        && lastCoordinate != null
+                        && lastCoordinate.Offset > chartContext.CurrentOffset)
+                    {
+                        break;
+                    }
+
+                    if (!chartContext.SwapXYAxes)
+                    {
+                        offsetX = offset;
+                        offsetY = chartContext.GetOffsetY(value);
+                    }
+                    else
+                    {
+                        offsetX = chartContext.GetOffsetY(value);
+                        offsetY = offset;
+                    }
 
                     if (!_segmentPoints.ContainsKey(segment))
                     {
-                        _segmentPoints[segment] = new List<Point>();
+                        _segmentPoints[segment] = new Dictionary<ICoordinate, Point>();
                     }
-                    _segmentPoints[segment].Add(new Point(left, offsetY));
-                    left += (columnWidth + Spacing);
+
+                    _segmentPoints[segment].Add(coordinate, new Point(offsetX, offsetY));
+
+                    if (!chartContext.SwapXYAxes)
+                    {
+                        offsetX += (columnSize + Spacing);
+                    }
+                    else
+                    {
+                        offsetY += (columnSize + Spacing);
+                    }
                 }
             }
         }
@@ -104,8 +152,8 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
 
             var delta = chartContext.SwapXYAxes
-                ? chartContext.AreaHeight / chartContext.Coordinates.Count()
-                : chartContext.AreaWidth / chartContext.Coordinates.Count();
+                ? chartContext.CanvasHeight / chartContext.Coordinates.Count()
+                : chartContext.CanvasWidth / chartContext.Coordinates.Count();
             var clusterWidth = GridLengthUtil.GetActualValue(ColumnWidth, delta);
             var columnSize = CalculateBarWidth(clusterWidth);
 
@@ -113,10 +161,11 @@ namespace Panuon.WPF.Charts
             {
                 var segment = segmentPoint.Key;
 
-                foreach (var valuePoint in segmentPoint.Value)
+                foreach (var coordinatePoint in segmentPoint.Value)
                 {
-                    var offsetX = valuePoint.X;
-                    var offsetY = valuePoint.Y;
+                    var coordinate = coordinatePoint.Key;
+                    var offsetX = coordinatePoint.Value.X;
+                    var offsetY = coordinatePoint.Value.Y;
 
                     if (!chartContext.SwapXYAxes)
                     {
@@ -126,26 +175,63 @@ namespace Panuon.WPF.Charts
                                 stroke: null,
                                 strokeThickness: 0,
                                 fill: segment.BackgroundFill,
-                                startX: offsetX - columnSize / 2,
-                                startY: 0,
-                                width: columnSize,
-                                height: chartContext.AreaHeight,
-                                radiusX: Radius,
-                                radiusY: Radius
-                            );
+                                centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
+                                size: new Size(columnSize, chartContext.CanvasHeight),
+                                radius: new Size(Radius, Radius));
                         }
+
+                        var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
+                        var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
 
                         drawingContext.DrawRectangle(
                             stroke: segment.Stroke,
                             strokeThickness: segment.StrokeThickness,
                             fill: segment.Fill,
-                            startX: offsetX - columnSize / 2,
-                            startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
-                            width: columnSize,
-                            height: (chartContext.AreaHeight - offsetY) * animationProgress,
-                            radiusX: Radius,
-                            radiusY: Radius
-                        );
+                            centerPoint: new Point(offsetX, startY + height / 2),
+                            size: new Size(columnSize, height),
+                            radius: new Size(Radius, Radius));
+
+                        if (ShowValueLabels)
+                        {
+                            var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), Foreground);
+
+                            var fill = segment.LabelForeground ?? Foreground;
+                            var invertForeground = segment.InvertForeground ?? InvertForeground;
+                            var labelOffsetY = 0d;
+                            if (invertForeground != null)
+                            {
+                                switch (ValueLabelPlacement)
+                                {
+                                    case SeriesLabelPlacement.Top:
+                                        if (offsetY < label.Height / 2)
+                                        {
+                                            fill = invertForeground;
+                                        }
+                                        labelOffsetY = 0;
+                                        break;
+                                    case SeriesLabelPlacement.Above:
+                                        labelOffsetY = Math.Max(0, startY - label.Height);
+                                        if (startY < label.Height / 2)
+                                        {
+                                            fill = invertForeground;
+                                        }
+                                        break;
+                                    case SeriesLabelPlacement.Bottom:
+                                        if (height < label.Height / 2)
+                                        {
+                                            fill = invertForeground;
+                                        }
+                                        labelOffsetY = chartContext.CanvasHeight - label.Height;
+                                        break;
+                                }
+                            }
+                            drawingContext.DrawText(
+                                label,
+                                startPoint: new Point(offsetX, labelOffsetY),
+                                fill: fill,
+                                stroke: segment.LabelStroke ?? ValueLabelStroke,
+                                strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
+                        }
                     }
                     else
                     {
@@ -155,26 +241,62 @@ namespace Panuon.WPF.Charts
                                 stroke: null,
                                 strokeThickness: 0,
                                 fill: segment.BackgroundFill,
-                                startX: offsetX - columnSize / 2,
-                                startY: 0,
-                                width: chartContext.AreaWidth,
-                                height: columnSize,
-                                radiusX: Radius,
-                                radiusY: Radius
-                            );
+                                centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
+                                size: new Size(chartContext.CanvasWidth, columnSize),
+                                radius: new Size(Radius, Radius));
                         }
+
+                        var startY = offsetY - columnSize / 2;
+                        var width = offsetX * animationProgress;
 
                         drawingContext.DrawRectangle(
                             stroke: segment.Stroke,
                             strokeThickness: segment.StrokeThickness,
                             fill: segment.Fill,
-                            startX: offsetX - columnSize / 2,
-                            startY: chartContext.AreaHeight - (chartContext.AreaHeight - offsetY) * animationProgress,
-                            width: offsetX * animationProgress,
-                            height: columnSize,
-                            radiusX: Radius,
-                            radiusY: Radius
-                        );
+                            centerPoint: new Point(width / 2, startY + columnSize / 2),
+                            size: new Size(width, columnSize),
+                            radius: new Size(Radius, Radius));
+
+                        if (ShowValueLabels)
+                        {
+                            var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), segment.LabelForeground ?? Foreground);
+
+                            var fill = segment.LabelForeground ?? Foreground;
+                            var labelOffsetX = 0d;
+                            if (InvertForeground != null)
+                            {
+                                switch (ValueLabelPlacement)
+                                {
+                                    case SeriesLabelPlacement.Top:
+                                        if (chartContext.CanvasWidth - width < label.Width / 2)
+                                        {
+                                            fill = segment.InvertForeground ?? InvertForeground;
+                                        }
+                                        labelOffsetX = chartContext.CanvasWidth - label.Width;
+                                        break;
+                                    case SeriesLabelPlacement.Above:
+                                        labelOffsetX = Math.Max(0, width + label.Width);
+                                        if (chartContext.CanvasWidth - width < label.Width / 2)
+                                        {
+                                            fill = segment.InvertForeground ?? InvertForeground;
+                                        }
+                                        break;
+                                    case SeriesLabelPlacement.Bottom:
+                                        if (width < label.Width / 2)
+                                        {
+                                            fill = segment.InvertForeground ?? InvertForeground;
+                                        }
+                                        labelOffsetX = 0d;
+                                        break;
+                                }
+                            }
+                            drawingContext.DrawText(
+                                label,
+                                startPoint: new Point(labelOffsetX, offsetY - label.Height / 2),
+                                fill: fill,
+                                stroke: segment.LabelStroke ?? ValueLabelStroke,
+                                strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
+                        }
                     }
                 }
             }
@@ -182,21 +304,16 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region OnHighlighting
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries(
-            ICartesianChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
+            foreach (var segment in Segments)
             {
-                var coordinate = chartContext.RetrieveCoordinate(position);
-
-                foreach (var segment in Segments)
-                {
-                    var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffsetY(value);
-
-                    yield return new SeriesLegendEntry(segment.Fill, segment.Label ?? coordinate.Label, value.ToString());
-                }
+                yield return new SeriesLegendEntry(
+                    segment.Title,
+                    markerShape: MarkerShape.Circle,
+                    markerStroke: segment.Stroke,
+                    markerStrokeThickness: segment.StrokeThickness,
+                    markerFill: segment.Fill);
             }
         }
         #endregion
@@ -225,7 +342,7 @@ namespace Panuon.WPF.Charts
 
                 var offsetX = coordinate.Offset;
 
-                var deltaX = chartContext.AreaWidth / chartContext.Coordinates.Count();
+                var deltaX = chartContext.CanvasWidth / chartContext.Coordinates.Count();
                 var clusterWidth = GridLengthUtil.GetActualValue(series.ColumnWidth, deltaX);
                 var columnWidth = series.CalculateBarWidth(clusterWidth);
 
@@ -236,13 +353,10 @@ namespace Panuon.WPF.Charts
                     var offsetY = chartContext.GetOffsetY(value);
                     drawingContext.DrawEllipse(
                         stroke: segment.Fill,
-                        strokeThickness: layer.HighlightToggleStrokeThickness,
-                        fill: layer.HighlightToggleFill,
-                        radiusX: progress * layer.HighlightToggleRadius,
-                        radiusY: progress * layer.HighlightToggleRadius,
-                        left + columnWidth / 2,
-                        offsetY
-                    );
+                        strokeThickness: layer.HighlightMarkerStrokeThickness,
+                        fill: layer.HighlightMarkerFill,
+                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                        centerPoint: new Point(left + columnWidth / 2, offsetY));
                     left += (columnWidth + series.Spacing);
                 }
             }

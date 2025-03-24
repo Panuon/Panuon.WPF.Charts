@@ -1,4 +1,4 @@
-﻿using Panuon.WPF.Chart;
+﻿using Panuon.WPF.Charts;
 using Panuon.WPF.Charts.Controls.Internals;
 using Panuon.WPF.Charts.Implements;
 using System;
@@ -21,9 +21,10 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public RadialChart()
         {
-            Series = new SeriesCollection<RadialSeriesBase>();
-
             _seriesPanel = new SeriesPanel(this);
+
+            SetCurrentValue(SeriesProperty, new SeriesCollection<RadialSeriesBase>());
+
             _children.Insert(0, _seriesPanel);
         }
         #endregion
@@ -38,7 +39,7 @@ namespace Panuon.WPF.Charts
         }
 
         public static readonly DependencyProperty SeriesProperty =
-            DependencyProperty.Register("Series", typeof(SeriesCollection<RadialSeriesBase>), typeof(RadialChart), new PropertyMetadata(null));
+            DependencyProperty.Register("Series", typeof(SeriesCollection<RadialSeriesBase>), typeof(RadialChart), new PropertyMetadata(null, OnSeriesChanged));
         #endregion
 
         #region Spacing
@@ -131,7 +132,7 @@ namespace Panuon.WPF.Charts
                         }
                     }
 
-                    coordinates.Add(new RadialCoordinateImpl()
+                    coordinates.Add(new RadialCoordinateImpl(this)
                     {
                         Label = label,
                         Values = values,
@@ -179,6 +180,39 @@ namespace Panuon.WPF.Charts
             return _chartContext;
         }
         #endregion
+
+        #endregion
+
+        #region Event Handlers
+        private static void OnSeriesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var chart = (RadialChart)d;
+            foreach (SeriesBase series in chart.GetSeries())
+            {
+                series.OnAttached(chart);
+            }
+            if (e.OldValue is SeriesCollection<RadialSeriesBase> oldSeries)
+            {
+                oldSeries.CollectionChanged -= chart.Series_CollectionChanged;
+            }
+            if (e.NewValue is SeriesCollection<RadialSeriesBase> newSeries)
+            {
+                newSeries.CollectionChanged += chart.Series_CollectionChanged;
+            }
+            chart.Rerender();
+        }
+
+        private void Series_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                foreach (SeriesBase series in e.NewItems)
+                {
+                    series.OnAttached(this);
+                }
+            }
+            Rerender();
+        }
 
         #endregion
     }

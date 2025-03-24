@@ -1,18 +1,18 @@
-﻿<Grid x:Class="Samples.Views.ColumnChartView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:pc="https://opensource.panuon.com/wpf-charts"
-      xmlns:local="clr-namespace:Samples.Views"
-      mc:Ignorable="d"
-      d:DesignHeight="450"
-      d:DesignWidth="800">
-    <Grid.Resources>
+﻿<UserControl x:Class="Samples.Views.ColumnChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:pc="https://opensource.panuon.com/wpf-charts"
+             xmlns:local="clr-namespace:Samples.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
+    <UserControl.Resources>
         <Style x:Key="ColumnSeriesStyle"
                TargetType="pc:ColumnSeries">
         </Style>
-    </Grid.Resources>
+    </UserControl.Resources>
     <pc:CartesianChart x:Name="chart"
                        GridLinesBrush="#EAEAEA"
                        LabelMemberPath="Label"
@@ -23,8 +23,8 @@
             <pc:XAxis StrokeThickness="2" />
         </pc:CartesianChart.XAxis>
         <pc:CartesianChart.YAxis>
-            <pc:YAxis StrokeThickness="2" 
-                      MaxValue="100"/>
+            <pc:YAxis StrokeThickness="2"
+                      MinValue="0" />
         </pc:CartesianChart.YAxis>
         <pc:CartesianChart.Layers>
             <pc:ToggleHighlightLayer AnimationEasing="BackOut"
@@ -34,6 +34,12 @@
                          ColumnWidth="0.8*"
                          BackgroundFill="#1A8446e4"
                          Radius="10"
+                         FontSize="12"
+                         FontWeight="ExtraBold"
+                         ShowValueLabels="True"
+                         ValueLabelPlacement="Above"
+                         Foreground="#5416c4"
+                         InvertForeground="#ffffff"
                          Style="{StaticResource ColumnSeriesStyle}">
             <pc:ColumnSeries.Fill>
                 <LinearGradientBrush StartPoint="0.5,0"
@@ -48,4 +54,4 @@
             </pc:ColumnSeries.Fill>
         </pc:ColumnSeries>
     </pc:CartesianChart>
-</Grid>
+</UserControl>

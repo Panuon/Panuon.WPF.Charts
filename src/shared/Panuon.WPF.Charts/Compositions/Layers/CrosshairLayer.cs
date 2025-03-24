@@ -58,36 +58,22 @@ namespace Panuon.WPF.Charts
             IDrawingContext drawingContext,
             IChartContext chartContext)
         {
-            if (chartContext.GetMousePosition(MouseRelativeTarget.Layer) is Point position)
+            var mousePosition = chartContext.GetMousePosition(MouseRelativeTarget.Layer);
+            if (!mousePosition.HasValue)
             {
-                var coordinate = chartContext.RetrieveCoordinate(position);
-                if (coordinate != null)
+                return;
+            }
+            var valueOrDefault = mousePosition.GetValueOrDefault();
+            var coordinate = chartContext.RetrieveCoordinate(valueOrDefault);
+            if (coordinate != null)
+            {
+                if (LineVisibility == CrosshairLineVisibility.Both || LineVisibility == CrosshairLineVisibility.Vertical)
                 {
-                    if (LineVisibility == CrosshairLineVisibility.Both
-                        || LineVisibility == CrosshairLineVisibility.Vertical)
-                    {
-                        //vertical line
-                        drawingContext.DrawLine(
-                            stroke: Brushes.Gray,
-                            strokeThickness: 1,
-                            startX: coordinate.Offset,
-                            startY: 0,
-                            endX: coordinate.Offset,
-                            endY: chartContext.AreaHeight
-                        );
-                    }
-                    if (LineVisibility == CrosshairLineVisibility.Both
-                        || LineVisibility == CrosshairLineVisibility.Horizontal)
-                    {
-                        drawingContext.DrawLine(
-                            stroke: Brushes.Gray,
-                            strokeThickness: 1, 
-                            startX: 0, 
-                            startY: position.Y, 
-                            endX: chartContext.AreaWidth,
-                            endY: position.Y
-                        );
-                    }
+                    drawingContext.DrawLine(Brushes.Gray, 1.0, new Point(coordinate.Offset, 0.0), new Point(coordinate.Offset, chartContext.CanvasHeight));
+                }
+                if (LineVisibility == CrosshairLineVisibility.Both || LineVisibility == CrosshairLineVisibility.Horizontal)
+                {
+                    drawingContext.DrawLine(Brushes.Gray, 1.0, new Point(0.0, valueOrDefault.Y), new Point(chartContext.CanvasWidth, valueOrDefault.Y));
                 }
             }
         }

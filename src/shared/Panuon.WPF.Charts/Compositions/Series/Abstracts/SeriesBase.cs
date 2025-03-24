@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace Panuon.WPF.Charts
 {
     public abstract class SeriesBase
-        : ChartElementBase, IChartArgument
+        : ChartDrawingControlBase, IChartArgument
     {
         #region Fields
         private ChartBase _chart;
@@ -24,29 +23,111 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public SeriesBase()
         {
+            ClipToBounds = true;
             Loaded += SeriesBase_Loaded;
         }
         #endregion
 
         #region Properties
 
+        #region ShowValueLabels
+        public bool ShowValueLabels
+        {
+            get { return (bool)GetValue(ShowValueLabelsProperty); }
+            set { SetValue(ShowValueLabelsProperty, value); }
+        }
+
+        public static readonly DependencyProperty ShowValueLabelsProperty =
+            DependencyProperty.Register("ShowValueLabels", typeof(bool), typeof(SeriesBase), new PropertyMetadata(false));
+        #endregion
+
+        #region InvertForeground
+        public Brush InvertForeground
+        {
+            get { return (Brush)GetValue(InvertForegroundProperty); }
+            set { SetValue(InvertForegroundProperty, value); }
+        }
+
+        public static readonly DependencyProperty InvertForegroundProperty =
+            DependencyProperty.Register("InvertForeground", typeof(Brush), typeof(SeriesBase), new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region ValueLabelStroke
+        public Brush ValueLabelStroke
+        {
+            get { return (Brush)GetValue(ValueLabelStrokeProperty); }
+            set { SetValue(ValueLabelStrokeProperty, value); }
+        }
+
+        public static readonly DependencyProperty ValueLabelStrokeProperty =
+            DependencyProperty.Register("ValueLabelStroke", typeof(Brush), typeof(SeriesBase), new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region ValueLabelStrokeThickness
+        public double ValueLabelStrokeThickness
+        {
+            get { return (double)GetValue(ValueLabelStrokeThicknessProperty); }
+            set { SetValue(ValueLabelStrokeThicknessProperty, value); }
+        }
+
+        public static readonly DependencyProperty ValueLabelStrokeThicknessProperty =
+            DependencyProperty.Register("ValueLabelStrokeThickness", typeof(double), typeof(SeriesBase), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #region ValueLabelPlacement
+        public SeriesLabelPlacement ValueLabelPlacement
+        {
+            get { return (SeriesLabelPlacement)GetValue(ValueLabelPlacementProperty); }
+            set { SetValue(ValueLabelPlacementProperty, value); }
+        }
+
+        public static readonly DependencyProperty ValueLabelPlacementProperty =
+            DependencyProperty.Register("ValueLabelPlacement", typeof(SeriesLabelPlacement), typeof(SeriesBase), new FrameworkPropertyMetadata(SeriesLabelPlacement.Above, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
+        #endregion
+
+        #region Internal Properties
+
+        #region Offset
+        internal double Offset
+        {
+            get { return (double)GetValue(OffsetProperty); }
+            set { SetValue(OffsetProperty, value); }
+        }
+
+        internal static readonly DependencyProperty OffsetProperty =
+            DependencyProperty.Register("Offset", typeof(double), typeof(SeriesBase), new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.AffectsRender));
+        #endregion
+
         #endregion
 
         #region Methods
+        protected FormattedText CreateFormattedText(
+            string text,
+            Brush foreground
+        )
+        {
+            return new FormattedText(
+                text,
+                CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                new Typeface(FontFamily, FontStyle, FontWeight, FontStretch),
+                FontSize,
+                foreground
+#if NET452 || NET462 || NET472 || NET48
+#else
+                , VisualTreeHelper.GetDpi(this).PixelsPerDip
+#endif
+            )
+            {
+                TextAlignment = TextAlignment.Center
+            };
+        }
+
         public IEnumerable<SeriesLegendEntry> RetrieveLegendEntries()
         {
-            if (_chart == null
-                || !_chart.IsCanvasReady()
-                || _loadAnimationProgressObject?.Progress == null)
-            {
-                return Enumerable.Empty<SeriesLegendEntry>(); ;
-            }
-
-            var chartContext = _chart.GetCanvasContext();
-
-            return OnInternalRetrieveLegendEntries(
-                chartContext: chartContext
-            );
+            return OnInternalRetrieveLegendEntries();
         }
 
         public void InvalidateLayout()
@@ -79,7 +160,7 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region Overrides
-        protected sealed override void OnRender(DrawingContext drawingContext)
+        protected override void OnRender(DrawingContext context)
         {
             if (_chart == null
                 || !_chart.IsCanvasReady()
@@ -94,38 +175,44 @@ namespace Panuon.WPF.Charts
             }
 
             _isRenderEverCalled = true;
+            var drawingContext = _chart.CreateDrawingContext(context);
+            if (_chart is CartesianChart cartesianChart
+                && cartesianChart.CanvasWidth > cartesianChart.SliceWidth)
+            {
+                if (!cartesianChart.SwapXYAxes)
+                {
+                    drawingContext.PushTranslate(Offset, 0);
+                }
+                else
+                {
+                    drawingContext.PushTranslate(0, Offset);
+                }
+            }
 
-            var context = _chart.CreateDrawingContext(drawingContext);
-            var chartContext = _chart.GetCanvasContext();
-
+            var canvasContext = _chart.GetCanvasContext();
             if (!_isAnimationBeginCalled
                 || _loadAnimationProgressObject.Progress == 1)
             {
                 OnInternalRenderBegin(
-                    context,
-                    chartContext
+                    drawingContext,
+                    canvasContext
                 );
                 _isAnimationBeginCalled = true;
             }
 
             OnInternalRendering(
-                drawingContext: context,
-                chartContext: chartContext,
+                drawingContext: drawingContext,
+                chartContext: canvasContext,
                 animationProgress: Math.Max(0, Math.Min(1, (double)_loadAnimationProgressObject.Progress))
             );
 
             if (_loadAnimationProgressObject.Progress == 1)
             {
                 OnInternalRenderCompleted(
-                    drawingContext: context,
-                    chartContext: chartContext
+                    drawingContext: drawingContext,
+                    chartContext: canvasContext
                 );
             }
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
         }
         #endregion
 
@@ -156,9 +243,7 @@ namespace Panuon.WPF.Charts
         {
         }
 
-        internal protected abstract IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries(
-            IChartContext chartContext
-        );
+        internal protected abstract IEnumerable<SeriesLegendEntry> OnInternalRetrieveLegendEntries();
         #endregion
 
         #region Event Handlers
@@ -190,7 +275,7 @@ namespace Panuon.WPF.Charts
             {
                 var animation = new DoubleAnimation(0, 1, duration)
                 {
-                    EasingFunction = AnimationUtil.CreateEasingFunction(_chart.AnimationEasing)
+                    EasingFunction = _chart.AnimationEasing.ToEasingFunction()
                 };
                 animation.Completed += delegate
                 {

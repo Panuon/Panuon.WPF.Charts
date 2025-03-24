@@ -50,14 +50,14 @@ namespace Panuon.WPF.Charts
 
         #region Events
 
-        public event GeneratingTitleRoutedEventHandler GeneratingTitle
+        public event RadialChartGeneratingLabelRoutedEventHandler GeneratingLabel
         {
-            add { AddHandler(GeneratingTitleEvent, value); }
-            remove { RemoveHandler(GeneratingTitleEvent, value); }
+            add { AddHandler(GeneratingLabelEvent, value); }
+            remove { RemoveHandler(GeneratingLabelEvent, value); }
         }
 
-        public static readonly RoutedEvent GeneratingTitleEvent =
-            EventManager.RegisterRoutedEvent("GeneratingTitle", RoutingStrategy.Bubble, typeof(GeneratingTitleRoutedEventHandler), typeof(DoughnutSeries));
+        public static readonly RoutedEvent GeneratingLabelEvent =
+            EventManager.RegisterRoutedEvent("GeneratingLabel", RoutingStrategy.Bubble, typeof(RadialChartGeneratingLabelRoutedEventHandler), typeof(DoughnutSeries));
         #endregion
 
         #region Overrides
@@ -76,6 +76,7 @@ namespace Panuon.WPF.Charts
             var coordinates = chartContext.Coordinates;
 
             var index = 0;
+            var totalValue = coordinates.Sum(c => c.GetValue(this));
             foreach (var coordinate in coordinates)
             {
                 if (index >= Segments.Count)
@@ -87,21 +88,22 @@ namespace Panuon.WPF.Charts
                 var startAngle = coordinate.StartAngle;
                 var angle = coordinate.Angle;
 
-                var generatingTitleArgs = new GeneratingTitleRoutedEventArgs(
-                    GeneratingTitleEvent,
+                var generatingLabelArgs = new RadialChartGeneratingLabelRoutedEventArgs(
+                    GeneratingLabelEvent,
+                    label: segment.Title ?? coordinate.Label,
                     value: value,
-                    label: segment.Label ?? coordinate.Label
+                    totalValue: totalValue
                 );
-                RaiseEvent(generatingTitleArgs);
+                RaiseEvent(generatingLabelArgs);
 
                 _segmentInfos[segment] = new DoughnutSeriesSegmentInfo()
                 {
                     StartAngle = startAngle,
                     Angle = angle,
-                    Label = string.IsNullOrEmpty(generatingTitleArgs.Label)
+                    Label = string.IsNullOrEmpty(generatingLabelArgs.Label)
                         ? null
                         : new FormattedText(
-                            generatingTitleArgs.Label,
+                            generatingLabelArgs.Label,
                             CultureInfo.CurrentCulture,
                             FlowDirection.LeftToRight,
                             new Typeface(chartPanel.FontFamily, chartPanel.FontStyle, chartPanel.FontWeight, chartPanel.FontStretch),
@@ -131,14 +133,14 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var areaWidth = Math.Max(0, chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
-            var areaHeight = Math.Max(0, chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaWidth = Math.Max(0, chartContext.CanvasWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaHeight = Math.Max(0, chartContext.CanvasHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
 
             var outterRadius = Math.Min(areaWidth, areaHeight) / 2;
             var thickness = GridLengthUtil.GetActualValue(Thickness, outterRadius, 0.2);
 
-            var centerX = chartContext.AreaWidth / 2;
-            var centerY = chartContext.AreaHeight / 2;
+            var centerX = chartContext.CanvasWidth / 2;
+            var centerY = chartContext.CanvasHeight / 2;
 
             var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
             var angleDelta = 360d / totalValue;
@@ -152,8 +154,7 @@ namespace Panuon.WPF.Charts
                 drawingContext.DrawArc(segment.Stroke,
                         segment.StrokeThickness,
                         segment.Fill,
-                        centerX,
-                        centerY,
+                        centerPoint: new Point(centerX, centerY),
                         Math.Max(0, outterRadius - thickness),
                         outterRadius,
                         startAngle,
@@ -185,19 +186,17 @@ namespace Panuon.WPF.Charts
                     {
                         drawingContext.DrawText(
                             formattedText,
-                            halfPoint.X,
-                            halfPoint.Y - formattedText.Height / 2
+                            new Point(halfPoint.X, halfPoint.Y - formattedText.Height / 2)
                         );
                     }
                     else
                     {
                         drawingContext.DrawText(
                             formattedText,
+                            new Point(halfPoint.X, halfPoint.Y - formattedText.Height / 2),
                             segment.LabelForeground,
                             segment.LabelStroke,
-                            segment.LabelStrokeThickness,
-                            halfPoint.X,
-                            halfPoint.Y - formattedText.Height / 2
+                            segment.LabelStrokeThickness ?? 0
                         );
                     }
                 }
@@ -205,11 +204,17 @@ namespace Panuon.WPF.Charts
         }
         #endregion
 
-        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries (
-            IRadialChartContext chartContext
-        )
+        protected override IEnumerable<SeriesLegendEntry> OnRetrieveLegendEntries()
         {
-            yield break;
+            foreach (var segment in Segments)
+            {
+                yield return new SeriesLegendEntry(
+                    segment.Title,
+                    markerShape: MarkerShape.Circle,
+                    markerStroke: segment.Stroke,
+                    markerStrokeThickness: segment.StrokeThickness,
+                    markerFill: segment.Fill);
+            }
         }
         #endregion
 
@@ -222,8 +227,8 @@ namespace Panuon.WPF.Charts
             IDictionary<int, double> coordinatesProgress
         )
         {
-            var areaWidth = Math.Max(0, chartContext.AreaWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
-            var areaHeight = Math.Max(0, chartContext.AreaHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaWidth = Math.Max(0, chartContext.CanvasWidth - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
+            var areaHeight = Math.Max(0, chartContext.CanvasHeight - chartContext.Chart.LabelSpacing * 2 - chartContext.Chart.FontSize * 2);
 
             foreach (var coordinateProgress in coordinatesProgress)
             {
@@ -237,8 +242,8 @@ namespace Panuon.WPF.Charts
                 }
 
                 var radius = Math.Min(areaWidth, areaHeight) / 2;
-                var centerX = chartContext.AreaWidth / 2;
-                var centerY = chartContext.AreaHeight / 2;
+                var centerX = chartContext.CanvasWidth / 2;
+                var centerY = chartContext.CanvasHeight / 2;
 
                 var segmentInfo = series._segmentInfos.ElementAt(index);
                 var segment = segmentInfo.Key;
@@ -247,18 +252,16 @@ namespace Panuon.WPF.Charts
 
                 var radians = (startAngle + angle / 2 - 90) * Math.PI / 180.0;
                 var point = new Point(
-                    centerX + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Cos(radians),
-                    centerY + (radius - progress * layer.HighlightToggleRadius / 2) * Math.Sin(radians)
+                    centerX + (radius - progress * layer.HighlightMarkerSize / 2) * Math.Cos(radians),
+                    centerY + (radius - progress * layer.HighlightMarkerSize / 2) * Math.Sin(radians)
                 );
 
                 drawingContext.DrawEllipse(
                     stroke: segment.Fill,
-                    strokeThickness: layer.HighlightToggleStrokeThickness,
-                    fill: layer.HighlightToggleFill,
-                    radiusX: progress * layer.HighlightToggleRadius,
-                    radiusY: progress * layer.HighlightToggleRadius,
-                    startX: point.X,
-                    startY: point.Y
+                    strokeThickness: layer.HighlightMarkerStrokeThickness,
+                    fill: layer.HighlightMarkerFill,
+                    size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                    centerPoint: point
                 );
             }
         }
