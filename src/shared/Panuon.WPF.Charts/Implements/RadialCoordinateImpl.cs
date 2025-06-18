@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Panuon.WPF.Charts.Implements
 {
@@ -30,30 +31,36 @@ namespace Panuon.WPF.Charts.Implements
         #endregion
 
         #region Internal Properties
-        internal Dictionary<IChartArgument, (double, double)> Angles { get; set; }
 
-        internal Dictionary<IChartArgument, double> Values { get; set; }
+        internal Dictionary<IChartArgument, decimal?> Values { get; set; }
         #endregion
 
-        public (double, double) GetAngle(IChartArgument seriesOrSegment)
-        {
-            return Angles[seriesOrSegment];
-        }
-
-        public double GetValue(IChartArgument seriesOrSegment)
+        public decimal? GetValue(IChartArgument seriesOrSegment)
         {
             return Values[seriesOrSegment];
         }
 
         public object GetSource()
         {
-            var itemsSource = _chart.ItemsSource.GetEnumerator();
-            itemsSource.MoveNext();
-            for (int i = 0; i < Index; i++)
+            if (_chart.ItemsSource is IEnumerable itemsSource)
             {
-                itemsSource.MoveNext();
+                var enumerator = itemsSource.GetEnumerator();
+                enumerator.MoveNext();
+                for (int i = 0; i < Index; i++)
+                {
+                    enumerator.MoveNext();
+                }
+                return enumerator.Current;
             }
-            return itemsSource.Current;
+            else if (_chart.ItemsSource is DataTable dataTable)
+            {
+                if (Index < dataTable.Rows.Count)
+                {
+                    return dataTable.Rows[Index];
+                }
+                return null;
+            }
+            return null;
         }
     }
 }

@@ -8,9 +8,9 @@ namespace Panuon.WPF.Charts
     {
         bool SwapXYAxes { get; }
 
-        double MinValue { get; }
+        decimal MinValue { get; }
 
-        double MaxValue { get; }
+        decimal MaxValue { get; }
 
         double CurrentOffset { get; }
 
@@ -22,6 +22,6 @@ namespace Panuon.WPF.Charts
 
         new ICartesianCoordinate RetrieveCoordinate(Point position);
 
-        double GetOffsetY(double value);
+        double GetOffsetY(decimal value);
     }
 }

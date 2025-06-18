@@ -9,8 +9,8 @@ namespace Panuon.WPF.Charts
         public RadialChartGeneratingLabelRoutedEventArgs(
             RoutedEvent @event,
             string label,
-            double value,
-            double totalValue
+            decimal? value,
+            decimal totalValue
         ) : base(@event)
         {
             Value = value;
@@ -22,9 +22,9 @@ namespace Panuon.WPF.Charts
         #region Properties
         public string Label { get; set; }
 
-        public double Value { get; }
+        public decimal? Value { get; }
 
-        public double TotalValue { get; }
+        public decimal TotalValue { get; }
         #endregion
     }
 }

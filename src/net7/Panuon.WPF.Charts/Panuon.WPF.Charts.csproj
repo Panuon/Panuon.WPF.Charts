@@ -10,12 +10,6 @@
 
 	<Import Project="..\..\shared\Panuon.WPF.Charts\Panuon.WPF.Charts.projitems" Label="Shared" />
 
-	<ItemGroup>
-		<Reference Include="Panuon.WPF">
-			<HintPath>..\..\references\net7.0-windows\Panuon.WPF.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<WarningLevel>5</WarningLevel>
 		<OutputPath>..\..\outputs\debug\net7\</OutputPath>
@@ -24,5 +18,11 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>..\..\outputs\release\net7\</OutputPath>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Reference Include="Panuon.WPF">
+	    <HintPath>..\..\references\net7.0-windows\Panuon.WPF.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 
 </Project>

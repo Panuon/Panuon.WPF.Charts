@@ -168,25 +168,25 @@ namespace Panuon.WPF.Charts
         #endregion
 
         #region MinValue
-        public double? MinValue
+        public decimal? MinValue
         {
-            get { return (double?)GetValue(MinValueProperty); }
+            get { return (decimal?)GetValue(MinValueProperty); }
             set { SetValue(MinValueProperty, value); }
         }
 
         public static readonly DependencyProperty MinValueProperty =
-            DependencyProperty.Register("MinValue", typeof(double?), typeof(RadarSeries), new PropertyMetadata(null));
+            DependencyProperty.Register("MinValue", typeof(decimal?), typeof(RadarSeries), new PropertyMetadata(null));
         #endregion
 
         #region MaxValue
-        public double? MaxValue
+        public decimal? MaxValue
         {
-            get { return (double?)GetValue(MaxValueProperty); }
+            get { return (decimal?)GetValue(MaxValueProperty); }
             set { SetValue(MaxValueProperty, value); }
         }
 
         public static readonly DependencyProperty MaxValueProperty =
-            DependencyProperty.Register("MaxValue", typeof(double?), typeof(RadarSeries), new PropertyMetadata(null));
+            DependencyProperty.Register("MaxValue", typeof(decimal?), typeof(RadarSeries), new PropertyMetadata(null));
         #endregion
 
         #endregion
@@ -240,15 +240,14 @@ namespace Panuon.WPF.Charts
                     break;
                 }
                 var segment = Segments[index];
-                var value = coordinate.GetValue(this);
+                var value = coordinate.GetValue(this) ?? 0m;
                 var startAngle = angleDelta * index;
 
-
                 CheckMinMaxValue(
-                    coordinates.Select(c => c.GetValue(this)).Min(),
-                    coordinates.Select(c => c.GetValue(this)).Max(),
-                    out int minValue,
-                    out int maxValue
+                    (decimal)coordinates.Select(c => c.GetValue(this)).Where(c => c != null).Min(),
+                    (decimal)coordinates.Select(c => c.GetValue(this)).Where(c => c != null).Max(),
+                    out decimal minValue,
+                    out decimal maxValue
                 );
                 var actualMaxValue = MaxValue ?? maxValue;
                 var actualMinValue = MinValue ?? minValue;
@@ -264,7 +263,7 @@ namespace Panuon.WPF.Charts
                 value = Math.Max(actualMinValue, Math.Min(actualMaxValue, value));
                 _segmentInfos[segment] = new RadarSeriesSegmentInfo()
                 {
-                    Percent = (actualMaxValue - value) / (actualMaxValue - actualMinValue),
+                    Percent = (double)((actualMaxValue - value) / (actualMaxValue - actualMinValue)),
                     Angle = startAngle,
                     Label = string.IsNullOrEmpty(generatingLabelArgs.Label)
                         ? null
@@ -517,10 +516,10 @@ namespace Panuon.WPF.Charts
         }
 
         private void CheckMinMaxValue(
-            double minValue,
-            double maxValue,
-            out int resultMin,
-            out int resultMax
+            decimal minValue,
+            decimal maxValue,
+            out decimal resultMin,
+            out decimal resultMax
         )
         {
             var min = (int)Math.Floor(minValue);

@@ -61,7 +61,7 @@ namespace Panuon.WPF.Charts
             var chartPanel = chartContext.Chart;
             var coordinates = chartContext.Coordinates;
 
-            var maxValue = coordinates.Sum(c => c.GetValue(this));
+            var maxValue = (decimal)coordinates.Select(c => c.GetValue(this)).Where(c => c != null).Sum();
             var index = 0;
             foreach (var coordinate in coordinates)
             {
@@ -128,7 +128,7 @@ namespace Panuon.WPF.Charts
             var centerY = chartContext.CanvasHeight / 2;
 
             var totalValue = coordinates.Select(c => c.GetValue(this)).Sum();
-            var angleDelta = 360d / totalValue;
+            var angleDelta = 360m / totalValue;
 
             foreach (var segmentInfo in _segmentInfos)
             {

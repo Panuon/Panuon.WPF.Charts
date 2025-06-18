@@ -11,7 +11,7 @@ namespace Panuon.WPF.Charts
         : CartesianValueProviderSeriesBase
     {
         #region Fields
-        private Dictionary<ICoordinate, Point> _coordinatePoints;
+        private Dictionary<ICoordinate, Point?> _coordinatePoints;
         #endregion
 
         #region Ctor
@@ -102,7 +102,7 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            _coordinatePoints = new Dictionary<ICoordinate, Point>();
+            _coordinatePoints = new Dictionary<ICoordinate, Point?>();
             var coordinateEnumerator = coordinates.GetEnumerator();
             coordinateEnumerator.MoveNext();
             ICoordinate lastCoordinate = null;
@@ -119,8 +119,8 @@ namespace Panuon.WPF.Charts
 
                 var value = coordinate.GetValue(this);
 
-                double offsetX = 0d;
-                double offsetY = 0d;
+                double? offsetX = 0d;
+                double? offsetY = 0d;
 
                 if (coordinate.Offset < chartContext.CurrentOffset
                    && nextCoordinate != null
@@ -138,20 +138,17 @@ namespace Panuon.WPF.Charts
                 if (!chartContext.SwapXYAxes)
                 {
                     offsetX = coordinate.Offset;
-                    offsetY = chartContext.GetOffsetY(value);
+                    offsetY = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                 }
                 else
                 {
-                    offsetX = chartContext.GetOffsetY(value);
+                    offsetX = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                     offsetY = coordinate.Offset;
                 }
 
                 _coordinatePoints.Add(
                     coordinate,
-                    new Point(
-                        x: offsetX,
-                        y: offsetY
-                    )
+                    (offsetX == null || offsetY == null) ? (Point?)null : new Point((double)offsetX, (double)offsetY)
                 );
 
                 lastCoordinate = coordinate;
@@ -174,142 +171,145 @@ namespace Panuon.WPF.Charts
             foreach (var coordinatePoint in _coordinatePoints)
             {
                 var coordinate = coordinatePoint.Key;
-                var offsetX = coordinatePoint.Value.X;
-                var offsetY = coordinatePoint.Value.Y;
-
-                if (!chartContext.SwapXYAxes)
+                if (coordinatePoint.Value != null)
                 {
-                    if (BackgroundFill != null)
+                    var offsetX = (double)coordinatePoint.Value?.X;
+                    var offsetY = (double)coordinatePoint.Value?.Y;
+
+                    if (!chartContext.SwapXYAxes)
                     {
-                        drawingContext.DrawRectangle(
-                            stroke: null,
-                            strokeThickness: 0,
-                            fill: BackgroundFill,
-                            centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
-                            size: new Size(columnSize, chartContext.CanvasHeight),
-                            radius: new Size(Radius, Radius)
-                        );
-                    }
-
-                    var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
-                    var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
-
-                    drawingContext.DrawRectangle(
-                        stroke: Stroke,
-                        strokeThickness: StrokeThickness,
-                        fill: Fill,
-                        centerPoint: new Point(offsetX, startY + height / 2),
-                        size: new Size(columnSize, height),
-                        radius: new Size(Radius, Radius));
-
-                    if (ShowValueLabels)
-                    {
-                        var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
-
-                        var fill = Foreground;
-                        var labelOffsetY = 0d;
-                        if (InvertForeground != null)
+                        if (BackgroundFill != null)
                         {
-                            switch (ValueLabelPlacement)
-                            {
-                                case SeriesLabelPlacement.Top:
-                                    if (offsetY < label.Height / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    labelOffsetY = 0;
-                                    break;
-                                case SeriesLabelPlacement.Above:
-                                    labelOffsetY = Math.Max(0, startY - label.Height);
-                                    if (startY < label.Height / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    break;
-                                case SeriesLabelPlacement.Bottom:
-                                    if (height < label.Height / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    labelOffsetY = chartContext.CanvasHeight - label.Height;
-                                    break;
-                            }
+                            drawingContext.DrawRectangle(
+                                stroke: null,
+                                strokeThickness: 0,
+                                fill: BackgroundFill,
+                                centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
+                                size: new Size(columnSize, chartContext.CanvasHeight),
+                                radius: new Size(Radius, Radius)
+                            );
                         }
 
-                        drawingContext.DrawText(
-                            label,
-                            startPoint: new Point(offsetX, labelOffsetY),
-                            fill: fill,
-                            stroke: ValueLabelStroke,
-                            strokeThickness: ValueLabelStrokeThickness);
-                    }
-                }
-                else
-                {
-                    if (BackgroundFill != null)
-                    {
+                        var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
+                        var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
+
                         drawingContext.DrawRectangle(
-                            stroke: null,
-                            strokeThickness: 0,
-                            fill: BackgroundFill,
-                            centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
-                            size: new Size(chartContext.CanvasWidth, columnSize),
+                            stroke: Stroke,
+                            strokeThickness: StrokeThickness,
+                            fill: Fill,
+                            centerPoint: new Point(offsetX, startY + height / 2),
+                            size: new Size(columnSize, height),
                             radius: new Size(Radius, Radius));
-                    }
 
-                    var startY = offsetY - columnSize / 2;
-                    var width = offsetX * animationProgress;
-
-                    drawingContext.DrawRectangle(
-                        stroke: Stroke,
-                        strokeThickness: StrokeThickness,
-                        fill: Fill,
-                        centerPoint: new Point(offsetX * animationProgress / 2, startY + columnSize / 2),
-                        size: new Size(offsetX * animationProgress, columnSize),
-                        radius: new Size(Radius, Radius));
-
-                    if (ShowValueLabels)
-                    {
-                        var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
-
-                        var fill = Foreground;
-                        var labelOffsetX = 0d;
-                        if (InvertForeground != null)
+                        if (ShowValueLabels)
                         {
-                            switch (ValueLabelPlacement)
+                            var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+
+                            var fill = Foreground;
+                            var labelOffsetY = 0d;
+                            if (InvertForeground != null)
                             {
-                                case SeriesLabelPlacement.Top:
-                                    if (chartContext.CanvasWidth - width < label.Width / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    labelOffsetX = chartContext.CanvasWidth - label.Width;
-                                    break;
-                                case SeriesLabelPlacement.Above:
-                                    labelOffsetX = Math.Max(0, width + label.Width);
-                                    if (chartContext.CanvasWidth - width < label.Width / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    break;
-                                case SeriesLabelPlacement.Bottom:
-                                    if (width < label.Width / 2)
-                                    {
-                                        fill = InvertForeground;
-                                    }
-                                    labelOffsetX = 0d;
-                                    break;
+                                switch (ValueLabelPlacement)
+                                {
+                                    case SeriesLabelPlacement.Top:
+                                        if (offsetY < label.Height / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        labelOffsetY = 0;
+                                        break;
+                                    case SeriesLabelPlacement.Above:
+                                        labelOffsetY = Math.Max(0, startY - label.Height);
+                                        if (startY < label.Height / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        break;
+                                    case SeriesLabelPlacement.Bottom:
+                                        if (height < label.Height / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        labelOffsetY = chartContext.CanvasHeight - label.Height;
+                                        break;
+                                }
                             }
+
+                            drawingContext.DrawText(
+                                label,
+                                startPoint: new Point(offsetX, labelOffsetY),
+                                fill: fill,
+                                stroke: ValueLabelStroke,
+                                strokeThickness: ValueLabelStrokeThickness);
+                        }
+                    }
+                    else
+                    {
+                        if (BackgroundFill != null)
+                        {
+                            drawingContext.DrawRectangle(
+                                stroke: null,
+                                strokeThickness: 0,
+                                fill: BackgroundFill,
+                                centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
+                                size: new Size(chartContext.CanvasWidth, columnSize),
+                                radius: new Size(Radius, Radius));
                         }
 
-                        drawingContext.DrawText(
-                            label,
-                            new Point(labelOffsetX, offsetY - label.Height / 2),
-                            fill: fill,
-                            stroke: ValueLabelStroke,
-                            strokeThickness: ValueLabelStrokeThickness);
-                    }
+                        var startY = offsetY - columnSize / 2;
+                        var width = offsetX * animationProgress;
 
+                        drawingContext.DrawRectangle(
+                            stroke: Stroke,
+                            strokeThickness: StrokeThickness,
+                            fill: Fill,
+                            centerPoint: new Point(offsetX * animationProgress / 2, startY + columnSize / 2),
+                            size: new Size(offsetX * animationProgress, columnSize),
+                            radius: new Size(Radius, Radius));
+
+                        if (ShowValueLabels)
+                        {
+                            var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+
+                            var fill = Foreground;
+                            var labelOffsetX = 0d;
+                            if (InvertForeground != null)
+                            {
+                                switch (ValueLabelPlacement)
+                                {
+                                    case SeriesLabelPlacement.Top:
+                                        if (chartContext.CanvasWidth - width < label.Width / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        labelOffsetX = chartContext.CanvasWidth - label.Width;
+                                        break;
+                                    case SeriesLabelPlacement.Above:
+                                        labelOffsetX = Math.Max(0, width + label.Width);
+                                        if (chartContext.CanvasWidth - width < label.Width / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        break;
+                                    case SeriesLabelPlacement.Bottom:
+                                        if (width < label.Width / 2)
+                                        {
+                                            fill = InvertForeground;
+                                        }
+                                        labelOffsetX = 0d;
+                                        break;
+                                }
+                            }
+
+                            drawingContext.DrawText(
+                                label,
+                                new Point(labelOffsetX, offsetY - label.Height / 2),
+                                fill: fill,
+                                stroke: ValueLabelStroke,
+                                strokeThickness: ValueLabelStrokeThickness);
+                        }
+
+                    }
                 }
             }
         }
@@ -350,25 +350,31 @@ namespace Panuon.WPF.Charts
                 }
                 var point = series._coordinatePoints[coordinate];
 
-                if (!chartContext.SwapXYAxes)
+                if (point != null)
                 {
-                    drawingContext.DrawEllipse(
-                        stroke: series.Fill,
-                        strokeThickness: layer.HighlightMarkerStrokeThickness,
-                        fill: layer.HighlightMarkerFill,
-                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
-                        centerPoint: new Point(coordinate.Offset, point.Y)
-                    );
-                }
-                else
-                {
-                    drawingContext.DrawEllipse(
-                        stroke: series.Fill,
-                        strokeThickness: layer.HighlightMarkerStrokeThickness,
-                        fill: layer.HighlightMarkerFill,
-                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
-                        centerPoint: new Point(point.X, coordinate.Offset)
-                    );
+                    var offsetX = (double)point?.X;
+                    var offsetY = (double)point?.Y;
+
+                    if (!chartContext.SwapXYAxes)
+                    {
+                        drawingContext.DrawEllipse(
+                            stroke: series.Fill,
+                            strokeThickness: layer.HighlightMarkerStrokeThickness,
+                            fill: layer.HighlightMarkerFill,
+                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            centerPoint: new Point(coordinate.Offset, offsetY)
+                        );
+                    }
+                    else
+                    {
+                        drawingContext.DrawEllipse(
+                            stroke: series.Fill,
+                            strokeThickness: layer.HighlightMarkerStrokeThickness,
+                            fill: layer.HighlightMarkerFill,
+                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            centerPoint: new Point(offsetX, coordinate.Offset)
+                        );
+                    }
                 }
             }
         }

@@ -6,7 +6,7 @@ namespace Panuon.WPF.Charts
     {
         public CartesianCoordinateInfo(
             Point point, 
-            double value)
+            decimal value)
         {
             Point = point;
             Value = value;
@@ -14,6 +14,6 @@ namespace Panuon.WPF.Charts
 
         public Point Point { get; set; }
 
-        public double Value { get; set; }
+        public decimal Value { get; set; }
     }
 }

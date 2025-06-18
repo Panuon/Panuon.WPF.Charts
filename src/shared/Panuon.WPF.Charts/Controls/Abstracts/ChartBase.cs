@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Data;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -48,14 +49,14 @@ namespace Panuon.WPF.Charts
         #region Properties
 
         #region ItemsSource
-        public IEnumerable ItemsSource
+        public object ItemsSource
         {
-            get { return (IEnumerable)GetValue(ItemsSourceProperty); }
+            get { return (object)GetValue(ItemsSourceProperty); }
             set { SetValue(ItemsSourceProperty, value); }
         }
 
         public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(ChartBase), new FrameworkPropertyMetadata(null, 
+            DependencyProperty.Register("ItemsSource", typeof(object), typeof(ChartBase), new FrameworkPropertyMetadata(null, 
                 FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange | FrameworkPropertyMetadataOptions.AffectsRender,
                 OnItemsSourceChanged,
                 null));
@@ -239,7 +240,7 @@ namespace Panuon.WPF.Charts
         public abstract IEnumerable<SeriesBase> GetSeries();
 
         #region Protected Methods
-        protected double GetValueFromValueProvider(
+        protected decimal? GetValueFromValueProvider(
             IChartValueProvider valueProvider,
             object item,
             int index = -1
@@ -247,7 +248,7 @@ namespace Panuon.WPF.Charts
         {
             var itemType = item.GetType();
 
-            double value = 0d;
+            decimal? value = null;
             try
             {
                 if (index != -1
@@ -259,12 +260,30 @@ namespace Panuon.WPF.Charts
                         enumerator.MoveNext();
                         if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
                         {
-                            value = Convert.ToDouble(enumerator.Current);
+                            value = Convert.ToDecimal(enumerator.Current);
                         }
                         else
                         {
                             var valueValue = PropertyAccessor.GetValue(enumerator.Current, valueProvider.ValueMemberPath);
-                            value = Convert.ToDouble(valueValue);
+                            if (valueValue != null)
+                            {
+                                value = Convert.ToDecimal(valueValue);
+                            }
+                        }
+                    }
+                }
+                else if (item is DataRow dataRow)
+                {
+                    if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
+                    {
+                        throw new Exception("当DataTable作为图表ItemsSource时，必须指定ValueMemberPath属性");
+                    }
+                    else
+                    {
+                        var valueValue = PropertyAccessor.GetValue(dataRow, valueProvider.ValueMemberPath);
+                        if (valueValue != null)
+                        {
+                            value = Convert.ToDecimal(valueValue);
                         }
                     }
                 }
@@ -272,12 +291,15 @@ namespace Panuon.WPF.Charts
                 {
                     if (string.IsNullOrEmpty(valueProvider.ValueMemberPath))
                     {
-                        value = Convert.ToDouble(item);
+                        value = Convert.ToDecimal(item);
                     }
                     else
                     {
                         var valueValue = PropertyAccessor.GetValue(item, valueProvider.ValueMemberPath);
-                        value = Convert.ToDouble(valueValue);
+                        if (valueValue != null)
+                        {
+                            value = Convert.ToDecimal(valueValue);
+                        }
                     }
                 }
             }

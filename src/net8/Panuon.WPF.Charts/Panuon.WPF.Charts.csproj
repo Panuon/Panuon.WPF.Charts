@@ -19,4 +19,10 @@
 		<OutputPath>..\..\outputs\release\net8\</OutputPath>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Reference Include="Panuon.WPF">
+	    <HintPath>..\..\references\net8.0-windows\Panuon.WPF.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
 </Project>

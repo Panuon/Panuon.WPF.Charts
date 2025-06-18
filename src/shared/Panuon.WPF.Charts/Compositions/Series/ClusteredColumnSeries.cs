@@ -10,7 +10,7 @@ namespace Panuon.WPF.Charts
         : CartesianSegmentsSeriesBase<ClusteredColumnSeriesSegment>
     {
         #region Fields
-        private Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point>> _segmentPoints;
+        private Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point?>> _segmentPoints;
         #endregion
 
         #region Ctor
@@ -73,7 +73,7 @@ namespace Panuon.WPF.Charts
             var clusterSize = GridLengthUtil.GetActualValue(ColumnWidth, delta);
             var columnSize = CalculateBarWidth(clusterSize);
 
-            _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point>>();
+            _segmentPoints = new Dictionary<ClusteredColumnSeriesSegment, Dictionary<ICoordinate, Point?>>();
             var coordinateEnumerator = coordinates.GetEnumerator();
             coordinateEnumerator.MoveNext();
             ICoordinate lastCoordinate = null;
@@ -93,8 +93,8 @@ namespace Panuon.WPF.Charts
                     var segment = Segments[j];
                     var value = coordinate.GetValue(segment);
 
-                    double offsetX = 0d;
-                    double offsetY = 0d;
+                    double? offsetX = 0d;
+                    double? offsetY = 0d;
 
                     var offset = coordinate.Offset - clusterSize / 2 + columnSize / 2 + j * (columnSize + Spacing);
 
@@ -114,20 +114,20 @@ namespace Panuon.WPF.Charts
                     if (!chartContext.SwapXYAxes)
                     {
                         offsetX = offset;
-                        offsetY = chartContext.GetOffsetY(value);
+                        offsetY = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                     }
                     else
                     {
-                        offsetX = chartContext.GetOffsetY(value);
+                        offsetX = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                         offsetY = offset;
                     }
 
                     if (!_segmentPoints.ContainsKey(segment))
                     {
-                        _segmentPoints[segment] = new Dictionary<ICoordinate, Point>();
+                        _segmentPoints[segment] = new Dictionary<ICoordinate, Point?>();
                     }
 
-                    _segmentPoints[segment].Add(coordinate, new Point(offsetX, offsetY));
+                    _segmentPoints[segment].Add(coordinate, (offsetX == null || offsetY == null) ? (Point?)null : new Point((double)offsetX, (double)offsetY));
 
                     if (!chartContext.SwapXYAxes)
                     {
@@ -164,138 +164,141 @@ namespace Panuon.WPF.Charts
                 foreach (var coordinatePoint in segmentPoint.Value)
                 {
                     var coordinate = coordinatePoint.Key;
-                    var offsetX = coordinatePoint.Value.X;
-                    var offsetY = coordinatePoint.Value.Y;
-
-                    if (!chartContext.SwapXYAxes)
+                    if (coordinatePoint.Value != null)
                     {
-                        if (segment.BackgroundFill != null)
+                        var offsetX = (double)coordinatePoint.Value?.X;
+                        var offsetY = (double)coordinatePoint.Value?.Y;
+
+                        if (!chartContext.SwapXYAxes)
                         {
-                            drawingContext.DrawRectangle(
-                                stroke: null,
-                                strokeThickness: 0,
-                                fill: segment.BackgroundFill,
-                                centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
-                                size: new Size(columnSize, chartContext.CanvasHeight),
-                                radius: new Size(Radius, Radius));
-                        }
-
-                        var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
-                        var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
-
-                        drawingContext.DrawRectangle(
-                            stroke: segment.Stroke,
-                            strokeThickness: segment.StrokeThickness,
-                            fill: segment.Fill,
-                            centerPoint: new Point(offsetX, startY + height / 2),
-                            size: new Size(columnSize, height),
-                            radius: new Size(Radius, Radius));
-
-                        if (ShowValueLabels)
-                        {
-                            var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), Foreground);
-
-                            var fill = segment.LabelForeground ?? Foreground;
-                            var invertForeground = segment.InvertForeground ?? InvertForeground;
-                            var labelOffsetY = 0d;
-                            if (invertForeground != null)
+                            if (segment.BackgroundFill != null)
                             {
-                                switch (ValueLabelPlacement)
-                                {
-                                    case SeriesLabelPlacement.Top:
-                                        if (offsetY < label.Height / 2)
-                                        {
-                                            fill = invertForeground;
-                                        }
-                                        labelOffsetY = 0;
-                                        break;
-                                    case SeriesLabelPlacement.Above:
-                                        labelOffsetY = Math.Max(0, startY - label.Height);
-                                        if (startY < label.Height / 2)
-                                        {
-                                            fill = invertForeground;
-                                        }
-                                        break;
-                                    case SeriesLabelPlacement.Bottom:
-                                        if (height < label.Height / 2)
-                                        {
-                                            fill = invertForeground;
-                                        }
-                                        labelOffsetY = chartContext.CanvasHeight - label.Height;
-                                        break;
-                                }
+                                drawingContext.DrawRectangle(
+                                    stroke: null,
+                                    strokeThickness: 0,
+                                    fill: segment.BackgroundFill,
+                                    centerPoint: new Point(offsetX, chartContext.CanvasHeight / 2),
+                                    size: new Size(columnSize, chartContext.CanvasHeight),
+                                    radius: new Size(Radius, Radius));
                             }
-                            drawingContext.DrawText(
-                                label,
-                                startPoint: new Point(offsetX, labelOffsetY),
-                                fill: fill,
-                                stroke: segment.LabelStroke ?? ValueLabelStroke,
-                                strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
-                        }
-                    }
-                    else
-                    {
-                        if (segment.BackgroundFill != null)
-                        {
+
+                            var startY = chartContext.CanvasHeight - (chartContext.CanvasHeight - offsetY) * animationProgress;
+                            var height = (chartContext.CanvasHeight - offsetY) * animationProgress;
+
                             drawingContext.DrawRectangle(
-                                stroke: null,
-                                strokeThickness: 0,
-                                fill: segment.BackgroundFill,
-                                centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
-                                size: new Size(chartContext.CanvasWidth, columnSize),
+                                stroke: segment.Stroke,
+                                strokeThickness: segment.StrokeThickness,
+                                fill: segment.Fill,
+                                centerPoint: new Point(offsetX, startY + height / 2),
+                                size: new Size(columnSize, height),
                                 radius: new Size(Radius, Radius));
-                        }
 
-                        var startY = offsetY - columnSize / 2;
-                        var width = offsetX * animationProgress;
-
-                        drawingContext.DrawRectangle(
-                            stroke: segment.Stroke,
-                            strokeThickness: segment.StrokeThickness,
-                            fill: segment.Fill,
-                            centerPoint: new Point(width / 2, startY + columnSize / 2),
-                            size: new Size(width, columnSize),
-                            radius: new Size(Radius, Radius));
-
-                        if (ShowValueLabels)
-                        {
-                            var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), segment.LabelForeground ?? Foreground);
-
-                            var fill = segment.LabelForeground ?? Foreground;
-                            var labelOffsetX = 0d;
-                            if (InvertForeground != null)
+                            if (ShowValueLabels)
                             {
-                                switch (ValueLabelPlacement)
+                                var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), Foreground);
+
+                                var fill = segment.LabelForeground ?? Foreground;
+                                var invertForeground = segment.InvertForeground ?? InvertForeground;
+                                var labelOffsetY = 0d;
+                                if (invertForeground != null)
                                 {
-                                    case SeriesLabelPlacement.Top:
-                                        if (chartContext.CanvasWidth - width < label.Width / 2)
-                                        {
-                                            fill = segment.InvertForeground ?? InvertForeground;
-                                        }
-                                        labelOffsetX = chartContext.CanvasWidth - label.Width;
-                                        break;
-                                    case SeriesLabelPlacement.Above:
-                                        labelOffsetX = Math.Max(0, width + label.Width);
-                                        if (chartContext.CanvasWidth - width < label.Width / 2)
-                                        {
-                                            fill = segment.InvertForeground ?? InvertForeground;
-                                        }
-                                        break;
-                                    case SeriesLabelPlacement.Bottom:
-                                        if (width < label.Width / 2)
-                                        {
-                                            fill = segment.InvertForeground ?? InvertForeground;
-                                        }
-                                        labelOffsetX = 0d;
-                                        break;
+                                    switch (ValueLabelPlacement)
+                                    {
+                                        case SeriesLabelPlacement.Top:
+                                            if (offsetY < label.Height / 2)
+                                            {
+                                                fill = invertForeground;
+                                            }
+                                            labelOffsetY = 0;
+                                            break;
+                                        case SeriesLabelPlacement.Above:
+                                            labelOffsetY = Math.Max(0, startY - label.Height);
+                                            if (startY < label.Height / 2)
+                                            {
+                                                fill = invertForeground;
+                                            }
+                                            break;
+                                        case SeriesLabelPlacement.Bottom:
+                                            if (height < label.Height / 2)
+                                            {
+                                                fill = invertForeground;
+                                            }
+                                            labelOffsetY = chartContext.CanvasHeight - label.Height;
+                                            break;
+                                    }
                                 }
+                                drawingContext.DrawText(
+                                    label,
+                                    startPoint: new Point(offsetX, labelOffsetY),
+                                    fill: fill,
+                                    stroke: segment.LabelStroke ?? ValueLabelStroke,
+                                    strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
                             }
-                            drawingContext.DrawText(
-                                label,
-                                startPoint: new Point(labelOffsetX, offsetY - label.Height / 2),
-                                fill: fill,
-                                stroke: segment.LabelStroke ?? ValueLabelStroke,
-                                strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
+                        }
+                        else
+                        {
+                            if (segment.BackgroundFill != null)
+                            {
+                                drawingContext.DrawRectangle(
+                                    stroke: null,
+                                    strokeThickness: 0,
+                                    fill: segment.BackgroundFill,
+                                    centerPoint: new Point(chartContext.CanvasWidth / 2, offsetY),
+                                    size: new Size(chartContext.CanvasWidth, columnSize),
+                                    radius: new Size(Radius, Radius));
+                            }
+
+                            var startY = offsetY - columnSize / 2;
+                            var width = offsetX * animationProgress;
+
+                            drawingContext.DrawRectangle(
+                                stroke: segment.Stroke,
+                                strokeThickness: segment.StrokeThickness,
+                                fill: segment.Fill,
+                                centerPoint: new Point(width / 2, startY + columnSize / 2),
+                                size: new Size(width, columnSize),
+                                radius: new Size(Radius, Radius));
+
+                            if (ShowValueLabels)
+                            {
+                                var label = CreateFormattedText(coordinate.GetValue(segment).ToString(), segment.LabelForeground ?? Foreground);
+
+                                var fill = segment.LabelForeground ?? Foreground;
+                                var labelOffsetX = 0d;
+                                if (InvertForeground != null)
+                                {
+                                    switch (ValueLabelPlacement)
+                                    {
+                                        case SeriesLabelPlacement.Top:
+                                            if (chartContext.CanvasWidth - width < label.Width / 2)
+                                            {
+                                                fill = segment.InvertForeground ?? InvertForeground;
+                                            }
+                                            labelOffsetX = chartContext.CanvasWidth - label.Width;
+                                            break;
+                                        case SeriesLabelPlacement.Above:
+                                            labelOffsetX = Math.Max(0, width + label.Width);
+                                            if (chartContext.CanvasWidth - width < label.Width / 2)
+                                            {
+                                                fill = segment.InvertForeground ?? InvertForeground;
+                                            }
+                                            break;
+                                        case SeriesLabelPlacement.Bottom:
+                                            if (width < label.Width / 2)
+                                            {
+                                                fill = segment.InvertForeground ?? InvertForeground;
+                                            }
+                                            labelOffsetX = 0d;
+                                            break;
+                                    }
+                                }
+                                drawingContext.DrawText(
+                                    label,
+                                    startPoint: new Point(labelOffsetX, offsetY - label.Height / 2),
+                                    fill: fill,
+                                    stroke: segment.LabelStroke ?? ValueLabelStroke,
+                                    strokeThickness: segment.LabelStrokeThickness ?? ValueLabelStrokeThickness);
+                            }
                         }
                     }
                 }
@@ -350,13 +353,16 @@ namespace Panuon.WPF.Charts
                 foreach (var segment in series.Segments)
                 {
                     var value = coordinate.GetValue(segment);
-                    var offsetY = chartContext.GetOffsetY(value);
-                    drawingContext.DrawEllipse(
-                        stroke: segment.Fill,
-                        strokeThickness: layer.HighlightMarkerStrokeThickness,
-                        fill: layer.HighlightMarkerFill,
-                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
-                        centerPoint: new Point(left + columnWidth / 2, offsetY));
+                    if (value != null)
+                    {
+                        var offsetY = chartContext.GetOffsetY((decimal)value);
+                        drawingContext.DrawEllipse(
+                            stroke: segment.Fill,
+                            strokeThickness: layer.HighlightMarkerStrokeThickness,
+                            fill: layer.HighlightMarkerFill,
+                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            centerPoint: new Point(left + columnWidth / 2, offsetY));
+                    }
                     left += (columnWidth + series.Spacing);
                 }
             }

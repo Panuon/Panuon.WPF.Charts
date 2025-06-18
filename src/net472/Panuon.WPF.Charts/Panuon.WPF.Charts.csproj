@@ -32,7 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Panuon.WPF">
+    <Reference Include="Panuon.WPF, Version=1.1.2.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\references\net472\Panuon.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />

@@ -6,7 +6,7 @@ namespace Panuon.WPF.Charts
     {
         public YAxisLabelOffset(
             string label,
-            double value,
+            decimal value,
             Func<double> getOffsetY)
         {
             Label = label;
@@ -16,7 +16,7 @@ namespace Panuon.WPF.Charts
 
         public string Label { get; set; }
 
-        public double Value { get; set; }
+        public decimal Value { get; set; }
 
         public Func<double> GetOffsetY { get; set; }
     }

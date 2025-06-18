@@ -8,7 +8,7 @@ namespace Panuon.WPF.Charts
     {
         public DrawingHorizontalGridLineRoutedEventArgs(
             RoutedEvent @event,
-            double value,
+            decimal value,
             Brush stroke,
             double? strokeThickness,
             DoubleCollection dashArray)
@@ -20,7 +20,7 @@ namespace Panuon.WPF.Charts
             DashArray = dashArray;
         }
 
-        public double Value { get; }
+        public decimal Value { get; }
 
         public double? StrokeThickness { get; set; }
 

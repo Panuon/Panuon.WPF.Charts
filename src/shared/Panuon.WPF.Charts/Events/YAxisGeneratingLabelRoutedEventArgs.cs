@@ -8,9 +8,9 @@ namespace Panuon.WPF.Charts
         #region Ctor
         public YAxisGeneratingLabelRoutedEventArgs(
             RoutedEvent @event,
-            double value,
-            double minValue,
-            double maxValue,
+            decimal value,
+            decimal minValue,
+            decimal maxValue,
             string label
         ) : base(@event)
         {
@@ -24,11 +24,11 @@ namespace Panuon.WPF.Charts
         #region Properties
         public string Label { get; set; }
 
-        public double Value { get; }
+        public decimal Value { get; }
 
-        public double MinValue { get; }
+        public decimal MinValue { get; }
 
-        public double MaxValue { get; }
+        public decimal MaxValue { get; }
 
         #endregion
     }

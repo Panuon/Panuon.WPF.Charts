@@ -5,6 +5,7 @@ using Panuon.WPF.Charts.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -167,13 +168,13 @@ namespace Panuon.WPF.Charts
         internal List<CartesianCoordinateImpl> Coordinates { get; private set; }
 
 
-        internal double ActualMinValue
+        internal decimal ActualMinValue
         {
             get
             {
                 if (YAxis?.MinValue != null)
                 {
-                    return (double)YAxis.MinValue;
+                    return (decimal)YAxis.MinValue;
                 }
                 else if (YAxis.Labels != null && YAxis.Labels.Any())
                 {
@@ -185,15 +186,15 @@ namespace Panuon.WPF.Charts
                 }
             }
         }
-        private double _measuredMinValue;
+        private decimal _measuredMinValue;
 
-        internal double ActualMaxValue
+        internal decimal ActualMaxValue
         {
             get
             {
                 if (YAxis?.MaxValue != null)
                 {
-                    return (double)YAxis.MaxValue;
+                    return (decimal)YAxis.MaxValue;
                 }
                 else if (YAxis.Labels != null && YAxis.Labels.Any())
                 {
@@ -205,7 +206,7 @@ namespace Panuon.WPF.Charts
                 }
             }
         }
-        private double _measuredMaxValue;
+        private decimal _measuredMaxValue;
 
         internal double CanvasWidth { get; private set; }
 
@@ -273,7 +274,7 @@ namespace Panuon.WPF.Charts
         }
 
         internal void RaiseDrawingHorizontalGridLine(
-            double value,
+            decimal value,
             ref Brush stroke,
             ref double? strokeThickness,
             ref DoubleCollection dashArray)
@@ -302,7 +303,23 @@ namespace Panuon.WPF.Charts
             if (ItemsSource != null)
             {
                 var index = 0;
-                foreach (var item in ItemsSource)
+
+                // 获取可枚举的集合
+                IEnumerable items;
+                if (ItemsSource is DataTable dataTable)
+                {
+                    items = dataTable.Rows;
+                }
+                else if (ItemsSource is IEnumerable enumerable)
+                {
+                    items = enumerable;
+                }
+                else
+                {
+                    throw new InvalidOperationException("ItemsSource必须是IEnumerable或DataTable类型。");
+                }
+
+                foreach (var item in items)
                 {
                     var loopItem = item;
                     string label = null;
@@ -314,7 +331,7 @@ namespace Panuon.WPF.Charts
                             : labelValue?.ToString();
                     }
 
-                    var values = new Dictionary<IChartArgument, double>();
+                    var values = new Dictionary<IChartArgument, decimal?>();
                     foreach (CartesianSeriesBase series in GetSeries())
                     {
                         if (series is IChartValueProvider valueProvider)
@@ -327,10 +344,15 @@ namespace Panuon.WPF.Charts
                             var valuesMemberPath = cartesianSeries.ValuesMemberPath;
                             if (!string.IsNullOrEmpty(valuesMemberPath))
                             {
-                                loopItem = PropertyAccessor.GetValue(loopItem, valuesMemberPath);
+                                var collectionValue = PropertyAccessor.GetValue(loopItem, valuesMemberPath);
+                                if (collectionValue == null)
+                                {
+                                    throw new InvalidOperationException($"属性'{valuesMemberPath}'的值不能为null。");
+                                }
+                                loopItem = collectionValue;
                                 if (!typeof(IEnumerable).IsAssignableFrom(loopItem.GetType()))
                                 {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
+                                    throw new InvalidOperationException($"属性'{valuesMemberPath}'的类型必须是集合类型。");
                                 }
                             }
                             var cartesianSegments = cartesianSeries.GetSegments()
@@ -359,8 +381,8 @@ namespace Panuon.WPF.Charts
             if (coordinates.Any()
                 && coordinateValues.Any())
             {
-                CheckMinMaxValue(coordinateValues.Min(),
-                    coordinateValues.Max(),
+                CheckMinMaxValue((decimal)coordinateValues.Where(x => x != null).Min(),
+                    (decimal)coordinateValues.Where(x => x != null).Max(),
                     out int minValue,
                     out int maxValue);
 
@@ -595,13 +617,13 @@ namespace Panuon.WPF.Charts
             }
         }
 
-        private void CheckMinMaxValue(double minValue,
-            double maxValue,
+        private void CheckMinMaxValue(decimal minValue,
+            decimal maxValue,
             out int resultMin,
             out int resultMax)
         {
             var min = (int)Math.Floor(minValue);
-            var max = (int)Math.Ceiling(maxValue * 1.5) ;
+            var max = (int)Math.Ceiling(maxValue * 1.5m) ;
 
             var digit = Math.Max(1, max.ToString().Length);
             var baseValue = Math.Pow(10d, digit - 1) / 2;

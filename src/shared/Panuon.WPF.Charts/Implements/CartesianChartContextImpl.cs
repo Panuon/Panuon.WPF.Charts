@@ -33,9 +33,9 @@ namespace Panuon.WPF.Charts.Implements
 
         public double CurrentOffset => _chart.CurrentOffset;
 
-        public double MinValue => _chart.ActualMinValue;
+        public decimal MinValue => _chart.ActualMinValue;
 
-        public double MaxValue => _chart.ActualMaxValue;
+        public decimal MaxValue => _chart.ActualMaxValue;
 
         public IEnumerable<ICartesianCoordinate> Coordinates => _chart.Coordinates;
 
@@ -103,16 +103,16 @@ namespace Panuon.WPF.Charts.Implements
             return (ICartesianCoordinate)RetrieveCoordinate(position);
         }
 
-        public double GetOffsetY(double value)
+        public double GetOffsetY(decimal value)
         {
             var minMaxDelta = MaxValue - MinValue;
             if (!_chart.SwapXYAxes)
             {
-                return CanvasHeight - CanvasHeight * ((value - MinValue) / minMaxDelta);
+                return CanvasHeight - CanvasHeight * (double)((value - MinValue) / minMaxDelta);
             }
             else
             {
-                return CanvasWidth * ((value - MinValue) / minMaxDelta);
+                return CanvasWidth * (double)((value - MinValue) / minMaxDelta);
             }
         }
 

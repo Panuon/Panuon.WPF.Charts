@@ -6,7 +6,7 @@
 
         int Index { get; }
 
-        double GetValue(IChartArgument seriesOrSegment);
+        decimal? GetValue(IChartArgument seriesOrSegment);
 
         object GetSource();
 

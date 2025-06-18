@@ -124,7 +124,7 @@ namespace Panuon.WPF.Charts
         protected override void OnRenderBegin(
             IDrawingContext drawingContext,
             ICartesianChartContext chartContext
-        )
+)
         {
             var coordinates = chartContext.Coordinates;
 
@@ -145,8 +145,8 @@ namespace Panuon.WPF.Charts
 
                 var value = coordinate.GetValue(this);
 
-                double offsetX = 0d;
-                double offsetY = 0d;
+                double? offsetX = 0d;
+                double? offsetY = 0d;
 
                 if (coordinate.Offset < chartContext.CurrentOffset
                     && nextCoordinate != null
@@ -164,37 +164,44 @@ namespace Panuon.WPF.Charts
                 if (!chartContext.SwapXYAxes)
                 {
                     offsetX = coordinate.Offset;
-                    offsetY = chartContext.GetOffsetY(value);
+                    offsetY = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                 }
                 else
                 {
                     offsetY = coordinate.Offset;
-                    offsetX = chartContext.GetOffsetY(value);
+                    offsetX = value == null ? (double?)null : chartContext.GetOffsetY((decimal)value);
                 }
 
-                _coordinateInfos.Add(
-                    coordinate,
-                    new CartesianCoordinateInfo(
-                        new Point(
-                            x: offsetX,
-                            y: offsetY),
-                        value)
-                );
+                if (offsetX == null || offsetY == null || value == null)
+                {
+                    _coordinateInfos.Add(coordinate, null);
+                }
+                else
+                {
+                    _coordinateInfos.Add(
+                        coordinate,
+                        new CartesianCoordinateInfo(new Point((double)offsetX, (double)offsetY), (decimal)value)
+                    );
+                }
 
                 lastCoordinate = coordinate;
-
             }
         }
         #endregion
 
         #region OnRendering
         protected override void OnRendering(
-            IDrawingContext drawingContext,
-            ICartesianChartContext chartContext,
-            double animationProgress
-        )
+    IDrawingContext drawingContext,
+    ICartesianChartContext chartContext,
+    double animationProgress
+)
         {
-            if (_coordinateInfos.Count < 2)
+            // 过滤出非null的坐标信息并按原顺序存储
+            var validCoordinateInfos = _coordinateInfos
+                .Where(kvp => kvp.Value != null)
+                .ToList();
+
+            if (validCoordinateInfos.Count < 2)
             {
                 return;
             }
@@ -202,9 +209,9 @@ namespace Panuon.WPF.Charts
             var totalLength = 0d;
             var segmentLengths = new List<double>();
 
-            for (int i = 0; i < _coordinateInfos.Count - 1; i++)
+            for (int i = 0; i < validCoordinateInfos.Count - 1; i++)
             {
-                double segmentLength = (_coordinateInfos.ElementAt(i + 1).Value.Point - _coordinateInfos.ElementAt(i).Value.Point).Length;
+                double segmentLength = (validCoordinateInfos[i + 1].Value.Point - validCoordinateInfos[i].Value.Point).Length;
                 segmentLengths.Add(segmentLength);
                 totalLength += segmentLength;
             }
@@ -212,7 +219,7 @@ namespace Panuon.WPF.Charts
             var targetLength = totalLength * animationProgress;
 
             var accumulatedLength = 0d;
-            var lastPoint = _coordinateInfos.ElementAt(0).Value.Point;
+            var lastPoint = validCoordinateInfos[0].Value.Point;
             var toggleFill = MarkerFill ?? ((MarkerStroke == null || MarkerStrokeThickness == 0) ? Stroke : null);
 
             var strokeGeometry = new StreamGeometry();
@@ -222,22 +229,22 @@ namespace Panuon.WPF.Charts
             {
                 using (var fillCtx = fillGeometry.Open())
                 {
-                    strokeCtx.BeginFigure(_coordinateInfos.ElementAt(0).Value.Point, false, false);
+                    strokeCtx.BeginFigure(validCoordinateInfos[0].Value.Point, false, false);
 
                     if (!chartContext.SwapXYAxes)
                     {
-                        fillCtx.BeginFigure(new Point(_coordinateInfos.ElementAt(0).Value.Point.X, chartContext.CanvasHeight), true, true);
+                        fillCtx.BeginFigure(new Point(validCoordinateInfos[0].Value.Point.X, chartContext.CanvasHeight), true, true);
                     }
                     else
                     {
-                        fillCtx.BeginFigure(new Point(0, _coordinateInfos.ElementAt(0).Value.Point.Y), true, true);
+                        fillCtx.BeginFigure(new Point(0, validCoordinateInfos[0].Value.Point.Y), true, true);
                     }
 
-                    fillCtx.LineTo(_coordinateInfos.ElementAt(0).Value.Point, true, false);
+                    fillCtx.LineTo(validCoordinateInfos[0].Value.Point, true, false);
 
                     for (int i = 0; i < segmentLengths.Count; i++)
                     {
-                        var point = _coordinateInfos.ElementAt(i + 1).Value.Point;
+                        var point = validCoordinateInfos[i + 1].Value.Point;
                         var segmentLength = segmentLengths[i];
 
                         if (accumulatedLength + segmentLength >= targetLength)
@@ -245,8 +252,8 @@ namespace Panuon.WPF.Charts
                             var remainingLength = targetLength - accumulatedLength;
                             var t = remainingLength / segmentLength;
 
-                            var p1 = _coordinateInfos.ElementAt(i).Value.Point;
-                            var p2 = _coordinateInfos.ElementAt(i + 1).Value.Point;
+                            var p1 = validCoordinateInfos[i].Value.Point;
+                            var p2 = validCoordinateInfos[i + 1].Value.Point;
 
                             var x = p1.X + t * (p2.X - p1.X);
                             var y = p1.Y + t * (p2.Y - p1.Y);
@@ -272,10 +279,8 @@ namespace Panuon.WPF.Charts
                         lastPoint = point;
                         accumulatedLength += segmentLength;
                     }
-
                 }
             }
-
 
             drawingContext.DrawGeometry(
                stroke: null,
@@ -298,18 +303,18 @@ namespace Panuon.WPF.Charts
             {
                 for (int i = 0; i < segmentLengths.Count; i++)
                 {
-                    var coordinate = _coordinateInfos.ElementAt(i).Key;
-                    var coordinateInfo = _coordinateInfos.ElementAt(i).Value;
+                    var coordinate = validCoordinateInfos[i].Key;
+                    var coordinateInfo = validCoordinateInfos[i].Value;
 
-                    var nextCoordinate = _coordinateInfos.ElementAt(i + 1).Key;
-                    var nextCoordinateInfo = _coordinateInfos.ElementAt(i + 1).Value;
+                    var nextCoordinate = validCoordinateInfos[i + 1].Key;
+                    var nextCoordinateInfo = validCoordinateInfos[i + 1].Value;
 
                     var segmentLength = segmentLengths[i];
 
                     DrawMarker(
                         drawingContext,
                         coordinate: coordinate,
-                        value: coordinateInfo.Value,
+                        value: (double)coordinateInfo.Value,
                         MarkerShape,
                         centerPoint: coordinateInfo.Point,
                         MarkerStroke,
@@ -327,7 +332,7 @@ namespace Panuon.WPF.Charts
                     DrawMarker(
                         drawingContext,
                         coordinate: nextCoordinate,
-                        value: nextCoordinateInfo.Value,
+                        value: (double)nextCoordinateInfo.Value,
                         MarkerShape,
                         centerPoint: nextCoordinateInfo.Point,
                         MarkerStroke,
@@ -344,12 +349,17 @@ namespace Panuon.WPF.Charts
             accumulatedLength = 0d;
             if (ShowValueLabels)
             {
-                for (int i = 0; i < _coordinateInfos.Count; i++)
+                for (int i = 0; i < validCoordinateInfos.Count; i++)
                 {
-                    var coordinate = _coordinateInfos.ElementAt(i).Key;
-                    var coordinateInfo = _coordinateInfos.ElementAt(i).Value;
+                    var coordinate = validCoordinateInfos[i].Key;
+                    var coordinateInfo = validCoordinateInfos[i].Value;
 
-                    var label = CreateFormattedText(coordinate.GetValue(this).ToString(), Foreground);
+                    // 获取值，确保非null
+                    var value = coordinate.GetValue(this);
+                    if (value == null)
+                        continue;
+
+                    var label = CreateFormattedText(value.ToString(), Foreground);
 
                     var fill = Foreground;
                     var labelOffsetY = 0d;
@@ -372,12 +382,6 @@ namespace Panuon.WPF.Charts
                                     fill = InvertForeground;
                                 }
                                 break;
-                                //if (height < label.Height / 2)
-                                //{
-                                //    fill = InvertForeground;
-                                //}
-                                //labelOffsetY = chartContext.CanvasHeight - label.Height;
-                                //break;
                         }
                     }
                     drawingContext.DrawText(
@@ -442,7 +446,7 @@ namespace Panuon.WPF.Charts
                     series.DrawMarker(
                         drawingContext,
                         coordinate,
-                        value: coordinateInfo.Value,
+                        value: (double)coordinateInfo.Value,
                         series.MarkerShape,
                         centerPoint: new Point(coordinate.Offset, coordinateInfo.Point.Y),
                         stroke: series.Stroke ?? series.MarkerStroke,
@@ -456,7 +460,7 @@ namespace Panuon.WPF.Charts
                     series.DrawMarker(
                         drawingContext,
                         coordinate,
-                        value: coordinateInfo.Value,
+                        value: (double)coordinateInfo.Value,
                         series.MarkerShape,
                         centerPoint: new Point(coordinateInfo.Point.X, coordinate.Offset),
                         stroke: series.Stroke ?? series.MarkerStroke,

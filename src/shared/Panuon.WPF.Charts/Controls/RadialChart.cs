@@ -4,6 +4,7 @@ using Panuon.WPF.Charts.Implements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
@@ -77,26 +78,52 @@ namespace Panuon.WPF.Charts
             if (ItemsSource != null)
             {
                 var index = 0;
-                foreach (var item in ItemsSource)
+                // 获取可枚举的集合
+                IEnumerable items;
+                if (ItemsSource is DataTable dataTable)
+                {
+                    items = dataTable.Rows;
+                }
+                else if (ItemsSource is IEnumerable enumerable)
+                {
+                    items = enumerable;
+                }
+                else
+                {
+                    throw new InvalidOperationException("ItemsSource must be IEnumerable or DataTable.");
+                }
+
+                foreach (var item in items)
                 {
                     var loopItem = item;
-                    var itemType = loopItem.GetType();
                     string label = null;
+
                     if (!string.IsNullOrEmpty(LabelMemberPath))
                     {
-                        var labelProperty = itemType.GetProperty(LabelMemberPath);
-                        if (labelProperty == null)
+                        object labelValue;
+                        if (loopItem is DataRow dataRow)
                         {
-                            throw new InvalidOperationException($"Property {LabelMemberPath} does not exists.");
+                            // 对于DataRow，使用索引器获取值
+                            labelValue = dataRow[LabelMemberPath];
+                        }
+                        else
+                        {
+                            // 对于其他类型，使用反射
+                            var itemType = loopItem.GetType();
+                            var labelProperty = itemType.GetProperty(LabelMemberPath);
+                            if (labelProperty == null)
+                            {
+                                throw new InvalidOperationException($"Property {LabelMemberPath} does not exists.");
+                            }
+                            labelValue = labelProperty.GetValue(loopItem);
                         }
 
-                        var labelValue = labelProperty.GetValue(loopItem);
                         label = labelValue is string
                             ? (string)labelValue
                             : labelValue.ToString();
                     }
 
-                    var values = new Dictionary<IChartArgument, double>();
+                    var values = new Dictionary<IChartArgument, decimal?>();
 
                     foreach (RadialSeriesBase series in GetSeries())
                     {
@@ -110,19 +137,23 @@ namespace Panuon.WPF.Charts
                             var valuesMemberPath = radialSeries.ValuesMemberPath;
                             if (!string.IsNullOrEmpty(valuesMemberPath))
                             {
-                                var valuesProperty = itemType.GetProperty(valuesMemberPath);
-                                if (valuesProperty == null)
+                                object valuesCollection;
+                                if (loopItem is DataRow dataRow)
                                 {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' does not exists in {loopItem}.");
+                                    valuesCollection = dataRow[valuesMemberPath];
+                                    if (!(valuesCollection is IEnumerable))
+                                    {
+                                        throw new InvalidOperationException($"Value at '{valuesMemberPath}' must be of a collection type.");
+                                    }
                                 }
-                                if (!typeof(IEnumerable).IsAssignableFrom(valuesProperty.PropertyType))
+                                else
                                 {
-                                    throw new InvalidOperationException($"Property named '{valuesMemberPath}' in {loopItem} must be of a collection type.");
+                                    valuesCollection = PropertyAccessor.GetValue(loopItem, valuesMemberPath);
                                 }
-                                loopItem = valuesProperty.GetValue(loopItem);
+                                loopItem = valuesCollection;
                             }
-                            var radialSegments = radialSeries.GetSegments()
-                                .ToList();
+
+                            var radialSegments = radialSeries.GetSegments().ToList();
                             for (int i = 0; i < radialSegments.Count; i++)
                             {
                                 var segment = radialSegments[i] as ValueProviderSegmentBase;
@@ -137,23 +168,21 @@ namespace Panuon.WPF.Charts
                         Label = label,
                         Values = values,
                         Index = index,
-                        Angles = new Dictionary<IChartArgument, (double, double)>(),
                     });
                     index++;
                 }
 
-                var totalValue = coordinates.SelectMany(c => c.Values.Select(v => v.Value)).Sum();
+                var totalValue = (decimal)coordinates.SelectMany(c => c.Values.Select(v => v.Value)).Where(v => v != null).Sum();
                 if (totalValue > 0)
                 {
-                    var angleDelta = 360d / totalValue;
+                    var angleDelta = (double)(360m / totalValue);
                     var startAngle = 0d;
                     foreach (var coordinate in coordinates)
                     {
                         var argumentAngle = 0d;
                         foreach (var value in coordinate.Values)
                         {
-                            var angle = value.Value * angleDelta;
-                            coordinate.Angles.Add(value.Key, (startAngle + argumentAngle, angle));
+                            var angle = value.Value == null ? 0 : (double)value.Value * angleDelta;
                             argumentAngle += angle;
                         }
                         coordinate.StartAngle = startAngle;

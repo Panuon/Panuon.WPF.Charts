@@ -10,7 +10,7 @@ namespace Panuon.WPF.Charts
         : CartesianValueProviderSeriesBase
     {
         #region Fields
-        private List<Point> _valuePoints;
+        private List<Point?> _valuePoints;
         #endregion
 
         #region Ctor
@@ -78,31 +78,26 @@ namespace Panuon.WPF.Charts
         {
             var coordinates = chartContext.Coordinates;
 
-            _valuePoints = new List<Point>();
+            _valuePoints = new List<Point?>();
             foreach (var coordinate in coordinates)
             {
                 var value = coordinate.GetValue(this);
 
-                double offsetX = 0d;
-                double offsetY = 0d;
+                double? offsetX = 0d;
+                double? offsetY = 0d;
 
                 if (!chartContext.SwapXYAxes)
                 {
                     offsetX = coordinate.Offset;
-                    offsetY = chartContext.GetOffsetY(value);
+                    offsetY = value == null ? null : (double?)chartContext.GetOffsetY((decimal)value);
                 }
                 else
                 {
-                    offsetX = chartContext.GetOffsetY(value);
+                    offsetX = value == null ? null : (double?)chartContext.GetOffsetY((decimal)value);
                     offsetY = coordinate.Offset;
                 }
 
-                _valuePoints.Add(
-                    new Point(
-                        x: offsetX,
-                        y: offsetY
-                    )
-                );
+                _valuePoints.Add((offsetX == null || offsetY == null) ? (Point?)null : new Point((double)offsetX, (double)offsetY));
             }
         }
         #endregion
@@ -114,7 +109,9 @@ namespace Panuon.WPF.Charts
             double animationProgress
         )
         {
-            if (_valuePoints.Count < 2)
+            var validPoints = _valuePoints.Where(p => p.HasValue).Select(p => p.Value).ToList();
+
+            if (validPoints.Count < 2)
             {
                 return;
             }
@@ -122,9 +119,9 @@ namespace Panuon.WPF.Charts
             var totalLength = 0d;
             var segmentLengths = new List<double>();
 
-            for (int i = 0; i < _valuePoints.Count - 1; i++)
+            for (int i = 0; i < validPoints.Count - 1; i++)
             {
-                double segmentLength = (_valuePoints[i + 1] - _valuePoints[i]).Length;
+                double segmentLength = (validPoints[i + 1] - validPoints[i]).Length;
                 segmentLengths.Add(segmentLength);
                 totalLength += segmentLength;
             }
@@ -132,31 +129,32 @@ namespace Panuon.WPF.Charts
             var targetLength = totalLength * animationProgress;
 
             var accumulatedLength = 0d;
-            var lastPoint = _valuePoints[0];
+            var lastPoint = validPoints[0];
             var toggleFill = MarkerFill ?? MarkerStroke;
 
             for (int i = 0; i < segmentLengths.Count; i++)
             {
-                var point = _valuePoints[i + 1];
+                var point = validPoints[i + 1];
                 var segmentLength = segmentLengths[i];
 
                 if (animationProgress >= 0)
                 {
                     drawingContext.DrawEllipse(
-                        stroke: MarkerStroke, 
+                        stroke: MarkerStroke,
                         strokeThickness: MarkerStrokeThickness,
                         toggleFill,
                         size: new Size(MarkerSize, MarkerSize),
-                        centerPoint: _valuePoints[i]);
+                        centerPoint: validPoints[i]);
                 }
-                if (animationProgress == 1)
+
+                if (animationProgress == 1 && i == segmentLengths.Count - 1)
                 {
                     drawingContext.DrawEllipse(
                         stroke: MarkerStroke,
                         strokeThickness: MarkerStrokeThickness,
                         fill: toggleFill,
                         size: new Size(MarkerSize, MarkerSize),
-                        centerPoint: _valuePoints.Last());
+                        centerPoint: validPoints.Last());
                 }
 
                 if (accumulatedLength + segmentLength >= targetLength)
@@ -164,8 +162,8 @@ namespace Panuon.WPF.Charts
                     var remainingLength = targetLength - accumulatedLength;
                     var t = remainingLength / segmentLength;
 
-                    var p1 = _valuePoints[i];
-                    var p2 = _valuePoints[i + 1];
+                    var p1 = validPoints[i];
+                    var p2 = validPoints[i + 1];
 
                     var x = p1.X + t * (p2.X - p1.X);
                     var y = p1.Y + t * (p2.Y - p1.Y);
@@ -207,23 +205,29 @@ namespace Panuon.WPF.Charts
                 }
                 var point = series._valuePoints[coordinate.Index];
 
-                if (!chartContext.SwapXYAxes)
+                if (point != null)
                 {
-                    drawingContext.DrawEllipse(
-                        stroke: series.MarkerStroke ?? series.MarkerFill,
-                        strokeThickness: layer.HighlightMarkerStrokeThickness,
-                        fill: layer.HighlightMarkerFill,
-                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
-                        centerPoint: new Point(coordinate.Offset, point.Y));
-                }
-                else
-                {
-                    drawingContext.DrawEllipse(
-                        stroke: series.MarkerStroke ?? series.MarkerFill,
-                        strokeThickness: layer.HighlightMarkerStrokeThickness,
-                        fill: layer.HighlightMarkerFill,
-                        size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
-                        centerPoint: new Point(point.X, coordinate.Offset));
+                    var offsetX = (double)point?.X;
+                    var offsetY = (double)point?.Y;
+
+                    if (!chartContext.SwapXYAxes)
+                    {
+                        drawingContext.DrawEllipse(
+                            stroke: series.MarkerStroke ?? series.MarkerFill,
+                            strokeThickness: layer.HighlightMarkerStrokeThickness,
+                            fill: layer.HighlightMarkerFill,
+                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            centerPoint: new Point(coordinate.Offset, offsetY));
+                    }
+                    else
+                    {
+                        drawingContext.DrawEllipse(
+                            stroke: series.MarkerStroke ?? series.MarkerFill,
+                            strokeThickness: layer.HighlightMarkerStrokeThickness,
+                            fill: layer.HighlightMarkerFill,
+                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            centerPoint: new Point(offsetX, coordinate.Offset));
+                    }
                 }
             }
         }

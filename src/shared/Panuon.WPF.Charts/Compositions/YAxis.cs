@@ -36,25 +36,25 @@ namespace Panuon.WPF.Charts
         #region Properties
 
         #region MinValue
-        public double? MinValue
+        public decimal? MinValue
         {
-            get { return (double?)GetValue(MinValueProperty); }
+            get { return (decimal?)GetValue(MinValueProperty); }
             set { SetValue(MinValueProperty, value); }
         }
 
         public static readonly DependencyProperty MinValueProperty =
-            DependencyProperty.Register("MinValue", typeof(double?), typeof(YAxis));
+            DependencyProperty.Register("MinValue", typeof(decimal?), typeof(YAxis));
         #endregion
 
         #region MinValue
-        public double? MaxValue
+        public decimal? MaxValue
         {
-            get { return (double?)GetValue(MaxValueProperty); }
+            get { return (decimal?)GetValue(MaxValueProperty); }
             set { SetValue(MaxValueProperty, value); }
         }
 
         public static readonly DependencyProperty MaxValueProperty =
-            DependencyProperty.Register("MaxValue", typeof(double?), typeof(YAxis));
+            DependencyProperty.Register("MaxValue", typeof(decimal?), typeof(YAxis));
         #endregion
 
         #region Labels
