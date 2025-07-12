@@ -169,10 +169,14 @@ namespace Panuon.WPF.Charts
                 return;
             }
 
-            if (_loadAnimationProgressObject == null)
+            if (_chart.AnimationDuration is TimeSpan duration
+                && duration.TotalMilliseconds > 0
+                && _loadAnimationProgressObject == null)
             {
                 return;
             }
+
+            var progress = _loadAnimationProgressObject?.Progress ?? 1;
 
             _isRenderEverCalled = true;
             var drawingContext = _chart.CreateDrawingContext(context);
@@ -191,7 +195,7 @@ namespace Panuon.WPF.Charts
 
             var canvasContext = _chart.GetCanvasContext();
             if (!_isAnimationBeginCalled
-                || _loadAnimationProgressObject.Progress == 1)
+                || progress == 1)
             {
                 OnInternalRenderBegin(
                     drawingContext,
@@ -203,10 +207,10 @@ namespace Panuon.WPF.Charts
             OnInternalRendering(
                 drawingContext: drawingContext,
                 chartContext: canvasContext,
-                animationProgress: Math.Max(0, Math.Min(1, (double)_loadAnimationProgressObject.Progress))
+                animationProgress: Math.Max(0, Math.Min(1, (double)progress))
             );
 
-            if (_loadAnimationProgressObject.Progress == 1)
+            if (progress == 1)
             {
                 OnInternalRenderCompleted(
                     drawingContext: drawingContext,
@@ -251,7 +255,9 @@ namespace Panuon.WPF.Charts
         {
             Loaded -= SeriesBase_Loaded;
 
-            if(_chart.ItemsSource != null
+            if (_chart.ItemsSource != null
+                && _chart.AnimationDuration is TimeSpan duration
+                && duration.TotalMilliseconds > 0
                 && _loadAnimationProgressObject == null)
             {
                 BeginLoadAnimation();
