@@ -47,6 +47,9 @@ namespace Panuon.WPF.Charts.Controls.Internals
                 Source = chart
             });
             _children.Add(_label);
+
+
+            IsHitTestVisible = false;
         }
         #endregion
 

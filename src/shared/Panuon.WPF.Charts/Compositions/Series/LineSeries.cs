@@ -452,7 +452,7 @@ namespace Panuon.WPF.Charts
                         stroke: series.Stroke ?? series.MarkerStroke,
                         strokeThickness: layer.HighlightMarkerStrokeThickness,
                         fill: layer.HighlightMarkerFill,
-                        size: progress * layer.HighlightMarkerSize
+                        size: Math.Max(0, progress * layer.HighlightMarkerSize)
                     );
                 }
                 else
@@ -466,7 +466,7 @@ namespace Panuon.WPF.Charts
                         stroke: series.Stroke ?? series.MarkerStroke,
                         strokeThickness: layer.HighlightMarkerStrokeThickness,
                         fill: layer.HighlightMarkerFill,
-                        size: progress * layer.HighlightMarkerSize
+                        size: Math.Max(0, progress * layer.HighlightMarkerSize)
                     );
                 }
             }
