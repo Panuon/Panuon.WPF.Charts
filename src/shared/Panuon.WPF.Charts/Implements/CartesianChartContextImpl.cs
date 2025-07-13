@@ -106,6 +106,11 @@ namespace Panuon.WPF.Charts.Implements
         public double GetOffsetY(decimal value)
         {
             var minMaxDelta = MaxValue - MinValue;
+            if(minMaxDelta <= 0)
+            {
+                return 0;
+            }
+
             if (!_chart.SwapXYAxes)
             {
                 return CanvasHeight - CanvasHeight * (double)((value - MinValue) / minMaxDelta);
