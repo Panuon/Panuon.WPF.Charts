@@ -264,12 +264,6 @@ namespace Panuon.WPF.Charts
             }
         }
 
-        private static void OnAnimationPercentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var series = (SeriesBase)d;
-            series.InvalidateVisual();
-        }
-
         private void BeginLoadAnimation()
         {
             _loadAnimationProgressObject = new AnimationProgressObject();

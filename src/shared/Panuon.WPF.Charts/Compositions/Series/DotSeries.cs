@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Ink;
@@ -216,7 +217,7 @@ namespace Panuon.WPF.Charts
                             stroke: series.MarkerStroke ?? series.MarkerFill,
                             strokeThickness: layer.HighlightMarkerStrokeThickness,
                             fill: layer.HighlightMarkerFill,
-                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            size: new Size(Math.Max(0, progress * layer.HighlightMarkerSize), Math.Max(0, progress * layer.HighlightMarkerSize)),
                             centerPoint: new Point(coordinate.Offset, offsetY));
                     }
                     else
@@ -225,7 +226,7 @@ namespace Panuon.WPF.Charts
                             stroke: series.MarkerStroke ?? series.MarkerFill,
                             strokeThickness: layer.HighlightMarkerStrokeThickness,
                             fill: layer.HighlightMarkerFill,
-                            size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                            size: new Size(Math.Max(0, progress * layer.HighlightMarkerSize), Math.Max(0, progress * layer.HighlightMarkerSize)),
                             centerPoint: new Point(offsetX, coordinate.Offset));
                     }
                 }

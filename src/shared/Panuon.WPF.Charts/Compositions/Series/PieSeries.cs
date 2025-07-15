@@ -250,7 +250,7 @@ namespace Panuon.WPF.Charts
                     stroke: segment.Fill,
                     strokeThickness: layer.HighlightMarkerStrokeThickness,
                     fill: layer.HighlightMarkerFill,
-                    size: new Size(progress * layer.HighlightMarkerSize, progress * layer.HighlightMarkerSize),
+                    size: new Size(Math.Max(0, progress * layer.HighlightMarkerSize), Math.Max(0, progress * layer.HighlightMarkerSize)),
                     centerPoint: point
                 );
             }
