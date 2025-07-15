@@ -622,6 +622,10 @@ namespace Panuon.WPF.Charts
             out int resultMin,
             out int resultMax)
         {
+            if (minValue == maxValue)
+            {
+                maxValue = minValue + 1;
+            }
             var min = (int)Math.Floor(minValue);
             var max = (int)Math.Ceiling(maxValue * 1.5m) ;
 
