@@ -348,6 +348,16 @@ namespace Panuon.WPF.Charts
             double startAngle,
             double endAngle)
         {
+            if (Math.Abs(endAngle - startAngle) >= 360)
+            {
+                _drawingContext.DrawEllipse(fill,
+                    GetPen(stroke, strokeThickness),
+                    centerPoint,
+                    outterRadius,
+                    outterRadius);
+                return;
+            }
+
             var angleRadians = (startAngle - 90) * Math.PI / 180.0;
             var endAngleRadians = (endAngle - 90) * Math.PI / 180.0;
 
@@ -393,6 +403,16 @@ namespace Panuon.WPF.Charts
            double startAngle,
            double endAngle)
         {
+            if (Math.Abs(endAngle - startAngle) >= 360)
+            {
+                _drawingContext.DrawEllipse(fill,
+                    GetPen(stroke, strokeThickness),
+                    centerPoint,
+                    outterRadius,
+                    outterRadius);
+                return;
+            }
+
             var angleRadians = (startAngle - 90) * Math.PI / 180.0;
             var endAngleRadians = (endAngle - 90) * Math.PI / 180.0;
 
