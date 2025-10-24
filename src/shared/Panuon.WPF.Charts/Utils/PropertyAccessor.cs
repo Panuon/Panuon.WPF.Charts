@@ -23,7 +23,7 @@ namespace Panuon.WPF.Charts
             }
 
             Type objectType = obj.GetType();
-            string key = $"{objectType.FullName}.{propertyName}.ObjectGetter";
+            string key = $"{objectType.AssemblyQualifiedName}.{propertyName}.ObjectGetter";
 
             if (!PropertyGetters.TryGetValue(key, out Delegate getter))
             {
